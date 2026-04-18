@@ -1,0 +1,66 @@
+import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom'
+import PublicLayout from '../layouts/PublicLayout'
+import AdminLayout from '../layouts/AdminLayout'
+import HomePage from '../../features/home/HomePage'
+import LoginPage from '../../features/auth/LoginPage'
+import RegisterPage from '../../features/auth/RegisterPage'
+import PromotionsPage from '../../features/promotions/PromotionsPage'
+import BusinessListPage from '../../features/businesses/BusinessListPage'
+import ProductDetailPage from '../../features/products/ProductDetailPage'
+import GalleryPage from '../../features/media/GalleryPage'
+import MenuPage from '../../features/menu/MenuPage'
+
+import { AdminGuard } from './guards'
+import AdminDashboardPage from '../../features/admin/AdminDashboardPage'
+import AdminBusinessPage from '../../features/admin/AdminBusinessPage'
+import AdminProductsPage from '../../features/admin/AdminProductsPage'
+import AdminMediaPage from '../../features/admin/AdminMediaPage'
+import AdminPromotionsPage from '../../features/admin/AdminPromotionsPage'
+import BusinessDetailPage from '../../features/businesses/BusinessDetailPage'
+
+function NotFoundPage() {
+  return (
+    <div style={{ padding: '2rem' }}>
+      <h1>404</h1>
+      <p>Página no encontrada</p>
+      <Link to="/">Volver al inicio</Link>
+    </div>
+  )
+}
+
+export default function AppRouter() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/promotions" element={<PromotionsPage />} />
+          <Route path="/businesses" element={<BusinessListPage />} />
+          <Route path="/products/:id" element={<ProductDetailPage />} />
+          <Route path="/businesses/:id/gallery" element={<GalleryPage />} />
+          <Route path="/businesses/:id/menu" element={<MenuPage />} />
+          <Route path="/businesses/:id" element={<BusinessDetailPage />} />
+          <Route path="/home" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+
+        <Route
+          path="/admin"
+          element={
+            <AdminGuard>
+              <AdminLayout />
+            </AdminGuard>
+          }
+        >
+          <Route index element={<AdminDashboardPage />} />
+          <Route path="business" element={<AdminBusinessPage />} />
+          <Route path="products" element={<AdminProductsPage />} />
+          <Route path="media" element={<AdminMediaPage />} />
+          <Route path="promotions" element={<AdminPromotionsPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  )
+}

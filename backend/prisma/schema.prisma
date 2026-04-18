@@ -1,0 +1,347 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  CONSUMER
+  ADMIN
+  BUSINESS_ADMIN
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  REEL
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PromotionStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  ARCHIVED
+}
+
+enum EventType {
+  REGISTER_SUCCESS
+  LOGIN_SUCCESS
+  BUSINESS_PROFILE_VIEW
+  MENU_VIEW
+  PRODUCT_VIEW
+  GALLERY_OPEN
+  VIDEO_PLAY
+  REVIEW_SUBMIT
+  PROMOTION_CLICK
+  CTA_CLICK
+  FOLLOW_BUSINESS
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         UserRole  @default(CONSUMER)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  reviews        Review[]
+  follows        FollowRelation[]
+  events         InteractionEvent[]
+  businessAdmins BusinessAdmin[]
+
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+}
+
+model Business {
+  id           Int       @id @default(autoincrement())
+  name         String
+  slug         String    @unique
+  category     String
+  businessType String?
+  description  String?
+  aboutArticle String?
+  city         String?
+  address      String?
+  phone        String?
+  whatsapp     String?
+  email        String?
+  website      String?
+  instagram    String?
+  facebook     String?
+  tiktok       String?
+  foundedAt    DateTime?
+  capacity     Int?
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  menus       Menu[]
+  products    Product[]
+  mediaAssets MediaAsset[]
+  reviews     Review[]
+  promotions  Promotion[]
+  posts       Post[]
+  faqs        FAQ[]
+  followers   FollowRelation[]
+  admins      BusinessAdmin[]
+  events      InteractionEvent[]
+
+  @@index([slug])
+  @@index([category])
+  @@index([city])
+  @@index([isActive])
+}
+
+model BusinessAdmin {
+  id                  Int      @id @default(autoincrement())
+  userId              Int
+  businessId          Int
+  displayName         String?
+  title               String?
+  isPrimary           Boolean  @default(false)
+  isVisibleOnProfile  Boolean  @default(true)
+  canEditBusiness     Boolean  @default(true)
+  canManageMenu       Boolean  @default(true)
+  canManageMedia      Boolean  @default(true)
+  canManagePosts      Boolean  @default(true)
+  canManagePromotions Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, businessId])
+  @@index([businessId])
+  @@index([userId])
+}
+
+model Menu {
+  id          Int      @id @default(autoincrement())
+  businessId  Int
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  business   Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  categories MenuCategory[]
+
+  @@index([businessId])
+  @@index([isActive])
+  @@index([sortOrder])
+}
+
+model MenuCategory {
+  id          Int      @id @default(autoincrement())
+  menuId      Int
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  menu     Menu      @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  products Product[]
+
+  @@index([menuId])
+  @@index([isActive])
+  @@index([sortOrder])
+}
+
+model Product {
+  id               Int       @id @default(autoincrement())
+  categoryId       Int
+  businessId       Int
+  name             String
+  slug             String
+  shortDescription String?
+  description      String?
+  ingredients      String?
+  price            Decimal   @db.Decimal(10, 2)
+  currency         String    @default("COP")
+  imageUrl         String?
+  isFeatured       Boolean   @default(false)
+  isActive         Boolean   @default(true)
+  sortOrder        Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  category    MenuCategory       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  business    Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  mediaAssets MediaAsset[]
+  events      InteractionEvent[]
+
+  @@unique([businessId, slug])
+  @@index([categoryId])
+  @@index([businessId])
+  @@index([isActive])
+  @@index([isFeatured])
+  @@index([sortOrder])
+}
+
+model MediaAsset {
+  id              Int       @id @default(autoincrement())
+  businessId      Int
+  productId       Int?
+  type            MediaType
+  url             String
+  thumbnailUrl    String?
+  altText         String?
+  title           String?
+  caption         String?
+  width           Int?
+  height          Int?
+  durationSeconds Int?
+  isPrimary       Boolean   @default(false)
+  sortOrder       Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product  Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([businessId])
+  @@index([productId])
+  @@index([type])
+  @@index([isPrimary])
+  @@index([sortOrder])
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  businessId Int
+  userId     Int
+  rating     Int
+  comment    String?
+  isVisible  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, userId])
+  @@index([businessId])
+  @@index([userId])
+  @@index([rating])
+  @@index([isVisible])
+}
+
+model Promotion {
+  id            Int             @id @default(autoincrement())
+  businessId    Int
+  title         String
+  slug          String
+  description   String?
+  imageUrl      String?
+  ctaLabel      String?
+  ctaUrl        String?
+  startsAt      DateTime?
+  endsAt        DateTime?
+  status        PromotionStatus @default(DRAFT)
+  isHighlighted Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, slug])
+  @@index([businessId])
+  @@index([status])
+  @@index([isHighlighted])
+}
+
+model Post {
+  id            Int        @id @default(autoincrement())
+  businessId    Int
+  title         String
+  slug          String
+  excerpt       String?
+  content       String
+  coverImageUrl String?
+  status        PostStatus @default(DRAFT)
+  publishedAt   DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, slug])
+  @@index([businessId])
+  @@index([status])
+  @@index([publishedAt])
+}
+
+model FAQ {
+  id         Int      @id @default(autoincrement())
+  businessId Int
+  question   String
+  answer     String
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([isActive])
+  @@index([sortOrder])
+}
+
+model FollowRelation {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  businessId Int
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, businessId])
+  @@index([userId])
+  @@index([businessId])
+}
+
+model InteractionEvent {
+  id           Int       @id @default(autoincrement())
+  userId       Int?
+  businessId   Int?
+  productId    Int?
+  eventType    EventType
+  sourceScreen String?
+  sessionId    String?
+  metadata     Json?
+  createdAt    DateTime  @default(now())
+
+  user     User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  business Business? @relation(fields: [businessId], references: [id], onDelete: SetNull)
+  product  Product?  @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([businessId])
+  @@index([productId])
+  @@index([eventType])
+  @@index([sessionId])
+  @@index([createdAt])
+}
