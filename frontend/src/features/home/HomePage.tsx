@@ -1,12 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
+import {
+  FaArrowRight,
+  FaBullhorn,
+  FaFireFlameCurved,
+  FaHouse,
+  FaMagnifyingGlass,
+  FaStar,
+  FaUtensils,
+} from 'react-icons/fa6'
 import Navbar from '../../components/shared/Navbar'
 import Footer from '../../components/shared/Footer'
 import SearchBar from '../../components/shared/SearchBar'
 import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
 import { loadHomeCatalog, type HomeBusinessItem, type HomeProductItem } from './api'
+import { buildVisualImageDataUrl } from '../../lib/visualImage'
 
 function formatPrice(value: number | string, currency = 'COP') {
   const numericValue = typeof value === 'string' ? Number(value) : value
@@ -124,11 +134,12 @@ export default function HomePage() {
 
   const stats = useMemo(
     () => [
-      { label: 'Negocios', value: businesses.length },
-      { label: 'Platos', value: products.length },
+      { label: 'Negocios', value: businesses.length, icon: <FaHouse /> },
+      { label: 'Platos', value: products.length, icon: <FaUtensils /> },
       {
         label: 'Reseñas',
         value: businesses.reduce((acc, business) => acc + business.reviewsCount, 0),
+        icon: <FaStar />,
       },
     ],
     [businesses, products]
@@ -141,7 +152,7 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <Navbar
-        brandName="ProyectoC"
+        brandName="Yebaam"
         brandHref="/"
         links={[
           { label: 'Negocios', href: '#resultados' },
@@ -156,7 +167,10 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
           <div className="mx-auto max-w-3xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-orange-500">
-              Busca negocios y platos reales
+              <span className="inline-flex items-center gap-2">
+                <FaMagnifyingGlass className="text-[0.7rem]" />
+                Busca negocios y platos reales
+              </span>
             </p>
             <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
               Encuentra rápido la carta que quieres ver.
@@ -178,16 +192,23 @@ export default function HomePage() {
 
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               {stats.map((stat) => (
-                <Metric key={stat.label} label={stat.label} value={stat.value} />
+                <Metric
+                  key={stat.label}
+                  label={stat.label}
+                  value={stat.value}
+                  icon={stat.icon}
+                />
               ))}
             </div>
 
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Button onClick={() => navigate('/businesses')}>Ver negocios</Button>
-              <Button variant="outline" onClick={() => navigate('/promotions')}>
+              <Button leftIcon={<FaHouse />} onClick={() => navigate('/businesses')}>
+                Ver negocios
+              </Button>
+              <Button variant="outline" leftIcon={<FaBullhorn />} onClick={() => navigate('/promotions')}>
                 Ver promociones
               </Button>
-              <Button variant="outline" onClick={() => navigate('/register')}>
+              <Button variant="outline" leftIcon={<FaArrowRight />} onClick={() => navigate('/register')}>
                 Crear cuenta
               </Button>
             </div>
@@ -204,6 +225,7 @@ export default function HomePage() {
             title="Negocios Destacados"
             subtitle="Los que más llaman la atención primero."
             actionLabel="Ver todos los negocios"
+            actionIcon={<FaArrowRight />}
             onAction={() => navigate('/businesses')}
           >
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -221,6 +243,7 @@ export default function HomePage() {
             title="Galería de Platos Populares"
             subtitle="Fotos claras, precio visible y una acción directa."
             actionLabel="Ver carta completa"
+            actionIcon={<FaUtensils />}
             onAction={() => navigate('/businesses')}
           >
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -321,13 +344,15 @@ export default function HomePage() {
               </p>
             </div>
 
-            <Button onClick={() => navigate('/businesses')}>Explorar todo</Button>
+            <Button leftIcon={<FaFireFlameCurved />} onClick={() => navigate('/businesses')}>
+              Explorar todo
+            </Button>
           </div>
         </div>
       </section>
 
       <Footer
-        brandName="ProyectoC"
+        brandName="Yebaam"
         description="Datos reales de negocios y productos, presentados con una interfaz limpia para descubrir y entrar a la carta rápido."
         linkGroups={[
           {
@@ -354,9 +379,12 @@ export default function HomePage() {
   )
 }
 
-function Metric({ label, value }: { label: string; value: number }) {
+function Metric({ label, value, icon }: { label: string; value: number; icon: ReactNode }) {
   return (
     <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600">
+      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[var(--brand-green-50)] text-[var(--brand-green-700)]">
+        {icon}
+      </span>
       <span className="font-semibold text-slate-950">{value}</span>
       <span>{label}</span>
     </div>
@@ -367,12 +395,14 @@ function ShowcaseSection({
   title,
   subtitle,
   actionLabel,
+  actionIcon,
   onAction,
   children,
 }: {
   title: string
   subtitle: string
   actionLabel: string
+  actionIcon?: ReactNode
   onAction: () => void
   children: ReactNode
 }) {
@@ -384,7 +414,7 @@ function ShowcaseSection({
           <p className="mt-2 text-sm leading-6 text-slate-500">{subtitle}</p>
         </div>
 
-        <Button variant="outline" onClick={onAction}>
+        <Button variant="outline" leftIcon={actionIcon} onClick={onAction}>
           {actionLabel}
         </Button>
       </div>
@@ -409,17 +439,17 @@ function HighlightBusinessCard({
     >
       <div className="relative">
         <img
-          src={
-            business.coverUrl ||
-            'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1200&q=80'
-          }
+          src={business.coverUrl || buildVisualImageDataUrl(business.name, business.category || 'Negocio')}
           alt={business.name}
           className="h-56 w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/65 via-slate-950/10 to-transparent" />
         <div className="absolute left-4 top-4">
           <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-700 backdrop-blur">
-            Popular
+            <span className="inline-flex items-center gap-1">
+              <FaStar className="text-[0.65rem] text-orange-500" />
+              Popular
+            </span>
           </span>
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-4">
@@ -446,10 +476,7 @@ function HighlightProductCard({
     <article className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="relative">
         <img
-          src={
-            product.imageUrl ||
-            'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=1200&q=80'
-          }
+          src={product.imageUrl || buildVisualImageDataUrl(product.name, product.businessCategory || 'Plato')}
           alt={product.name}
           className="h-56 w-full object-cover"
         />
@@ -537,10 +564,7 @@ function BusinessRow({
   return (
     <article className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-3 transition hover:border-orange-200 hover:shadow-sm">
       <img
-        src={
-          business.coverUrl ||
-          'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80'
-        }
+        src={business.coverUrl || buildVisualImageDataUrl(business.name, business.category || 'Negocio')}
         alt={business.name}
         className="h-16 w-16 rounded-xl object-cover"
       />
@@ -585,10 +609,7 @@ function ProductRow({
   return (
     <article className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-3 transition hover:border-orange-200 hover:shadow-sm">
       <img
-        src={
-          product.imageUrl ||
-          'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=400&q=80'
-        }
+        src={product.imageUrl || buildVisualImageDataUrl(product.name, product.businessCategory || 'Plato')}
         alt={product.name}
         className="h-16 w-16 rounded-xl object-cover"
       />

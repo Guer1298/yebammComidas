@@ -1,4 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { FaChartLine, FaStore, FaBoxOpen, FaPhotoFilm, FaBullhorn, FaArrowRightFromBracket } from 'react-icons/fa6'
+import BrandLogo from '../../../components/shared/BrandLogo'
 
 type AdminNavItem = {
   label: string
@@ -13,6 +15,14 @@ const DEFAULT_ITEMS: AdminNavItem[] = [
   { label: 'Promociones', to: '/admin/promotions' },
 ]
 
+const ITEM_ICONS: Record<string, React.ReactNode> = {
+  Dashboard: <FaChartLine />,
+  Negocio: <FaStore />,
+  Productos: <FaBoxOpen />,
+  Media: <FaPhotoFilm />,
+  Promociones: <FaBullhorn />,
+}
+
 interface AdminSidebarProps {
   items?: AdminNavItem[]
   brandName?: string
@@ -24,7 +34,7 @@ function cn(...classes: Array<string | false | null | undefined>) {
 
 export default function AdminSidebar({
   items = DEFAULT_ITEMS,
-  brandName = 'ProyectoC Admin',
+  brandName = 'Yebaam Admin',
 }: AdminSidebarProps) {
   const location = useLocation()
   const navigate = useNavigate()
@@ -37,7 +47,8 @@ export default function AdminSidebar({
   return (
     <aside className="w-full rounded-3xl border border-slate-200 bg-white p-4 shadow-sm lg:sticky lg:top-6">
       <div className="mb-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-500">
+        <BrandLogo variant="green" className="h-12 w-auto" />
+        <p className="mt-4 text-xs font-semibold uppercase tracking-[0.18em] text-orange-500">
           Panel administrativo
         </p>
         <h2 className="mt-2 text-lg font-semibold text-slate-900">{brandName}</h2>
@@ -57,13 +68,14 @@ export default function AdminSidebar({
               key={item.to}
               to={item.to}
               className={cn(
-                'flex items-center rounded-2xl px-4 py-3 text-sm font-medium transition',
+                'flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition',
                 isActive
                   ? 'bg-orange-500 text-white shadow-sm'
                   : 'text-slate-700 hover:bg-slate-100'
               )}
             >
-              {item.label}
+              <span className="text-base">{ITEM_ICONS[item.label] ?? <FaStore />}</span>
+              <span>{item.label}</span>
             </Link>
           )
         })}
@@ -75,6 +87,7 @@ export default function AdminSidebar({
           onClick={handleLogout}
           className="flex w-full items-center justify-center rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700"
         >
+          <FaArrowRightFromBracket className="mr-2" />
           Cerrar sesión
         </button>
       </div>

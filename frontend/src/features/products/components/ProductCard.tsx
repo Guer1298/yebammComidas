@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import Card from '../../../components/ui/Card'
 import Badge from '../../../components/ui/Badge'
 import Button from '../../../components/ui/Button'
+import { buildVisualImageDataUrl } from '../../../lib/visualImage'
 
 export interface ProductCardData {
   id: number | string
@@ -42,17 +43,14 @@ export default function ProductCard({
   return (
     <Card hoverable padding="none" className="overflow-hidden">
       <div className="relative">
-        {product.imageUrl ? (
-          <img
-            src={product.imageUrl}
-            alt={product.name}
-            className="h-48 w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-48 w-full items-center justify-center bg-slate-100 text-sm text-slate-500">
-            Sin imagen disponible
-          </div>
-        )}
+        <img
+          src={
+            product.imageUrl ||
+            buildVisualImageDataUrl(product.name, product.category || 'Producto')
+          }
+          alt={product.name}
+          className="h-48 w-full object-cover"
+        />
 
         <div className="absolute left-4 top-4 flex flex-wrap gap-2">
           {product.category && <Badge>{product.category}</Badge>}

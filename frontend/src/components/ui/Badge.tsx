@@ -17,9 +17,9 @@ function cn(...classes: Array<string | false | null | undefined>) {
 }
 
 const variantClasses: Record<BadgeVariant, string> = {
-  default: 'bg-orange-100 text-orange-700',
-  success: 'bg-emerald-100 text-emerald-700',
-  warning: 'bg-amber-100 text-amber-700',
+  default: 'bg-[var(--brand-green-50)] text-[var(--brand-green-700)]',
+  success: 'bg-[var(--brand-green-100)] text-[var(--brand-green-700)]',
+  warning: 'bg-[var(--brand-orange-50)] text-[var(--brand-orange-600)]',
   danger: 'bg-red-100 text-red-700',
   info: 'bg-sky-100 text-sky-700',
   neutral: 'bg-slate-100 text-slate-700',

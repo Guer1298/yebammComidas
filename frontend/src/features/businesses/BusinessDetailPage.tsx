@@ -1,8 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Navbar from '../../components/shared/Navbar'
 import Footer from '../../components/shared/Footer'
+import {
+  FaArrowLeft,
+  FaComments,
+  FaIdCard,
+  FaRegImage,
+  FaRegNewspaper,
+  FaStar,
+  FaUtensils,
+  FaVideo,
+} from 'react-icons/fa6'
 import SectionHeader from '../../components/shared/SectionHeader'
 import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
@@ -14,6 +23,7 @@ import Card, {
 } from '../../components/ui/Card'
 import ReviewSection from '../reviews/ReviewSection'
 import { getBusinessById } from './api'
+import { buildVisualImageDataUrl } from '../../lib/visualImage'
 
 type MediaAsset = {
   id: number
@@ -174,7 +184,7 @@ export default function BusinessDetailPage() {
   const profileImage =
     mediaAssets.find((item) => !item.isPrimary && item.type !== 'VIDEO')?.url ||
     coverImage ||
-    'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=400&q=80'
+    buildVisualImageDataUrl(business?.name || 'Negocio', business?.category || 'Negocio')
 
   const quickLinks = [
     { label: 'Detalles', href: '#detalles' },
@@ -183,6 +193,15 @@ export default function BusinessDetailPage() {
     { label: 'Carta', href: '#menu' },
     { label: 'Reseñas', href: '#reseñas' },
     { label: 'Posts', href: '#posts' },
+  ]
+
+  const profileTabs = [
+    { label: 'Posts', href: '#posts', icon: <FaRegNewspaper /> },
+    { label: 'Acerca del negocio', href: '#detalles', icon: <FaIdCard /> },
+    { label: 'Fotos', href: '#fotos', icon: <FaRegImage /> },
+    { label: 'Videos', href: '#videos', icon: <FaVideo /> },
+    { label: 'Reseñas', href: '#reseñas', icon: <FaComments /> },
+    { label: 'Carta', href: '#menu', icon: <FaUtensils /> },
   ]
 
   const socialLinks = [
@@ -226,9 +245,10 @@ export default function BusinessDetailPage() {
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <Link
             to="/businesses"
-            className="mb-4 inline-flex text-sm font-medium text-orange-600 transition hover:text-orange-700"
+            className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-[var(--brand-green-700)] transition hover:text-[var(--brand-green-600)]"
           >
-            ← Volver a negocios
+            <FaArrowLeft />
+            Volver a negocios
           </Link>
 
           <Card>
@@ -250,9 +270,10 @@ export default function BusinessDetailPage() {
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <Link
             to="/businesses"
-            className="mb-4 inline-flex text-sm font-medium text-orange-600 transition hover:text-orange-700"
+            className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-[var(--brand-green-700)] transition hover:text-[var(--brand-green-600)]"
           >
-            ← Volver a negocios
+            <FaArrowLeft />
+            Volver a negocios
           </Link>
 
           <Card>
@@ -271,7 +292,7 @@ export default function BusinessDetailPage() {
   return (
     <div className="min-h-screen bg-[#f0f2f5] text-slate-900">
       <Navbar
-        brandName="ProyectoC"
+        brandName="Yebaam"
         brandHref="/"
         links={[
           { label: 'Negocios', href: '/businesses' },
@@ -350,28 +371,21 @@ export default function BusinessDetailPage() {
               <img
                 src={
                   coverImage ||
-                  'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1400&q=80'
+                  buildVisualImageDataUrl(business.name, business.category || 'Negocio')
                 }
                 alt={business.name}
-                className="h-[360px] w-full object-cover sm:h-[420px]"
+                className="h-[280px] w-full object-cover sm:h-[360px]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-slate-950/35" />
 
-              <div className="absolute left-5 top-5 flex items-center gap-2 text-white">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-black/25 text-sm font-semibold">
-                  ★
-                </div>
-                <div>
-                  <p className="text-sm font-semibold">
-                    {business.ratingAverage?.toFixed(1) ?? '0.0'}
-                  </p>
-                  <p className="text-xs text-white/75">
-                    {business.reviewsCount ?? 0} reseñas
-                  </p>
-                </div>
+              <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-white/90 px-3 py-2 text-sm font-medium text-slate-700 shadow-sm backdrop-blur">
+                <FaStar className="text-orange-500" />
+                {business.ratingAverage?.toFixed(1) ?? '0.0'}
+                <span className="text-slate-400">·</span>
+                {business.reviewsCount ?? 0} reseñas
               </div>
 
-              <div className="absolute right-5 top-5 flex flex-col gap-2">
+              <div className="absolute right-4 top-4 hidden gap-2 sm:flex">
                 <Button
                   size="sm"
                   variant="ghost"
@@ -382,7 +396,7 @@ export default function BusinessDetailPage() {
                     }
                   }}
                 >
-                  Recomendar
+                  Pedir
                 </Button>
                 <Button
                   size="sm"
@@ -390,107 +404,88 @@ export default function BusinessDetailPage() {
                   className="bg-white/90 text-slate-900 hover:bg-white"
                   onClick={() => navigate('/register')}
                 >
-                  Hacerse cliente
+                  Seguir
                 </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="bg-white/90 text-slate-900 hover:bg-white"
-                  onClick={() =>
-                    document.getElementById('reseñas')?.scrollIntoView({
-                      behavior: 'smooth',
-                      block: 'start',
-                    })
-                  }
-                >
-                  Me gusta
-                </Button>
-              </div>
-
-              <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
-                <div className="max-w-3xl text-white">
-                  <p className="text-sm font-medium text-orange-200">
-                    {business.businessType || business.category}
-                  </p>
-                  <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-                    {business.name}
-                  </h1>
-                  <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-100 sm:text-base">
-                    {business.description || 'Sin descripción disponible.'}
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <MetaPill>{business.category}</MetaPill>
-                    {business.city ? <MetaPill>📍 {business.city}</MetaPill> : null}
-                    {business.address ? <MetaPill>📦 {business.address}</MetaPill> : null}
-                    {highlightPromotion?.title ? (
-                      <MetaPill>{highlightPromotion.title}</MetaPill>
-                    ) : null}
-                  </div>
-                </div>
               </div>
             </div>
 
-            <div className="grid gap-4 border-t border-slate-200 bg-white px-5 pb-5 pt-0 sm:px-6 lg:px-8">
-              <div className="-mt-12 flex flex-col gap-4 sm:flex-row sm:items-end">
-                <div className="h-28 w-28 overflow-hidden rounded-[1.75rem] border-4 border-white bg-slate-200 shadow-lg">
-                  <img
-                    src={profileImage}
-                    alt={`${business.name} perfil`}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
+            <div className="relative bg-white px-4 pb-4 sm:px-6 lg:px-8">
+              <div className="-mt-16 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div className="flex min-w-0 items-end gap-4">
+                  <div className="h-28 w-28 overflow-hidden rounded-full border-4 border-white bg-slate-100 shadow-xl">
+                    <img
+                      src={profileImage}
+                      alt={`${business.name} perfil`}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
 
-                <div className="min-w-0 flex-1 pb-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                    Foto de perfil
-                  </p>
-                  <h2 className="mt-1 text-2xl font-semibold text-slate-950">
-                    {business.name}
-                  </h2>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Badge variant={business.isActive ? 'success' : 'neutral'}>
-                      {business.isActive ? 'Abierto' : 'Cerrado'}
-                    </Badge>
-                    {business.category ? <Badge>{business.category}</Badge> : null}
-                    {highlightPromotion?.isHighlighted ? (
-                      <Badge variant="warning">Promoción destacada</Badge>
-                    ) : null}
+                  <div className="pb-2">
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                      {business.businessType || business.category}
+                    </p>
+                    <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
+                      {business.name}
+                    </h1>
+                    <p className="mt-2 text-sm text-slate-500">
+                      {business.city}
+                      {business.address ? ` · ${business.address}` : ''}
+                    </p>
                   </div>
                 </div>
-              </div>
 
-              <div className="border-t border-slate-200 pt-4">
-                <div className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  Franja de badges
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    business.category,
-                    business.city,
-                    business.businessType,
-                    business.reviewsCount ? `${business.reviewsCount} reseñas` : null,
-                    business.whatsapp ? 'WhatsApp' : null,
-                    business.website ? 'Web' : null,
-                  ]
-                    .filter(Boolean)
-                    .map((label) => (
-                      <Badge key={label as string} variant="neutral">
-                        {label}
-                      </Badge>
-                    ))}
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {quickLinks.map((item) => (
-                  <a
-                    key={item.label}
-                    href={item.href}
-                    className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700"
+                <div className="flex flex-wrap gap-2 pb-2">
+                  <Button
+                    onClick={() => {
+                      if (whatsappUrl) {
+                        window.open(whatsappUrl, '_blank', 'noreferrer')
+                      }
+                    }}
                   >
-                    {item.label}
-                  </a>
-                ))}
+                    Pedir por WhatsApp
+                  </Button>
+                  <Button variant="outline" onClick={() => navigate(`/businesses/${business.id}/menu`)}>
+                    Ver carta
+                  </Button>
+                </div>
+              </div>
+
+              <div className="mt-5 flex gap-2 overflow-x-auto pb-2">
+                {profileTabs.map((tab, index) => {
+                  const isPrimary = index === 0
+                  return (
+                    <a
+                      key={tab.label}
+                      href={tab.href}
+                      className={[
+                        'inline-flex min-w-fit items-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition',
+                        isPrimary
+                          ? 'bg-orange-500 text-white shadow-sm hover:bg-orange-600'
+                          : 'bg-[var(--brand-green-500)] text-white hover:bg-[var(--brand-green-600)]',
+                      ].join(' ')}
+                    >
+                      <span className="text-base">{tab.icon}</span>
+                      {tab.label}
+                    </a>
+                  )
+                })}
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4">
+                {[
+                  business.category,
+                  business.businessType,
+                  business.city,
+                  business.reviewsCount ? `${business.reviewsCount} reseñas` : null,
+                  business.whatsapp ? 'WhatsApp' : null,
+                  highlightPromotion?.isHighlighted ? 'Promoción destacada' : null,
+                ]
+                  .filter(Boolean)
+                  .map((label) => (
+                    <Badge key={label as string} variant="neutral">
+                      {label}
+                    </Badge>
+                  ))}
               </div>
             </div>
           </section>
@@ -576,7 +571,7 @@ export default function BusinessDetailPage() {
                     src={
                       reelMedia?.url ||
                       coverImage ||
-                      'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1200&q=80'
+                      buildVisualImageDataUrl(business.name, 'Reel')
                     }
                     alt={business.name}
                     className="h-[340px] w-full rounded-[1.5rem] object-cover"
@@ -704,11 +699,11 @@ export default function BusinessDetailPage() {
                   .slice(0, 3)
                   .map((promotion) => (
                     <Card key={promotion.id} hoverable padding="none" className="overflow-hidden">
-                      <img
-                        src={
-                          promotion.imageUrl ||
-                          'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80'
-                        }
+                        <img
+                          src={
+                            promotion.imageUrl ||
+                            buildVisualImageDataUrl(promotion.title, business.category || 'Promoción')
+                          }
                         alt={promotion.title}
                         className="h-44 w-full object-cover"
                       />
@@ -785,14 +780,6 @@ export default function BusinessDetailPage() {
 
       <Footer />
     </div>
-  )
-}
-
-function MetaPill({ children }: { children: ReactNode }) {
-  return (
-    <span className="rounded-full bg-white/15 px-3 py-1 text-sm text-white backdrop-blur">
-      {children}
-    </span>
   )
 }
 

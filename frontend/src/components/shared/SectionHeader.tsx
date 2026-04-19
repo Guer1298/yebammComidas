@@ -27,7 +27,7 @@ export default function SectionHeader({
     >
       <div className={centered ? 'max-w-2xl' : 'max-w-2xl'}>
         {eyebrow && (
-          <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-orange-500">
+          <p className="mb-2 text-sm font-semibold uppercase tracking-[0.18em] text-[var(--brand-green-700)]">
             {eyebrow}
           </p>
         )}

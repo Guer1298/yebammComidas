@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Navbar from '../../components/shared/Navbar'
 import Footer from '../../components/shared/Footer'
+import { FaUtensils, FaStar, FaWhatsapp, FaArrowLeft } from 'react-icons/fa6'
 import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
 import { getBusinessMenuById, type MenuCategory } from './api'
@@ -127,7 +128,7 @@ export default function MenuPage() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <Navbar
-        brandName="ProyectoC"
+        brandName="Yebaam"
         brandHref="/"
         links={[
           { label: 'Negocio', href: `/businesses/${business.id}` },
@@ -143,12 +144,13 @@ export default function MenuPage() {
             <div className="max-w-3xl">
               <Link
                 to={`/businesses/${business.id}`}
-                className="inline-flex text-sm font-medium text-orange-600 transition hover:text-orange-700"
+                className="inline-flex items-center gap-2 text-sm font-medium text-[var(--brand-green-700)] transition hover:text-[var(--brand-green-600)]"
               >
-                ← Volver al negocio
+                <FaArrowLeft />
+                Volver al negocio
               </Link>
-              <p className="mt-4 text-xs font-semibold uppercase tracking-[0.22em] text-orange-500">
-                Carta completa
+              <p className="mt-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--brand-green-700)]">
+                <FaUtensils /> Carta completa
               </p>
               <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
                 {business.name}
@@ -161,7 +163,7 @@ export default function MenuPage() {
             <div className="flex flex-wrap gap-2">
               <Badge>{business.category}</Badge>
               <Badge variant="success">
-                ⭐ {business.ratingAverage?.toFixed(1) ?? '0.0'}
+                <FaStar className="mr-1" /> {business.ratingAverage?.toFixed(1) ?? '0.0'}
               </Badge>
               <Badge variant="neutral">
                 {categories.length} categoría{categories.length === 1 ? '' : 's'}
@@ -172,6 +174,7 @@ export default function MenuPage() {
               {whatsappUrl ? (
                 <Button
                   onClick={() => window.open(whatsappUrl, '_blank', 'noreferrer')}
+                  leftIcon={<FaWhatsapp />}
                 >
                   Pedir por WhatsApp
                 </Button>

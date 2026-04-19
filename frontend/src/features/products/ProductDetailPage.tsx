@@ -13,6 +13,7 @@ import Button from '../../components/ui/Button'
 import ProductDetailHero from './components/ProductDetailHero'
 import ProductInfoPanel from './components/ProductInfoPanel'
 import { getProductById } from './api'
+import { buildVisualImageDataUrl } from '../../lib/visualImage'
 
 type ProductBusiness = {
   id: number
@@ -138,6 +139,10 @@ export default function ProductDetailPage() {
   }, [product])
 
   const heroImage = product?.imageUrl || undefined
+  const heroFallbackImage = buildVisualImageDataUrl(
+    product?.name || 'Producto',
+    product?.category?.name || 'Producto'
+  )
 
   const businessLocation = [product?.business?.category, product?.business?.city]
     .filter(Boolean)
@@ -233,7 +238,7 @@ export default function ProductDetailPage() {
         <ProductDetailHero
           name={product.name}
           imageUrl={heroImage}
-          fallbackImageUrl="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=1200&q=80"
+          fallbackImageUrl={heroFallbackImage}
           price={product.price}
           category={product.category?.name || 'Producto'}
           shortDescription={product.shortDescription || product.description || ''}

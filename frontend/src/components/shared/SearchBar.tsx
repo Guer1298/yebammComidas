@@ -1,4 +1,5 @@
 import React from 'react'
+import { FaMagnifyingGlass } from 'react-icons/fa6'
 import Input from '../ui/Input'
 import Button from '../ui/Button'
 
@@ -36,11 +37,12 @@ export default function SearchBar({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           aria-label="Buscar"
+          leftIcon={<FaMagnifyingGlass />}
           className="border-none shadow-none focus:ring-0"
         />
       </div>
 
-      <Button type="submit" className="sm:min-w-[140px]">
+      <Button type="submit" className="sm:min-w-[140px]" leftIcon={<FaMagnifyingGlass />}>
         {buttonLabel}
       </Button>
     </form>

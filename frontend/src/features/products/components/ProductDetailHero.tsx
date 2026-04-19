@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import Badge from '../../../components/ui/Badge'
 import Button from '../../../components/ui/Button'
+import { buildVisualImageDataUrl } from '../../../lib/visualImage'
 
 export interface ProductDetailHeroProps {
   name: string
@@ -55,17 +56,11 @@ export default function ProductDetailHero({
     <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
       <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="relative">
-          {imageUrl || fallbackImageUrl ? (
-            <img
-              src={imageUrl || fallbackImageUrl}
-              alt={name}
-              className="h-72 w-full object-cover md:h-96"
-            />
-          ) : (
-            <div className="flex h-72 w-full items-center justify-center bg-slate-100 text-sm font-medium text-slate-500 md:h-96">
-              Sin imagen disponible
-            </div>
-          )}
+          <img
+            src={imageUrl || fallbackImageUrl || buildVisualImageDataUrl(name, category || 'Producto')}
+            alt={name}
+            className="h-72 w-full object-cover md:h-96"
+          />
 
           <div className="absolute left-5 top-5 flex flex-wrap gap-2">
             {category && <Badge>{category}</Badge>}

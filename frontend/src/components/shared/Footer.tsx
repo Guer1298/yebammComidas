@@ -1,3 +1,14 @@
+import {
+  FaBullhorn,
+  FaHouse,
+  FaLeaf,
+  FaRightToBracket,
+  FaShop,
+  FaUserPlus,
+  FaUtensils,
+  FaWhatsapp,
+} from 'react-icons/fa6'
+import BrandLogo from './BrandLogo'
 
 export interface FooterLinkGroup {
   title: string
@@ -15,7 +26,6 @@ export interface FooterProps {
 }
 
 export default function Footer({
-  brandName = 'ProyectoC',
   description = 'Descubre negocios, explora productos, compara promociones y toma decisiones más rápido dentro del ecosistema de comidas rápidas.',
   linkGroups = [
     {
@@ -31,6 +41,7 @@ export default function Footer({
       links: [
         { label: 'Iniciar sesión', href: '#login' },
         { label: 'Registrarse', href: '#register' },
+        { label: 'WhatsApp', href: '#contacto' },
       ],
     },
     {
@@ -41,20 +52,19 @@ export default function Footer({
       ],
     },
   ],
-  bottomText = `© ${new Date().getFullYear()} ProyectoC. Todos los derechos reservados.`,
+  bottomText = `© ${new Date().getFullYear()} Yebaam. Todos los derechos reservados.`,
 }: FooterProps) {
   return (
     <footer className="border-t border-slate-200 bg-slate-950 text-slate-300">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-12 lg:px-8">
         <div className="lg:col-span-4">
-          <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-500 font-bold text-white shadow-sm">
-              {brandName.slice(0, 2).toUpperCase()}
-            </div>
-
-            <div>
-              <p className="text-sm text-slate-400">Plataforma digital</p>
-              <h3 className="text-lg font-semibold text-white">{brandName}</h3>
+          <div className="mb-4">
+            <BrandLogo variant="white" className="h-14 w-auto" />
+            <div className="mt-3 flex flex-wrap gap-2 text-sm text-slate-400">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1">
+                <FaLeaf />
+                Plataforma digital
+              </span>
             </div>
           </div>
 
@@ -73,9 +83,16 @@ export default function Footer({
                   <li key={link.label}>
                     <a
                       href={link.href}
-                      className="text-sm text-slate-400 transition hover:text-white"
+                      className="inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white"
                     >
-                      {link.label}
+                      {link.label === 'Inicio' && <FaHouse className="text-xs" />}
+                      {link.label === 'Negocios' && <FaShop className="text-xs" />}
+                      {link.label === 'Promociones' && <FaBullhorn className="text-xs" />}
+                      {link.label === 'Iniciar sesión' && <FaRightToBracket className="text-xs" />}
+                      {link.label === 'Registrarse' && <FaUserPlus className="text-xs" />}
+                      {link.label === 'Panel administrativo' && <FaUtensils className="text-xs" />}
+                      {link.label === 'WhatsApp' && <FaWhatsapp className="text-xs" />}
+                      <span>{link.label}</span>
                     </a>
                   </li>
                 ))}

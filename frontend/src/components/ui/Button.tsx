@@ -15,13 +15,13 @@ export interface ButtonProps
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    'bg-orange-500 text-white hover:bg-orange-600 focus:ring-orange-300 disabled:bg-orange-300',
+    'bg-[var(--brand-green-600)] text-white hover:bg-[var(--brand-green-700)] focus:ring-[color:rgba(22,164,76,0.28)] disabled:bg-[var(--brand-green-300)]',
   secondary:
-    'bg-slate-900 text-white hover:bg-slate-800 focus:ring-slate-300 disabled:bg-slate-400',
+    'bg-[var(--brand-orange-500)] text-white hover:bg-[var(--brand-orange-600)] focus:ring-[color:rgba(236,132,55,0.24)] disabled:bg-[var(--brand-orange-300)]',
   outline:
-    'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 focus:ring-slate-300 disabled:text-slate-400',
+    'border border-[color:rgba(22,164,76,0.24)] bg-white text-[var(--brand-green-700)] hover:bg-[var(--brand-green-50)] focus:ring-[color:rgba(22,164,76,0.16)] disabled:text-slate-400',
   ghost:
-    'bg-transparent text-slate-700 hover:bg-slate-100 focus:ring-slate-300 disabled:text-slate-400',
+    'bg-transparent text-slate-700 hover:bg-[rgba(22,164,76,0.08)] hover:text-[var(--brand-green-700)] focus:ring-[color:rgba(22,164,76,0.16)] disabled:text-slate-400',
   danger:
     'bg-red-500 text-white hover:bg-red-600 focus:ring-red-300 disabled:bg-red-300',
 }

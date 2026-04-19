@@ -1,6 +1,7 @@
 import Badge from '../../../components/ui/Badge'
 import Button from '../../../components/ui/Button'
 import { formatMenuPrice, type MenuProduct } from '../api'
+import { buildVisualImageDataUrl } from '../../../lib/visualImage'
 
 export interface MenuItemCardProps {
   product: MenuProduct
@@ -22,7 +23,7 @@ export default function MenuItemCard({
       <img
         src={
           product.imageUrl ||
-          'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=400&q=80'
+          buildVisualImageDataUrl(product.name, businessCategory || 'Plato')
         }
         alt={product.name}
         className="h-20 w-20 rounded-2xl object-cover"

@@ -1,6 +1,7 @@
 import Button from '../../../components/ui/Button'
 import Badge from '../../../components/ui/Badge'
 import Card, { CardContent } from '../../../components/ui/Card'
+import { buildVisualImageDataUrl } from '../../../lib/visualImage'
 
 export interface AdminProductRow {
   id: number | string
@@ -56,17 +57,11 @@ export default function ProductTable({
                 <tr key={item.id} className="border-b border-slate-100">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      {item.imageUrl ? (
-                        <img
-                          src={item.imageUrl}
-                          alt={item.name}
-                          className="h-12 w-12 rounded-2xl object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-xs text-slate-500">
-                          Sin img
-                        </div>
-                      )}
+                      <img
+                        src={item.imageUrl || buildVisualImageDataUrl(item.name, item.category || 'Producto')}
+                        alt={item.name}
+                        className="h-12 w-12 rounded-2xl object-cover"
+                      />
 
                       <span className="font-medium text-slate-900">{item.name}</span>
                     </div>

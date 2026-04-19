@@ -1,5 +1,6 @@
 import Button from '../../../components/ui/Button'
 import SearchBar from '../../../components/shared/SearchBar'
+import { buildVisualImageDataUrl } from '../../../lib/visualImage'
 
 export interface HeroSectionProps {
   search: string
@@ -80,8 +81,8 @@ export default function HeroSection({
             <div className="space-y-4">
               <div className="overflow-hidden rounded-3xl shadow-lg">
                 <img
-                  src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=80"
-                  alt="Hamburguesa"
+                  src={buildVisualImageDataUrl('Hamburguesas', 'Negocios y platos')}
+                  alt="Hamburguesas"
                   className="h-64 w-full object-cover"
                 />
               </div>
@@ -105,8 +106,8 @@ export default function HeroSection({
 
               <div className="overflow-hidden rounded-3xl shadow-lg">
                 <img
-                  src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=900&q=80"
-                  alt="Pizza"
+                  src={buildVisualImageDataUrl('Pizzas', 'Platos populares')}
+                  alt="Pizzas"
                   className="h-72 w-full object-cover"
                 />
               </div>

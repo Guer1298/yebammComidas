@@ -7,7 +7,7 @@ export default function AdminLayout() {
   const brandName =
     user?.name && user.role !== 'ADMIN'
       ? `${user.name} Admin`
-      : 'ProyectoC Admin'
+      : 'Yebaam Admin'
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">

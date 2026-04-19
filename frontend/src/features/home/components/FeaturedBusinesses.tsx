@@ -7,6 +7,7 @@ import Card, {
 } from '../../../components/ui/Card'
 import Badge from '../../../components/ui/Badge'
 import Button from '../../../components/ui/Button'
+import { buildVisualImageDataUrl } from '../../../lib/visualImage'
 
 export interface FeaturedBusinessItem {
   id: number | string
@@ -50,7 +51,7 @@ export default function FeaturedBusinesses({
           >
             <div className="relative">
               <img
-                src={business.imageUrl}
+                src={business.imageUrl || buildVisualImageDataUrl(business.name, business.category)}
                 alt={business.name}
                 className="h-56 w-full object-cover"
               />
