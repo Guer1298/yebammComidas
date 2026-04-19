@@ -2,6 +2,8 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import pinoHttp from 'pino-http'
+import serverless from "serverless-http";
+
 
 import authRoutes from '../modules/auth/auth.routes'
 import businessRoutes from '../modules/businesses/business.routes'
@@ -67,5 +69,7 @@ app.use(notFound)
 
 // Middleware global de errores
 app.use(errorHandler)
+
+export const handler = serverless(app);
 
 export default app
