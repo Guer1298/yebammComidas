@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Button from '../../../components/ui/Button'
 import Input from '../../../components/ui/Input'
 import Card, {
@@ -21,19 +21,28 @@ export interface BusinessFormValues {
   email: string
   website: string
   instagram: string
+  coverImageUrl: string
 }
 
 interface BusinessFormProps {
   initialValues?: Partial<BusinessFormValues>
   onSubmit?: (values: BusinessFormValues) => void
+  onUploadCover?: (file: File) => Promise<string>
+  allowFileUpload?: boolean
   loading?: boolean
 }
 
 export default function BusinessForm({
   initialValues = {},
   onSubmit,
+  onUploadCover,
+  allowFileUpload = true,
   loading = false,
 }: BusinessFormProps) {
+  const [coverFile, setCoverFile] = useState<File | null>(null)
+  const [coverPreview, setCoverPreview] = useState('')
+  const [coverUploadError, setCoverUploadError] = useState('')
+  const [coverUploading, setCoverUploading] = useState(false)
   const [values, setValues] = useState<BusinessFormValues>({
     name: initialValues.name || '',
     category: initialValues.category || '',
@@ -47,7 +56,20 @@ export default function BusinessForm({
     email: initialValues.email || '',
     website: initialValues.website || '',
     instagram: initialValues.instagram || '',
+    coverImageUrl: initialValues.coverImageUrl || '',
   })
+
+  useEffect(() => {
+    if (!coverFile) {
+      setCoverPreview('')
+      return
+    }
+
+    const preview = URL.createObjectURL(coverFile)
+    setCoverPreview(preview)
+
+    return () => URL.revokeObjectURL(preview)
+  }, [coverFile])
 
   function handleChange<K extends keyof BusinessFormValues>(
     key: K,
@@ -56,9 +78,37 @@ export default function BusinessForm({
     setValues((prev) => ({ ...prev, [key]: value }))
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    onSubmit?.(values)
+
+    try {
+      setCoverUploadError('')
+
+      let nextCoverImageUrl = values.coverImageUrl.trim()
+
+      if (coverFile && onUploadCover) {
+        setCoverUploading(true)
+        nextCoverImageUrl = await onUploadCover(coverFile)
+      }
+
+      if (!nextCoverImageUrl) {
+        setCoverUploadError('Debes subir una portada o pegar una URL.')
+        return
+      }
+
+      await onSubmit?.({
+        ...values,
+        coverImageUrl: nextCoverImageUrl,
+      })
+    } catch (error: any) {
+      setCoverUploadError(
+        error?.response?.data?.message ||
+          error?.message ||
+          'No fue posible subir la portada'
+      )
+    } finally {
+      setCoverUploading(false)
+    }
   }
 
   return (
@@ -87,6 +137,66 @@ export default function BusinessForm({
               placeholder="Ej. Hamburguesas"
             />
           </div>
+
+          {allowFileUpload ? (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-slate-700">
+                Portada del negocio
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(event) => setCoverFile(event.target.files?.[0] ?? null)}
+                className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-2xl file:border-0 file:bg-orange-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-orange-600"
+              />
+              <p className="text-sm text-slate-500">
+                Sube una imagen o pega una URL directa. La portada es obligatoria.
+              </p>
+              {(coverPreview || values.coverImageUrl) && (
+                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                  <img
+                    src={coverPreview || values.coverImageUrl}
+                    alt={values.name || 'Portada del negocio'}
+                    className="h-48 w-full object-cover"
+                  />
+                </div>
+              )}
+              {coverUploadError ? (
+                <p className="text-sm text-red-600">{coverUploadError}</p>
+              ) : null}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-slate-700">
+                Portada del negocio
+              </label>
+              <p className="text-sm text-slate-500">
+                Para crear el negocio, pega una URL directa de portada. La subida de archivos
+                se realiza después desde el panel de media.
+              </p>
+              {values.coverImageUrl && (
+                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                  <img
+                    src={values.coverImageUrl}
+                    alt={values.name || 'Portada del negocio'}
+                    className="h-48 w-full object-cover"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          <Input
+            label="URL de portada"
+            value={values.coverImageUrl}
+            onChange={(e) => handleChange('coverImageUrl', e.target.value)}
+            placeholder="https://..."
+            hint={
+              allowFileUpload
+                ? 'Opcional si subes un archivo; se completará automáticamente.'
+                : 'Obligatoria para crear el negocio.'
+            }
+          />
 
           <div className="grid gap-5 md:grid-cols-2">
             <Input
@@ -178,7 +288,7 @@ export default function BusinessForm({
             />
           </div>
 
-          <Button type="submit" loading={loading}>
+          <Button type="submit" loading={loading || coverUploading}>
             Guardar cambios
           </Button>
         </form>

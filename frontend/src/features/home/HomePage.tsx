@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom'
 import {
   FaArrowRight,
   FaBullhorn,
-  FaFireFlameCurved,
   FaHouse,
   FaMagnifyingGlass,
   FaStar,
@@ -17,6 +16,7 @@ import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
 import { loadHomeCatalog, type HomeBusinessItem, type HomeProductItem } from './api'
 import { buildVisualImageDataUrl } from '../../lib/visualImage'
+import { trackEvent } from '../../lib/analytics'
 
 function formatPrice(value: number | string, currency = 'COP') {
   const numericValue = typeof value === 'string' ? Number(value) : value
@@ -102,6 +102,13 @@ export default function HomePage() {
 
   const featuredBusinesses = useMemo(() => businesses.slice(0, 4), [businesses])
   const featuredProducts = useMemo(() => products.slice(0, 6), [products])
+  const spotlightBusiness = featuredBusinesses[0]
+  const spotlightImage =
+    spotlightBusiness?.coverUrl ||
+    buildVisualImageDataUrl(
+      spotlightBusiness?.name || 'Restaurante',
+      spotlightBusiness?.category || 'Negocio'
+    )
 
   const matchingBusinesses = useMemo(() => {
     if (!normalizedSearch) return []
@@ -173,7 +180,7 @@ export default function HomePage() {
               </span>
             </p>
             <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
-              Encuentra rápido la carta que quieres ver.
+              Tu comida favorita, a un clic de distancia
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
               Un buscador simple para descubrir negocios, abrir su carta y entrar al detalle
@@ -202,13 +209,45 @@ export default function HomePage() {
             </div>
 
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Button leftIcon={<FaHouse />} onClick={() => navigate('/businesses')}>
+              <Button
+                leftIcon={<FaHouse />}
+                onClick={() => {
+                  void trackEvent({
+                    eventType: 'CTA_CLICK',
+                    sourceScreen: 'home_hero',
+                    metadata: { action: 'view_businesses' },
+                  })
+                  navigate('/businesses')
+                }}
+              >
                 Ver negocios
               </Button>
-              <Button variant="outline" leftIcon={<FaBullhorn />} onClick={() => navigate('/promotions')}>
+              <Button
+                variant="outline"
+                leftIcon={<FaBullhorn />}
+                onClick={() => {
+                  void trackEvent({
+                    eventType: 'CTA_CLICK',
+                    sourceScreen: 'home_hero',
+                    metadata: { action: 'view_promotions' },
+                  })
+                  navigate('/promotions')
+                }}
+              >
                 Ver promociones
               </Button>
-              <Button variant="outline" leftIcon={<FaArrowRight />} onClick={() => navigate('/register')}>
+              <Button
+                variant="outline"
+                leftIcon={<FaArrowRight />}
+                onClick={() => {
+                  void trackEvent({
+                    eventType: 'CTA_CLICK',
+                    sourceScreen: 'home_hero',
+                    metadata: { action: 'register' },
+                  })
+                  navigate('/register')
+                }}
+              >
                 Crear cuenta
               </Button>
             </div>
@@ -332,24 +371,130 @@ export default function HomePage() {
         </section>
       )}
 
-      <section className="border-t border-slate-200 bg-slate-50">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+    <section className="relative overflow-hidden border-t border-emerald-900/30 bg-[#0f5f2f]">
+  {/* Background minimal */}
+  <div className="absolute inset-0">
+    <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.08),transparent_45%,rgba(0,0,0,0.14))]" />
+    <div className="absolute -right-32 top-1/2 h-96 w-96 -translate-y-1/2 rounded-full bg-white/10 blur-3xl" />
+  </div>
+
+  <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8 lg:py-24">
+    {/* Content */}
+    <div className="max-w-2xl text-white">
+      <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white/90 backdrop-blur-md">
+        <span className="h-2 w-2 rounded-full bg-lime-300" />
+        Yebaam para negocios
+      </div>
+
+      <h2 className="mt-6 max-w-2xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-[3.35rem] lg:leading-[1.04]">
+        Haz que tu negocio sea más fácil de descubrir
+      </h2>
+
+      <p className="mt-6 max-w-xl text-lg leading-8 text-white/75 sm:text-xl">
+        Crea una vitrina digital simple para mostrar tu menú, productos,
+        fotos y promociones a nuevos clientes.
+      </p>
+
+      {/* Minimal value points */}
+      <div className="mt-8 grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.07] p-4">
+          <p className="text-sm font-semibold text-white">Perfil digital</p>
+          <p className="mt-1 text-sm leading-5 text-white/60">
+            Tu negocio en un solo lugar.
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-white/[0.07] p-4">
+          <p className="text-sm font-semibold text-white">Menú visual</p>
+          <p className="mt-1 text-sm leading-5 text-white/60">
+            Fotos, precios y detalles claros.
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-white/[0.07] p-4">
+          <p className="text-sm font-semibold text-white">Más visibilidad</p>
+          <p className="mt-1 text-sm leading-5 text-white/60">
+            Ayuda a clientes a encontrarte.
+          </p>
+        </div>
+      </div>
+
+      {/* CTA */}
+      <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+        <Button
+          size="lg"
+          className="
+            h-12 rounded-full
+            bg-white px-8
+            text-base font-semibold !text-[#164a33]
+            shadow-sm transition-all duration-300
+            hover:-translate-y-0.5 hover:bg-white/90 hover:!text-[#164a33]
+            active:translate-y-0 active:scale-[0.98]
+          "
+          onClick={() => navigate('/register')}
+        >
+          Registrar mi negocio
+        </Button>
+
+        <Button
+          size="lg"
+          variant="outline"
+          className="
+            h-12 rounded-full
+            border border-white/25
+            bg-white/[0.06] px-8
+            text-base font-semibold !text-white
+            shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]
+            backdrop-blur-md
+            transition-all duration-300
+            hover:-translate-y-0.5
+            hover:border-white/35
+            hover:bg-white/[0.12]
+            hover:!text-white
+            active:translate-y-0 active:scale-[0.98]
+          "
+          onClick={() => navigate('/businesses')}
+        >
+          Ver cómo se verá
+        </Button>
+      </div>
+
+      <p className="mt-4 text-sm leading-6 text-white/55">
+        Ideal para comidas rápidas, cafeterías, restaurantes y negocios locales.
+      </p>
+    </div>
+
+    {/* Visual */}
+    <div className="relative flex justify-center lg:justify-end">
+      <div className="relative w-full max-w-[460px] rounded-[2rem] border border-white/10 bg-white/10 p-2 shadow-2xl shadow-black/20 backdrop-blur-md">
+        <div className="overflow-hidden rounded-[1.5rem] bg-emerald-950">
+          <img
+            src={spotlightImage}
+            alt={spotlightBusiness?.name || 'Negocio destacado en Yebaam'}
+            className="h-[380px] w-full object-cover sm:h-[430px] lg:h-[500px]"
+          />
+        </div>
+
+        <div className="absolute bottom-5 left-5 right-5 rounded-2xl border border-white/15 bg-black/45 p-4 text-white backdrop-blur-md">
+          <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold text-slate-900">
-                Navegación directa, sin ruido.
+              <p className="text-sm font-semibold">
+                {spotlightBusiness?.name || 'Tu negocio aquí'}
               </p>
-              <p className="mt-1 text-sm text-slate-500">
-                El home ya funciona como una puerta de entrada limpia a negocios y cartas.
+              <p className="mt-1 text-xs text-white/65">
+                Menú, productos y promociones en una vitrina digital.
               </p>
             </div>
 
-            <Button leftIcon={<FaFireFlameCurved />} onClick={() => navigate('/businesses')}>
-              Explorar todo
-            </Button>
+            <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#164a33]">
+              Nuevo
+            </span>
           </div>
         </div>
-      </section>
+      </div>
+    </div>
+  </div>
+</section>
 
       <Footer
         brandName="Yebaam"

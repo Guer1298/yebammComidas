@@ -5,7 +5,9 @@ import { getStoredUser } from '../../lib/session'
 export default function AdminLayout() {
   const user = getStoredUser()
   const brandName =
-    user?.name && user.role !== 'ADMIN'
+    user?.role === 'ADMIN'
+      ? 'Yebaam Super Admin'
+      : user?.name
       ? `${user.name} Admin`
       : 'Yebaam Admin'
 

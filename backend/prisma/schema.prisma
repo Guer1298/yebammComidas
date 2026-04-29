@@ -57,6 +57,7 @@ model User {
   deletedAt    DateTime?
 
   reviews        Review[]
+  businessLikes  BusinessLike[]
   follows        FollowRelation[]
   events         InteractionEvent[]
   businessAdmins BusinessAdmin[]
@@ -74,6 +75,8 @@ model Business {
   businessType String?
   description  String?
   aboutArticle String?
+  profileImageUrl String?
+  isVerified   Boolean   @default(false)
   city         String?
   address      String?
   phone        String?
@@ -94,6 +97,7 @@ model Business {
   products    Product[]
   mediaAssets MediaAsset[]
   reviews     Review[]
+  likes       BusinessLike[]
   promotions  Promotion[]
   posts       Post[]
   faqs        FAQ[]
@@ -310,6 +314,20 @@ model FAQ {
 }
 
 model FollowRelation {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  businessId Int
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, businessId])
+  @@index([userId])
+  @@index([businessId])
+}
+
+model BusinessLike {
   id         Int      @id @default(autoincrement())
   userId     Int
   businessId Int

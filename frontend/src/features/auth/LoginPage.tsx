@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import LoginForm, { type LoginFormValues } from './components/LoginForm'
 import { login } from './api'
+import { trackEvent } from '../../lib/analytics'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -27,6 +28,12 @@ export default function LoginPage() {
       if (user) {
         localStorage.setItem('auth_user', JSON.stringify(user))
       }
+
+      void trackEvent({
+        eventType: 'LOGIN_SUCCESS',
+        sourceScreen: 'login',
+        metadata: { role: user?.role ?? null },
+      })
 
       const nextPath =
         user?.role === 'ADMIN' || user?.role === 'BUSINESS_ADMIN'

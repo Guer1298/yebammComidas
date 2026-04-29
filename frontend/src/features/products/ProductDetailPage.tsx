@@ -14,6 +14,7 @@ import ProductDetailHero from './components/ProductDetailHero'
 import ProductInfoPanel from './components/ProductInfoPanel'
 import { getProductById } from './api'
 import { buildVisualImageDataUrl } from '../../lib/visualImage'
+import { trackCtaClick, trackEvent } from '../../lib/analytics'
 
 type ProductBusiness = {
   id: number
@@ -118,6 +119,18 @@ export default function ProductDetailPage() {
 
     loadProduct()
   }, [id])
+
+  useEffect(() => {
+    if (!product?.id) return
+
+    void trackEvent({
+      eventType: 'PRODUCT_VIEW',
+      entityType: 'product',
+      entityId: product.id,
+      sourceScreen: 'product_detail',
+      metadata: { action: 'view_page' },
+    })
+  }, [product?.id])
 
   const ingredients = useMemo(
     () => splitIngredients(product?.ingredients),
@@ -249,11 +262,23 @@ export default function ProductDetailPage() {
           primaryDisabled={!whatsappUrl}
           onPrimaryAction={() => {
             if (whatsappUrl) {
+              void trackCtaClick({
+                businessId: product.business?.id || product.businessId,
+                productId: product.id,
+                sourceScreen: 'product_detail_primary',
+              })
               window.open(whatsappUrl, '_blank', 'noreferrer')
             }
           }}
           onSecondaryAction={() => {
             if (product.business?.id) {
+              void trackEvent({
+                eventType: 'BUSINESS_PROFILE_VIEW',
+                entityType: 'business',
+                entityId: product.business.id,
+                sourceScreen: 'product_detail',
+                metadata: { action: 'view_business' },
+              })
               navigate(`/businesses/${product.business.id}`)
             }
           }}

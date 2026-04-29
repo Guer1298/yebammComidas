@@ -13,6 +13,7 @@ import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
 import { listBusinesses, type BusinessListItem } from './api'
 import { buildVisualImageDataUrl } from '../../lib/visualImage'
+import { trackEvent } from '../../lib/analytics'
 
 export default function BusinessListPage() {
   const [businesses, setBusinesses] = useState<BusinessListItem[]>([])
@@ -313,6 +314,15 @@ function BusinessCard({ business }: { business: BusinessListItem }) {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Link
             to={`/businesses/${business.id}`}
+            onClick={() =>
+              void trackEvent({
+                eventType: 'BUSINESS_PROFILE_VIEW',
+                entityType: 'business',
+                entityId: business.id,
+                sourceScreen: 'business_list',
+                metadata: { action: 'card_click' },
+              })
+            }
             className="inline-flex items-center justify-center rounded-2xl bg-[var(--brand-green-600)] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[var(--brand-green-700)]"
           >
             Ver negocio

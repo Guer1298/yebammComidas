@@ -1,6 +1,7 @@
 import Button from '../../../components/ui/Button'
 import Badge from '../../../components/ui/Badge'
 import Card from '../../../components/ui/Card'
+import { trackEvent } from '../../../lib/analytics'
 
 export interface PromotionCardData {
   id: number | string
@@ -66,7 +67,18 @@ export default function PromotionCard({
             )}
           </div>
 
-          <Button onClick={() => onClick?.(promotion.id)}>
+          <Button
+            onClick={() => {
+              void trackEvent({
+                eventType: 'PROMOTION_CLICK',
+                entityType: 'promotion',
+                entityId: promotion.id,
+                sourceScreen: 'promotion_card',
+                metadata: { action: 'open_detail' },
+              })
+              onClick?.(promotion.id)
+            }}
+          >
             Ver promoción
           </Button>
         </div>

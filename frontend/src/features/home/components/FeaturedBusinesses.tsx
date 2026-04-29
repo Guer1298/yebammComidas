@@ -8,6 +8,7 @@ import Card, {
 import Badge from '../../../components/ui/Badge'
 import Button from '../../../components/ui/Button'
 import { buildVisualImageDataUrl } from '../../../lib/visualImage'
+import { trackEvent } from '../../../lib/analytics'
 
 export interface FeaturedBusinessItem {
   id: number | string
@@ -79,7 +80,16 @@ export default function FeaturedBusinesses({
             <CardFooter className="border-t border-slate-100 px-5 py-4">
               <Button
                 fullWidth
-                onClick={() => onSelectBusiness?.(business.id)}
+                onClick={() => {
+                  void trackEvent({
+                    eventType: 'BUSINESS_PROFILE_VIEW',
+                    entityType: 'business',
+                    entityId: business.id,
+                    sourceScreen: 'home_featured_businesses',
+                    metadata: { action: 'open_detail' },
+                  })
+                  onSelectBusiness?.(business.id)
+                }}
               >
                 Ver negocio
               </Button>

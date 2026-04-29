@@ -5,13 +5,17 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/app/server.ts",
-    "postinstall": "prisma generate",
+    "predev": "NODE_OPTIONS=--experimental-require-module prisma generate",
+    "postinstall": "NODE_OPTIONS=--experimental-require-module prisma generate",
     "build": "tsc",
+    "prebuild": "NODE_OPTIONS=--experimental-require-module prisma generate",
     "start": "node dist/app/server.js",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
+    "prestart": "NODE_OPTIONS=--experimental-require-module prisma generate",
+    "prisma:generate": "NODE_OPTIONS=--experimental-require-module prisma generate",
+    "prisma:migrate": "NODE_OPTIONS=--experimental-require-module prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "prisma:seed": "tsx prisma/seed.ts"
+    "prisma:seed": "tsx prisma/seed.ts",
+    "prisma:backfill-images": "tsx prisma/backfill-images.ts"
   },
   "keywords": [],
   "author": "",

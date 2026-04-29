@@ -21,7 +21,74 @@ const prisma = new PrismaClient({
   adapter,
 })
 
+async function ensureBusinessSchema() {
+  await prisma.$executeRawUnsafe(`
+    ALTER TABLE "Business"
+    ADD COLUMN IF NOT EXISTS "profileImageUrl" TEXT,
+    ADD COLUMN IF NOT EXISTS "isVerified" BOOLEAN NOT NULL DEFAULT false;
+  `)
+
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS "BusinessLike" (
+      "id" SERIAL NOT NULL,
+      "userId" INTEGER NOT NULL,
+      "businessId" INTEGER NOT NULL,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT "BusinessLike_pkey" PRIMARY KEY ("id")
+    );
+  `)
+
+  await prisma.$executeRawUnsafe(`
+    CREATE INDEX IF NOT EXISTS "BusinessLike_userId_idx" ON "BusinessLike"("userId");
+  `)
+
+  await prisma.$executeRawUnsafe(`
+    CREATE INDEX IF NOT EXISTS "BusinessLike_businessId_idx" ON "BusinessLike"("businessId");
+  `)
+
+  await prisma.$executeRawUnsafe(`
+    CREATE UNIQUE INDEX IF NOT EXISTS "BusinessLike_userId_businessId_key"
+    ON "BusinessLike"("userId", "businessId");
+  `)
+
+  await prisma.$executeRawUnsafe(`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1
+        FROM information_schema.table_constraints
+        WHERE constraint_name = 'BusinessLike_userId_fkey'
+          AND table_name = 'BusinessLike'
+      ) THEN
+        ALTER TABLE "BusinessLike"
+        ADD CONSTRAINT "BusinessLike_userId_fkey"
+        FOREIGN KEY ("userId") REFERENCES "User"("id")
+        ON DELETE CASCADE ON UPDATE CASCADE;
+      END IF;
+    END $$;
+  `)
+
+  await prisma.$executeRawUnsafe(`
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1
+        FROM information_schema.table_constraints
+        WHERE constraint_name = 'BusinessLike_businessId_fkey'
+          AND table_name = 'BusinessLike'
+      ) THEN
+        ALTER TABLE "BusinessLike"
+        ADD CONSTRAINT "BusinessLike_businessId_fkey"
+        FOREIGN KEY ("businessId") REFERENCES "Business"("id")
+        ON DELETE CASCADE ON UPDATE CASCADE;
+      END IF;
+    END $$;
+  `)
+}
+
 async function main() {
+  await ensureBusinessSchema()
+
   // 1. Usuario
   const userEmail = 'usuario@seed.com'
 
@@ -45,6 +112,39 @@ async function main() {
     throw new Error('No se pudo crear o cargar el usuario semilla.')
   }
 
+  // 1.a Usuario super administrador
+  const superAdminEmail = 'superadmin@yebaam.com'
+
+  let superAdmin = await prisma.user.findUnique({
+    where: { email: superAdminEmail },
+  })
+
+  const superAdminPasswordHash = await hashPassword('Admin123!')
+
+  if (!superAdmin) {
+
+    superAdmin = await prisma.user.create({
+      data: {
+        name: 'Super Admin',
+        email: superAdminEmail,
+        passwordHash: superAdminPasswordHash,
+        role: 'ADMIN',
+      },
+    })
+  } else if (
+    superAdmin.role !== 'ADMIN' ||
+    superAdmin.passwordHash !== superAdminPasswordHash
+  ) {
+    superAdmin = await prisma.user.update({
+      where: { id: superAdmin.id },
+      data: {
+        name: 'Super Admin',
+        passwordHash: superAdminPasswordHash,
+        role: 'ADMIN',
+      },
+    })
+  }
+
   // 1.b Usuario administrador del negocio
   const adminEmail = 'admin@burgerlab.com'
 
@@ -52,21 +152,27 @@ async function main() {
     where: { email: adminEmail },
   })
 
+  const adminPasswordHash = await hashPassword('Admin123!')
+
   if (!adminUser) {
-    const passwordHash = await hashPassword('Admin123!')
 
     adminUser = await prisma.user.create({
       data: {
         name: 'Admin Burger Lab',
         email: adminEmail,
-        passwordHash,
+        passwordHash: adminPasswordHash,
         role: 'BUSINESS_ADMIN',
       },
     })
-  } else if (adminUser.role !== 'BUSINESS_ADMIN') {
+  } else if (
+    adminUser.role !== 'BUSINESS_ADMIN' ||
+    adminUser.passwordHash !== adminPasswordHash
+  ) {
     adminUser = await prisma.user.update({
       where: { id: adminUser.id },
       data: {
+        name: 'Admin Burger Lab',
+        passwordHash: adminPasswordHash,
         role: 'BUSINESS_ADMIN',
       },
     })
@@ -95,7 +201,17 @@ async function main() {
         whatsapp: '573000000000',
         email: 'contacto@burgerlab.com',
         instagram: '@burgerlab',
+        profileImageUrl: null,
+        isVerified: true,
         isActive: true,
+      },
+    })
+  } else {
+    business = await prisma.business.update({
+      where: { id: business.id },
+      data: {
+        profileImageUrl: business.profileImageUrl ?? null,
+        isVerified: business.isVerified ?? true,
       },
     })
   }
@@ -915,6 +1031,7 @@ async function main() {
   })
 
   console.log('Seed creada correctamente.', {
+    superAdminEmail: superAdmin.email,
     burgerLabBusinessId: business.id,
     heladeriaAuroraBusinessId: iceCreamBusiness.id,
     heladeriaAuroraAdminEmail: iceCreamAdmin.email,

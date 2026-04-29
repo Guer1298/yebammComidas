@@ -4,13 +4,7 @@ import Navbar from '../../components/shared/Navbar'
 import Footer from '../../components/shared/Footer'
 import {
   FaArrowLeft,
-  FaComments,
-  FaIdCard,
-  FaRegImage,
-  FaRegNewspaper,
   FaStar,
-  FaUtensils,
-  FaVideo,
 } from 'react-icons/fa6'
 import SectionHeader from '../../components/shared/SectionHeader'
 import Badge from '../../components/ui/Badge'
@@ -21,9 +15,14 @@ import Card, {
   CardHeader,
   CardTitle,
 } from '../../components/ui/Card'
+import Modal from '../../components/ui/Modal'
+import { formatMenuPrice, type MenuCategory, type MenuProduct } from '../menu/api'
 import ReviewSection from '../reviews/ReviewSection'
 import { getBusinessById } from './api'
 import { buildVisualImageDataUrl } from '../../lib/visualImage'
+import { trackCtaClick, trackEvent } from '../../lib/analytics'
+import VerifiedBadge from './components/VerifiedBadge'
+import BusinessLikeButton from './components/BusinessLikeButton'
 
 type MediaAsset = {
   id: number
@@ -61,8 +60,12 @@ type BusinessDetail = {
   facebook?: string | null
   tiktok?: string | null
   isActive: boolean
+  isVerified?: boolean
   ratingAverage?: number
   reviewsCount?: number
+  likesCount?: number
+  hasLiked?: boolean
+  profileImageUrl?: string | null
   mediaAssets?: MediaAsset[]
   promotions?: Promotion[]
   posts?: Array<{
@@ -77,12 +80,7 @@ type BusinessDetail = {
     id: number
     name: string
     description?: string | null
-    categories?: Array<{
-      id: number
-      name: string
-      description?: string | null
-      products?: Array<{ id: number }>
-    }>
+    categories?: MenuCategory[]
   }>
 }
 
@@ -96,6 +94,50 @@ function getPrimaryMedia(business?: BusinessDetail | null) {
     business?.mediaAssets?.[0] ||
     null
   )
+}
+
+function dedupeCategories(categories: MenuCategory[] = []) {
+  const seen = new Map<number, MenuCategory>()
+
+  for (const category of categories) {
+    if (!seen.has(category.id)) {
+      seen.set(category.id, category)
+    }
+  }
+
+  return [...seen.values()]
+}
+
+function normalizeExternalLink(value?: string | null, platform?: string) {
+  const trimmed = value?.trim()
+  if (!trimmed) return null
+
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed
+  }
+
+  if (trimmed.startsWith('@')) {
+    const handle = trimmed.slice(1).trim().replace(/[^a-zA-Z0-9._-]/g, '')
+    if (!handle) return null
+
+    const base = platform === 'tiktok'
+      ? 'https://www.tiktok.com/@'
+      : platform === 'facebook'
+        ? 'https://www.facebook.com/'
+        : 'https://www.instagram.com/'
+
+    return `${base}${handle}`
+  }
+
+  if (trimmed.startsWith('www.')) {
+    return `https://${trimmed}`
+  }
+
+  if (/^[a-z0-9.-]+\.[a-z]{2,}(\/.*)?$/i.test(trimmed)) {
+    return `https://${trimmed}`
+  }
+
+  return null
 }
 
 export default function BusinessDetailPage() {
@@ -138,14 +180,58 @@ export default function BusinessDetailPage() {
     loadBusiness()
   }, [id])
 
+  useEffect(() => {
+    if (!business?.id) return
+
+    void trackEvent({
+      eventType: 'BUSINESS_PROFILE_VIEW',
+      entityType: 'business',
+      entityId: business.id,
+      sourceScreen: 'business_detail',
+      metadata: { action: 'view_page' },
+    })
+  }, [business?.id])
+
   const coverImage = getPrimaryMedia(business)?.url
 
   const menuCategories = useMemo(() => {
     const menus = business?.menus ?? []
-    const firstMenu = menus[0]
-
-    return firstMenu?.categories ?? []
+    return dedupeCategories(menus.flatMap((menu) => menu.categories ?? []))
   }, [business])
+
+  const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (!menuCategories.length) {
+      setActiveCategoryId(null)
+      return
+    }
+
+    setActiveCategoryId((current) =>
+      current && menuCategories.some((category) => category.id === current)
+        ? current
+        : menuCategories[0].id
+    )
+  }, [menuCategories])
+
+  const activeCategory = useMemo(
+    () => menuCategories.find((category) => category.id === activeCategoryId) ?? null,
+    [activeCategoryId, menuCategories]
+  )
+
+  const feedProducts = useMemo<MenuProduct[]>(() => {
+    const products = [...(activeCategory?.products ?? [])]
+      .filter((product) => product.isActive !== false)
+      .sort((left, right) => {
+        const featuredDiff = Number(Boolean(right.isFeatured)) - Number(Boolean(left.isFeatured))
+
+        if (featuredDiff !== 0) return featuredDiff
+
+        return (left.sortOrder ?? 0) - (right.sortOrder ?? 0)
+      })
+
+    return products.slice(0, 8)
+  }, [activeCategory])
 
   const highlightPromotion = useMemo(() => {
     return (
@@ -158,6 +244,14 @@ export default function BusinessDetailPage() {
       null
     )
   }, [business])
+
+  const activePromotions = useMemo(
+    () =>
+      (business?.promotions ?? [])
+        .filter((promotion) => promotion.status === 'ACTIVE')
+        .slice(0, 3),
+    [business]
+  )
 
   const whatsappUrl = useMemo(() => {
     const raw = business?.whatsapp || business?.phone
@@ -174,48 +268,58 @@ export default function BusinessDetailPage() {
   }, [business])
 
   const mediaAssets = business?.mediaAssets ?? []
-  const reelMedia =
-    mediaAssets.find((item) => item.type === 'VIDEO') ||
-    mediaAssets.find((item) => item.isPrimary) ||
-    mediaAssets[0] ||
-    null
 
   const galleryMedia = mediaAssets.filter((item) => item.url).slice(0, 6)
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null)
   const profileImage =
-    mediaAssets.find((item) => !item.isPrimary && item.type !== 'VIDEO')?.url ||
-    coverImage ||
+    business?.profileImageUrl ||
     buildVisualImageDataUrl(business?.name || 'Negocio', business?.category || 'Negocio')
-
-  const quickLinks = [
-    { label: 'Detalles', href: '#detalles' },
-    { label: 'Fotos', href: '#fotos' },
-    { label: 'Promociones', href: '#promociones' },
-    { label: 'Carta', href: '#menu' },
-    { label: 'Reseñas', href: '#reseñas' },
-    { label: 'Posts', href: '#posts' },
-  ]
-
-  const profileTabs = [
-    { label: 'Posts', href: '#posts', icon: <FaRegNewspaper /> },
-    { label: 'Acerca del negocio', href: '#detalles', icon: <FaIdCard /> },
-    { label: 'Fotos', href: '#fotos', icon: <FaRegImage /> },
-    { label: 'Videos', href: '#videos', icon: <FaVideo /> },
-    { label: 'Reseñas', href: '#reseñas', icon: <FaComments /> },
-    { label: 'Carta', href: '#menu', icon: <FaUtensils /> },
-  ]
+  const selectedGalleryMedia =
+    selectedPhotoIndex !== null ? galleryMedia[selectedPhotoIndex] ?? null : null
 
   const socialLinks = [
-    business?.website ? { label: 'Web', href: business.website } : null,
-    business?.instagram
-      ? { label: 'Instagram', href: business.instagram }
+    business?.website
+      ? { label: 'Web', href: normalizeExternalLink(business.website, 'website') }
       : null,
-    business?.facebook ? { label: 'Facebook', href: business.facebook } : null,
-    business?.tiktok ? { label: 'TikTok', href: business.tiktok } : null,
-  ].filter(Boolean) as Array<{ label: string; href: string }>
+    business?.instagram
+      ? {
+          label: 'Instagram',
+          href: normalizeExternalLink(business.instagram, 'instagram'),
+        }
+      : null,
+    business?.facebook
+      ? {
+          label: 'Facebook',
+          href: normalizeExternalLink(business.facebook, 'facebook'),
+        }
+      : null,
+    business?.tiktok
+      ? { label: 'TikTok', href: normalizeExternalLink(business.tiktok, 'tiktok') }
+      : null,
+  ].filter((item): item is { label: string; href: string } => Boolean(item?.href))
 
   const publishedPosts = (business?.posts ?? [])
     .filter((post) => post.status === 'PUBLISHED')
     .slice(0, 4)
+
+  const sectionTabs = [
+    { id: 'menu', label: 'Carta' },
+    { id: 'promociones', label: 'Promociones' },
+    { id: 'fotos', label: 'Fotos' },
+    { id: 'reseñas', label: 'Reseñas' },
+    { id: 'detalles', label: 'Información' },
+    { id: 'posts', label: 'Posts' },
+  ] as const
+
+  const [activeSection, setActiveSection] = useState<(typeof sectionTabs)[number]['id']>('menu')
+
+  const scrollToSection = (sectionId: (typeof sectionTabs)[number]['id']) => {
+    setActiveSection(sectionId)
+    document.getElementById(sectionId)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+  }
 
   const openBusinessWhatsapp = (message: string) => {
     const raw = business?.whatsapp || business?.phone
@@ -304,222 +408,563 @@ export default function BusinessDetailPage() {
         onRegister={() => navigate('/register')}
       />
 
-      <main className="mx-auto grid max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:px-8">
-        <aside className="hidden lg:block">
-          <div className="sticky top-24 space-y-4">
-            <Card className="p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                Atajos
-              </p>
-              <div className="mt-4 space-y-2">
-                {quickLinks.map((item) => (
-                  <a
-                    key={item.label}
-                    href={item.href}
-                    className="block rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-orange-200 hover:text-orange-700"
-                  >
-                    {item.label}
-                  </a>
-                ))}
-              </div>
-            </Card>
+      <main className="mx-auto max-w-7xl px-4 pb-28 pt-6 sm:px-6 lg:px-8 lg:pb-8">
+        <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+          <div className="relative">
+            <img
+              src={
+                coverImage ||
+                buildVisualImageDataUrl(business.name, business.category || 'Negocio')
+              }
+              alt={business.name}
+              className="h-[280px] w-full object-cover sm:h-[360px]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-slate-950/35" />
 
-            <Card className="p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                Últimos posts
-              </p>
-              <div className="mt-4 space-y-3">
-                {publishedPosts.length > 0 ? (
-                  publishedPosts.map((post) => (
-                    <button
-                      key={post.id}
-                      type="button"
-                      onClick={() => document.getElementById('posts')?.scrollIntoView({ behavior: 'smooth' })}
-                      className="flex w-full items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-left transition hover:border-orange-200"
-                    >
-                      <img
-                        src={
-                          post.coverImageUrl ||
-                          profileImage
-                        }
-                        alt={post.title}
-                        className="h-12 w-12 rounded-xl object-cover"
-                      />
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-slate-950">
-                          {post.title}
-                        </p>
-                        <p className="truncate text-xs text-slate-500">
-                          {post.excerpt || 'Publicación reciente'}
-                        </p>
-                      </div>
-                    </button>
-                  ))
-                ) : (
-                  <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">
-                    Aún no hay posts visibles.
-                  </div>
-                )}
-              </div>
-            </Card>
+            <div className="absolute right-4 top-4 hidden gap-2 sm:flex">
+              <Button
+                size="sm"
+                variant="ghost"
+                className="bg-white/90 text-slate-900 hover:bg-white"
+                onClick={() => {
+                  if (whatsappUrl) {
+                    void trackCtaClick({
+                      businessId: business.id,
+                      sourceScreen: 'business_detail_hero',
+                    })
+                    window.open(whatsappUrl, '_blank', 'noreferrer')
+                  }
+                }}
+              >
+                Pedir
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="bg-white/90 text-slate-900 hover:bg-white"
+                onClick={() => navigate('/register')}
+              >
+                Seguir
+              </Button>
+            </div>
           </div>
-        </aside>
 
-        <div className="space-y-6">
-          <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
-            <div className="relative">
-              <img
-                src={
-                  coverImage ||
-                  buildVisualImageDataUrl(business.name, business.category || 'Negocio')
-                }
-                alt={business.name}
-                className="h-[280px] w-full object-cover sm:h-[360px]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-slate-950/35" />
+          <div className="relative bg-white px-4 pb-4 sm:px-6 lg:px-8">
+            <div className="-mt-16 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div className="flex min-w-0 items-end gap-4">
+                <div className="h-28 w-28 overflow-hidden rounded-full border-4 border-white bg-slate-100 shadow-xl">
+                  <img
+                    src={profileImage}
+                    alt={`${business.name} perfil`}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
 
-              <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full bg-white/90 px-3 py-2 text-sm font-medium text-slate-700 shadow-sm backdrop-blur">
-                <FaStar className="text-orange-500" />
-                {business.ratingAverage?.toFixed(1) ?? '0.0'}
-                <span className="text-slate-400">·</span>
-                {business.reviewsCount ?? 0} reseñas
+                <div className="pb-2">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                    {business.businessType || business.category}
+                  </p>
+                  <div className="mt-1 flex flex-wrap items-center gap-2">
+                    <h1 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
+                      {business.name}
+                    </h1>
+                    {business.isVerified ? <VerifiedBadge /> : null}
+                  </div>
+                  <p className="mt-2 text-sm text-slate-500">
+                    {business.city}
+                    {business.address ? ` · ${business.address}` : ''}
+                  </p>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm">
+                      <FaStar className="text-amber-500" />
+                      {business.ratingAverage?.toFixed(1) ?? '0.0'} ·{' '}
+                      {business.reviewsCount ?? 0} reseñas
+                    </span>
+
+                    <BusinessLikeButton
+                      businessId={business.id}
+                      businessName={business.name}
+                      initialHasLiked={business.hasLiked ?? false}
+                      initialLikesCount={business.likesCount ?? 0}
+                      onRequireAuth={() => navigate('/login')}
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="absolute right-4 top-4 hidden gap-2 sm:flex">
+              <div className="flex flex-wrap gap-2 pb-2">
                 <Button
-                  size="sm"
-                  variant="ghost"
-                  className="bg-white/90 text-slate-900 hover:bg-white"
                   onClick={() => {
                     if (whatsappUrl) {
+                      void trackCtaClick({
+                        businessId: business.id,
+                        sourceScreen: 'business_detail_menu',
+                      })
                       window.open(whatsappUrl, '_blank', 'noreferrer')
                     }
                   }}
                 >
-                  Pedir
+                  Pedir por WhatsApp
                 </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="bg-white/90 text-slate-900 hover:bg-white"
-                  onClick={() => navigate('/register')}
-                >
-                  Seguir
+                <Button variant="outline" onClick={() => navigate(`/businesses/${business.id}/menu`)}>
+                  Ver carta
                 </Button>
               </div>
             </div>
+          </div>
+        </section>
 
-            <div className="relative bg-white px-4 pb-4 sm:px-6 lg:px-8">
-              <div className="-mt-16 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <div className="flex min-w-0 items-end gap-4">
-                  <div className="h-28 w-28 overflow-hidden rounded-full border-4 border-white bg-slate-100 shadow-xl">
-                    <img
-                      src={profileImage}
-                      alt={`${business.name} perfil`}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
+        <section
+          aria-label="Navegación interna"
+          className="sticky top-16 z-30 mb-6 rounded-[1.5rem] border border-slate-200 bg-white/95 p-2 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/80"
+        >
+          <div className="flex gap-2 overflow-x-auto">
+            {sectionTabs.map((tab) => {
+              const active = activeSection === tab.id
 
-                  <div className="pb-2">
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-                      {business.businessType || business.category}
-                    </p>
-                    <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
-                      {business.name}
-                    </h1>
-                    <p className="mt-2 text-sm text-slate-500">
-                      {business.city}
-                      {business.address ? ` · ${business.address}` : ''}
-                    </p>
-                  </div>
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => scrollToSection(tab.id)}
+                  aria-pressed={active}
+                  className={[
+                    'whitespace-nowrap rounded-2xl px-4 py-2.5 text-sm font-semibold transition',
+                    active
+                      ? 'bg-[var(--brand-green-600)] text-white shadow-sm'
+                      : 'border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900',
+                  ].join(' ')}
+                >
+                  {tab.label}
+                </button>
+              )
+            })}
+          </div>
+        </section>
+
+        <section
+          id="menu"
+          className="scroll-mt-28 overflow-hidden rounded-[2rem] border border-stone-200 bg-[linear-gradient(180deg,#fffdf9_0%,#ffffff_100%)] p-5 shadow-[0_12px_40px_rgba(15,23,42,0.04)]"
+        >
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--brand-green-700)]">
+                Carta
+              </p>
+              <h2 className="text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
+                Explora los platos del negocio
+              </h2>
+              <p className="text-sm leading-6 text-slate-600">
+                Fotos, precios y detalles claros para elegir rápido.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => navigate(`/businesses/${business.id}/menu`)}
+              >
+                Ver carta completa
+              </Button>
+            </div>
+          </div>
+
+          <div className="mt-6 space-y-6">
+            <div className="rounded-[1.5rem] border border-stone-200 bg-white/80 p-3">
+              <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    Categorías
+                  </p>
+                  <p className="mt-1 text-sm text-slate-600">
+                    Navega la carta con una lectura suave y precisa.
+                  </p>
                 </div>
 
-                <div className="flex flex-wrap gap-2 pb-2">
-                  <Button
-                    onClick={() => {
-                      if (whatsappUrl) {
-                        window.open(whatsappUrl, '_blank', 'noreferrer')
-                      }
-                    }}
-                  >
-                    Pedir por WhatsApp
-                  </Button>
-                  <Button variant="outline" onClick={() => navigate(`/businesses/${business.id}/menu`)}>
-                    Ver carta
-                  </Button>
-                </div>
+                <p className="text-xs text-slate-500">
+                  {menuCategories.length > 0
+                    ? `${menuCategories.length} categorías disponibles`
+                    : 'Sin categorías visibles'}
+                </p>
               </div>
 
-              <div className="mt-5 flex gap-2 overflow-x-auto pb-2">
-                {profileTabs.map((tab, index) => {
-                  const isPrimary = index === 0
+              {menuCategories.length > 0 ? (
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {menuCategories.map((category) => {
+                    const active = activeCategoryId === category.id
+
+                    return (
+                      <button
+                        key={category.id}
+                        type="button"
+                        onClick={() => setActiveCategoryId(category.id)}
+                        aria-pressed={active}
+                        className={[
+                          'whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition',
+                          active
+                            ? 'bg-[var(--brand-green-600)] text-white shadow-sm'
+                            : 'border border-stone-200 bg-white text-slate-700 hover:border-stone-300 hover:text-slate-950',
+                        ].join(' ')}
+                      >
+                        {category.name}
+                        <span className={active ? 'ml-2 text-white/75' : 'ml-2 text-slate-400'}>
+                          {category.products?.length ?? 0}
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">
+                  Aún no hay categorías visibles para mostrar.
+                </div>
+              )}
+            </div>
+
+            {feedProducts.length > 0 ? (
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {feedProducts.map((product) => {
+                  const productImage =
+                    product.imageUrl ||
+                    buildVisualImageDataUrl(product.name, activeCategory?.name || 'Plato')
+
                   return (
-                    <a
-                      key={tab.label}
-                      href={tab.href}
-                      className={[
-                        'inline-flex min-w-fit items-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition',
-                        isPrimary
-                          ? 'bg-orange-500 text-white shadow-sm hover:bg-orange-600'
-                          : 'bg-[var(--brand-green-500)] text-white hover:bg-[var(--brand-green-600)]',
-                      ].join(' ')}
+                    <article
+                      key={product.id}
+                      className="flex h-full flex-col overflow-hidden rounded-[1.25rem] border border-stone-200 bg-white shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(15,23,42,0.08)]"
                     >
-                      <span className="text-base">{tab.icon}</span>
-                      {tab.label}
-                    </a>
+                      <div className="relative aspect-[4/3] overflow-hidden bg-stone-100">
+                        <img
+                          src={productImage}
+                          alt={product.name}
+                          className="h-full w-full object-cover transition duration-500 hover:scale-105"
+                        />
+                        {product.isFeatured ? (
+                          <div className="absolute left-3 top-3">
+                            <Badge variant="success">Signature</Badge>
+                          </div>
+                        ) : null}
+                      </div>
+
+                      <div className="flex flex-1 flex-col space-y-2.5 px-4 py-3.5">
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                            {activeCategory?.name || 'Carta'}
+                          </p>
+                          <h3 className="text-base font-semibold tracking-tight text-slate-950">
+                            {product.name}
+                          </h3>
+                          {product.shortDescription || product.description ? (
+                            <p className="line-clamp-2 text-xs leading-5 text-slate-600">
+                              {product.shortDescription ||
+                                product.description ||
+                                'Un plato listo para descubrir.'}
+                            </p>
+                          ) : (
+                            <p className="line-clamp-2 text-xs leading-5 text-slate-500">
+                              Sin descripción visible por ahora.
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="mt-auto flex items-center justify-between gap-3 pt-1">
+                          <span className="text-sm font-semibold text-slate-950">
+                            {formatMenuPrice(product.price, product.currency || 'COP')}
+                          </span>
+
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => navigate(`/products/${product.id}`)}
+                          >
+                            Ver detalle
+                          </Button>
+                        </div>
+                      </div>
+                    </article>
                   )
                 })}
               </div>
-
-              <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4">
-                {[
-                  business.category,
-                  business.businessType,
-                  business.city,
-                  business.reviewsCount ? `${business.reviewsCount} reseñas` : null,
-                  business.whatsapp ? 'WhatsApp' : null,
-                  highlightPromotion?.isHighlighted ? 'Promoción destacada' : null,
-                ]
-                  .filter(Boolean)
-                  .map((label) => (
-                    <Badge key={label as string} variant="neutral">
-                      {label}
-                    </Badge>
-                  ))}
+            ) : (
+              <div className="rounded-[1.75rem] border border-dashed border-slate-300 bg-slate-50 p-8">
+                <div className="max-w-2xl space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    Carta visual
+                  </p>
+                  <h3 className="text-2xl font-semibold tracking-tight text-slate-950">
+                    Aún no hay platos visibles en esta categoría
+                  </h3>
+                  <p className="text-sm leading-6 text-slate-600">
+                    Cambia de categoría o abre la carta completa para ver el menú disponible.
+                  </p>
+                  <div className="pt-2">
+                    <Button onClick={() => navigate(`/businesses/${business.id}/menu`)}>
+                      Ver carta completa
+                    </Button>
+                  </div>
+                </div>
               </div>
-            </div>
-          </section>
+            )}
+          </div>
+        </section>
 
-          <section
-            id="detalles"
-            className="grid gap-6 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm xl:grid-cols-[360px_minmax(0,1fr)]"
-          >
-            <Card className="bg-slate-50">
-              <CardHeader>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-500">
-                  Detalles
-                </p>
-                <CardTitle className="mt-2 text-2xl">Acerca del negocio</CardTitle>
-                <CardDescription>
-                  La información principal que el usuario quiere ver de inmediato.
-                </CardDescription>
-              </CardHeader>
+        <section
+          id="promociones"
+          className="scroll-mt-28 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm"
+        >
+          <SectionHeader
+            eyebrow="Promociones"
+            title="Ofertas activas"
+            description="Un incentivo claro que acompaña la decisión sin sobrecargar el diseño."
+          />
 
-              <CardContent className="space-y-4">
-                <InfoChip label="Nombre" value={business.name} />
-                <InfoChip label="Categoría" value={business.category} />
-                <InfoChip label="Dirección" value={business.address || 'No definida'} />
-                <InfoChip label="Ciudad" value={business.city || 'No definida'} />
-                <InfoChip
-                  label="Teléfono / WhatsApp"
-                  value={business.phone || business.whatsapp || 'No disponible'}
-                />
-
-                {socialLinks.length > 0 ? (
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                      Redes sociales
+          <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+            {highlightPromotion ? (
+              <Card className="overflow-hidden" padding="none">
+                <div className="grid gap-0 lg:grid-cols-[1fr_320px]">
+                  <div className="p-5 sm:p-6">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="warning">Activa</Badge>
+                      {highlightPromotion.isHighlighted ? <Badge variant="success">Destacada</Badge> : null}
+                    </div>
+                    <h3 className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">
+                      {highlightPromotion.title}
+                    </h3>
+                    <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+                      {highlightPromotion.description ||
+                        'Promoción disponible para este negocio. Ideal para acelerar la decisión.'}
                     </p>
+
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      <Button onClick={() => scrollToSection('menu')}>Ver carta</Button>
+                      <Button
+                        variant="outline"
+                        onClick={() =>
+                          openBusinessWhatsapp(
+                            `Hola, vi la promoción "${highlightPromotion.title}" en ${business.name}.`
+                          )
+                        }
+                      >
+                        Pedir ahora
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="relative">
+                    <img
+                      src={
+                        highlightPromotion.imageUrl ||
+                        buildVisualImageDataUrl(highlightPromotion.title, business.category || 'Promoción')
+                      }
+                      alt={highlightPromotion.title}
+                      className="h-full min-h-[240px] w-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-slate-950/35 via-transparent to-transparent" />
+                  </div>
+                </div>
+              </Card>
+            ) : (
+              <div className="rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50 p-8">
+                <h3 className="text-lg font-semibold text-slate-950">Sin promociones activas</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Cuando el negocio publique una oferta, la verás aquí como una oportunidad clara para pedir más rápido.
+                </p>
+              </div>
+            )}
+
+            <div className="grid gap-4">
+              {activePromotions.length > 0 ? (
+                activePromotions.map((promotion) => (
+                  <Card key={promotion.id} hoverable padding="none" className="overflow-hidden">
+                    <div className="grid gap-0 sm:grid-cols-[130px_minmax(0,1fr)]">
+                      <img
+                        src={
+                          promotion.imageUrl ||
+                          buildVisualImageDataUrl(promotion.title, business.category || 'Promoción')
+                        }
+                        alt={promotion.title}
+                        className="h-full min-h-[130px] w-full object-cover"
+                      />
+                      <div className="space-y-3 p-4">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="warning">Activa</Badge>
+                          {promotion.isHighlighted ? <Badge variant="success">Nueva</Badge> : null}
+                        </div>
+                        <div>
+                          <h4 className="text-base font-semibold text-slate-950">{promotion.title}</h4>
+                          <p className="mt-2 text-sm leading-6 text-slate-600">
+                            {promotion.description || 'Promoción visible para este negocio.'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))
+              ) : (
+                <div className="rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50 p-8">
+                  <p className="text-sm font-medium text-slate-900">No hay más promociones activas</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    La promoción destacada sigue siendo la mejor ruta de conversión disponible.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="fotos"
+          className="scroll-mt-28 rounded-[2rem] border border-stone-200 bg-[linear-gradient(180deg,#fffdf9_0%,#ffffff_100%)] p-4 shadow-[0_12px_40px_rgba(15,23,42,0.04)]"
+        >
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-2xl space-y-2">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--brand-green-700)]">
+                Fotos
+              </p>
+              <h2 className="text-xl font-semibold tracking-tight text-slate-950 sm:text-2xl">
+                Galería visual
+              </h2>
+              <p className="text-sm leading-6 text-slate-600">
+                Un vistazo rápido a platos, ambiente y detalles del negocio.
+              </p>
+            </div>
+
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                if (galleryMedia.length > 0) setSelectedPhotoIndex(0)
+              }}
+            >
+              Ver todas
+            </Button>
+          </div>
+
+          <div className="mt-4">
+            {galleryMedia.length > 0 ? (
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                {galleryMedia.slice(0, 8).map((media, index) => (
+                  <button
+                    key={media.id}
+                    type="button"
+                    onClick={() => setSelectedPhotoIndex(index)}
+                    className="group relative aspect-square overflow-hidden rounded-[1.25rem] border border-stone-200 bg-stone-100 shadow-[0_6px_20px_rgba(15,23,42,0.04)]"
+                    aria-label={`Abrir foto ${index + 1}`}
+                  >
+                    <img
+                      src={media.url}
+                      alt={media.altText || business.name}
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-slate-950/0 transition duration-300 group-hover:bg-slate-950/10" />
+                  </button>
+                ))}
+                {galleryMedia.length > 8 ? (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPhotoIndex(7)}
+                    className="group relative aspect-square overflow-hidden rounded-[1.25rem] border border-stone-200 bg-stone-100 shadow-[0_6px_20px_rgba(15,23,42,0.04)]"
+                    aria-label="Abrir más fotos"
+                  >
+                    <img
+                      src={galleryMedia[7].url}
+                      alt={galleryMedia[7].altText || business.name}
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-slate-950/30" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="rounded-full border border-white/25 bg-white/15 px-4 py-2 text-sm font-medium text-white backdrop-blur">
+                        +{galleryMedia.length - 7} fotos
+                      </div>
+                    </div>
+                  </button>
+                ) : null}
+              </div>
+            ) : (
+              <div className="rounded-[1.5rem] border border-dashed border-stone-300 bg-stone-50 p-5">
+                <div className="max-w-xl space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    Fotos
+                  </p>
+                  <h3 className="text-lg font-semibold tracking-tight text-slate-950">
+                    Aún no hay fotos disponibles
+                  </h3>
+                  <p className="text-sm leading-6 text-slate-600">
+                    Pronto verás imágenes del menú y del ambiente.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section
+          id="reseñas"
+          className="scroll-mt-28 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm"
+        >
+          <ReviewSection
+            businessId={business.id}
+          />
+        </section>
+
+        <section
+          id="detalles"
+          className="scroll-mt-28 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm"
+        >
+          <SectionHeader
+            eyebrow="Información"
+            title="Datos del negocio"
+            description="Una lectura breve para ubicar el negocio, entender su perfil y contactar sin fricción."
+          />
+
+          <div className="mt-6">
+            <Card className="overflow-hidden border-stone-200 bg-white shadow-sm">
+              <CardContent className="grid gap-5 p-5 lg:grid-cols-[minmax(0,1.15fr)_320px] lg:items-start">
+                <div className="space-y-5">
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="neutral">Confianza local</Badge>
+                      {business.businessType ? (
+                        <Badge variant="neutral">{business.businessType}</Badge>
+                      ) : null}
+                    </div>
+
+                    <h3 className="text-2xl font-semibold tracking-tight text-slate-950">
+                      Un negocio real, cercano y fácil de encontrar.
+                    </h3>
+
+                    <p className="max-w-2xl text-sm leading-6 text-slate-600">
+                      {buildBusinessStory({
+                        category: business.category,
+                        city: business.city,
+                        ratingAverage: business.ratingAverage,
+                        reviewsCount: business.reviewsCount,
+                        hasWhatsapp: Boolean(business.whatsapp || business.phone),
+                      })}
+                    </p>
+                  </div>
+
+                  <dl className="grid gap-3 sm:grid-cols-2">
+                    <BusinessFact
+                      label="Categoría"
+                      value={business.category || 'No definida'}
+                    />
+                    <BusinessFact
+                      label="Ciudad"
+                      value={business.city || 'No definida'}
+                    />
+                    <BusinessFact
+                      label="Dirección"
+                      value={business.address || 'No disponible'}
+                    />
+                    <BusinessFact
+                      label="Horario"
+                      value="Horario no registrado"
+                    />
+                  </dl>
+
+                  {socialLinks.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                       {socialLinks.map((link) => (
                         <a
@@ -527,269 +972,231 @@ export default function BusinessDetailPage() {
                           href={link.href}
                           target="_blank"
                           rel="noreferrer"
-                          className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-orange-200 hover:text-orange-700"
+                          className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3.5 py-2 text-sm font-medium text-slate-600 transition hover:border-slate-300 hover:bg-white hover:text-slate-900"
                         >
                           {link.label}
                         </a>
                       ))}
                     </div>
-                  </div>
-                ) : null}
-              </CardContent>
-            </Card>
-
-            <Card className="overflow-hidden">
-              <CardHeader className="px-0">
-                <div className="flex items-center justify-between px-5 pt-5">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-500">
-                      Reel
-                    </p>
-                    <CardTitle className="mt-2 text-xl">Photo o video</CardTitle>
-                  </div>
-                  {reelMedia?.type === 'VIDEO' ? (
-                    <Badge variant="info">Video</Badge>
-                  ) : (
-                    <Badge variant="neutral">Foto</Badge>
-                  )}
+                  ) : null}
                 </div>
-                <CardDescription className="px-5">
-                  Un bloque visual dominante, parecido a Facebook, para reforzar deseo y confianza.
-                </CardDescription>
-              </CardHeader>
 
-              <CardContent className="px-5 pb-5">
-                {reelMedia?.type === 'VIDEO' ? (
-                  <video
-                    src={reelMedia.url}
-                    poster={coverImage || undefined}
-                    controls
-                    className="h-[340px] w-full rounded-[1.5rem] bg-slate-950 object-cover"
-                  />
-                ) : (
-                  <img
-                    src={
-                      reelMedia?.url ||
-                      coverImage ||
-                      buildVisualImageDataUrl(business.name, 'Reel')
-                    }
-                    alt={business.name}
-                    className="h-[340px] w-full rounded-[1.5rem] object-cover"
-                  />
-                )}
-              </CardContent>
-            </Card>
-          </section>
+                <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                        Reputación
+                      </p>
+                      <p className="mt-1 text-sm text-slate-600">
+                        Señal rápida para decidir con confianza.
+                      </p>
+                    </div>
 
-          <section id="menu" className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
-            <SectionHeader
-              eyebrow="Carta"
-              title="Abrir menú completo"
-              description="Los platos no aparecen aquí. Solo se muestran cuando entras al menú."
-            />
+                    <div className="text-right">
+                      <p className="text-3xl font-semibold tracking-tight text-slate-950">
+                        {business.ratingAverage?.toFixed(1) ?? '0.0'}
+                      </p>
+                      <p className="text-xs font-medium text-amber-500">
+                        {business.reviewsCount ? `${business.reviewsCount} reseñas` : 'Sin reseñas'}
+                      </p>
+                    </div>
+                  </div>
 
-            <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_300px]">
-              <Card className="bg-slate-50">
-                <CardHeader>
-                  <CardTitle className="text-2xl">Una vista limpia del negocio</CardTitle>
-                  <CardDescription>
-                    Mantener la portada sin exceso ayuda a que el usuario primero entienda
-                    qué negocio es y luego entre a la carta cuando ya tiene intención de pedir.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex flex-wrap gap-2">
-                    {menuCategories.slice(0, 6).map((category) => (
-                      <Badge key={category.id} variant="neutral">
-                        {category.name}
-                      </Badge>
-                    ))}
-                    {menuCategories.length === 0 ? (
-                      <Badge variant="neutral">Sin categorías visibles</Badge>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        const raw = business.whatsapp || business.phone
+                        if (!raw) return
+                        openBusinessWhatsapp(
+                          `Hola, quiero conocer más sobre ${business.name}.`
+                        )
+                      }}
+                    >
+                      Contactar
+                    </Button>
+
+                    {business.address ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const mapsQuery = encodeURIComponent(
+                            `${business.address}${business.city ? `, ${business.city}` : ''}`
+                          )
+                          window.open(`https://www.google.com/maps/search/?api=1&query=${mapsQuery}`, '_blank')
+                        }}
+                      >
+                        Ver ubicación
+                      </Button>
                     ) : null}
                   </div>
 
-                  <div className="flex flex-wrap gap-3">
-                    <Button onClick={() => navigate(`/businesses/${business.id}/menu`)}>
-                      Ver carta completa
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() =>
-                        openBusinessWhatsapp(
-                          `Hola, quiero ver la carta de ${business.name}.`
-                        )
-                      }
-                    >
-                      Pedir por WhatsApp
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                  <p className="mt-3 text-xs leading-5 text-slate-500">
+                    {business.whatsapp || business.phone
+                      ? 'Atención disponible por WhatsApp o teléfono.'
+                      : 'Aún no hay un canal de contacto visible.'}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Resumen</CardTitle>
-                  <CardDescription>
-                    {menuCategories.length} categoría{menuCategories.length === 1 ? '' : 's'} y toda la carta
-                    disponible dentro del menú.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {menuCategories.length > 0 ? (
-                    menuCategories.map((category) => (
-                      <button
-                        key={category.id}
-                        type="button"
-                        onClick={() => navigate(`/businesses/${business.id}/menu`)}
-                        className="flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-medium text-slate-700 transition hover:border-orange-200 hover:text-orange-700"
-                      >
-                        <span>{category.name}</span>
-                        <span className="text-xs text-slate-500">
-                          {category.products?.length ?? 0} platos
-                        </span>
-                      </button>
-                    ))
-                  ) : (
-                    <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">
-                      La carta todavía no tiene categorías visibles.
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </section>
+        <section
+          id="posts"
+          className="scroll-mt-28 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm"
+        >
+          <SectionHeader
+            eyebrow="Posts"
+            title="Novedades del negocio"
+            description="Publicaciones breves, al final del recorrido, para sumar contexto sin competir con la carta."
+          />
 
-          <section id="fotos" className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
-            <SectionHeader
-              eyebrow="Fotos"
-              title="Galería"
-              description="Material visual breve para reforzar la decisión."
-            />
-
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {galleryMedia.length > 0 ? (
-                galleryMedia.map((media) => (
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {publishedPosts.length > 0 ? (
+              publishedPosts.map((post) => (
+                <article
+                  key={post.id}
+                  className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                >
                   <img
-                    key={media.id}
-                    src={media.url}
-                    alt={media.altText || business.name}
-                    className="h-52 w-full rounded-[1.5rem] object-cover"
+                    src={post.coverImageUrl || profileImage}
+                    alt={post.title}
+                    className="h-48 w-full object-cover"
                   />
-                ))
-              ) : (
-                <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-sm text-slate-500 lg:col-span-3">
-                  No hay fotos adicionales registradas.
-                </div>
-              )}
-            </div>
-          </section>
-
-          <section id="promociones" className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
-            <SectionHeader
-              eyebrow="Promociones"
-              title="Ofertas activas"
-              description="Promociones visibles para empujar al usuario a pedir."
-            />
-
-            <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {business.promotions?.filter((promotion) => promotion.status === 'ACTIVE').length ? (
-                business.promotions
-                  ?.filter((promotion) => promotion.status === 'ACTIVE')
-                  .slice(0, 3)
-                  .map((promotion) => (
-                    <Card key={promotion.id} hoverable padding="none" className="overflow-hidden">
-                        <img
-                          src={
-                            promotion.imageUrl ||
-                            buildVisualImageDataUrl(promotion.title, business.category || 'Promoción')
-                          }
-                        alt={promotion.title}
-                        className="h-44 w-full object-cover"
-                      />
-                      <div className="space-y-3 p-5">
-                        <div className="flex items-center justify-between gap-3">
-                          <Badge variant="warning">Activa</Badge>
-                          {promotion.isHighlighted ? <Badge variant="success">Destacada</Badge> : null}
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-slate-950">
-                            {promotion.title}
-                          </h3>
-                          <p className="mt-2 text-sm leading-6 text-slate-600">
-                            {promotion.description || 'Promoción disponible para este negocio.'}
-                          </p>
-                        </div>
-                      </div>
-                    </Card>
-                  ))
-              ) : (
-                <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-sm text-slate-500 md:col-span-2 xl:col-span-3">
-                  Este negocio no tiene promociones activas.
-                </div>
-              )}
-            </div>
-          </section>
-
-          <section id="posts" className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
-            <SectionHeader
-              eyebrow="Posts"
-              title="Últimos posts"
-              description="Contenido reciente para acompañar la carta y las fotos."
-            />
-
-            <div className="mt-6 grid gap-5 md:grid-cols-2">
-              {publishedPosts.length > 0 ? (
-                publishedPosts.map((post) => (
-                  <article
-                    key={post.id}
-                    className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm"
-                  >
-                    <img
-                      src={
-                        post.coverImageUrl ||
-                        profileImage
-                      }
-                      alt={post.title}
-                      className="h-52 w-full object-cover"
-                    />
-                    <div className="space-y-2 p-5">
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                        Publicado
-                      </p>
-                      <h3 className="text-lg font-semibold text-slate-950">{post.title}</h3>
-                      <p className="text-sm leading-6 text-slate-600">
-                        {post.excerpt || 'Sin resumen disponible.'}
-                      </p>
-                    </div>
-                  </article>
-                ))
-              ) : (
-                <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-sm text-slate-500 md:col-span-2">
-                  Aún no hay posts visibles.
-                </div>
-              )}
-            </div>
-          </section>
-
-          <section id="reseñas" className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
-            <ReviewSection businessId={business.id} />
-          </section>
-        </div>
+                  <div className="space-y-2 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                      Novedad
+                    </p>
+                    <h3 className="text-lg font-semibold text-slate-950">{post.title}</h3>
+                    <p className="text-sm leading-6 text-slate-600">
+                      {post.excerpt || 'Actualización reciente del negocio.'}
+                    </p>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <div className="rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50 p-8 md:col-span-2 xl:col-span-3">
+                <h3 className="text-lg font-semibold text-slate-950">Sin novedades todavía</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Cuando el negocio publique novedades, aparecerán aquí como soporte final de confianza.
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
       </main>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:hidden">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3">
+          <Button
+            variant="outline"
+            fullWidth
+            onClick={() => scrollToSection('menu')}
+          >
+            Ver carta
+          </Button>
+          <Button
+            fullWidth
+            onClick={() => {
+              if (whatsappUrl) {
+                window.open(whatsappUrl, '_blank', 'noreferrer')
+              } else {
+                scrollToSection('menu')
+              }
+            }}
+          >
+            Pedir por WhatsApp
+          </Button>
+        </div>
+      </div>
+
+      <Modal
+        open={selectedGalleryMedia !== null}
+        onClose={() => setSelectedPhotoIndex(null)}
+        size="xl"
+        title="Galería"
+        description={selectedGalleryMedia?.altText || business.name}
+      >
+        {selectedGalleryMedia ? (
+          <div className="space-y-4">
+            <img
+              src={selectedGalleryMedia.url}
+              alt={selectedGalleryMedia.altText || business.name}
+              className="max-h-[70vh] w-full rounded-[1.5rem] object-contain bg-stone-50"
+            />
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-slate-600">
+                {selectedGalleryMedia.altText || 'Imagen del negocio'}
+              </p>
+              <Button variant="outline" onClick={() => setSelectedPhotoIndex(null)}>
+                Cerrar
+              </Button>
+            </div>
+          </div>
+        ) : null}
+      </Modal>
 
       <Footer />
     </div>
   )
 }
 
-function InfoChip({ label, value }: { label: string; value: string }) {
+function BusinessFact({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+    <div className="rounded-[1.25rem] border border-slate-200 bg-slate-50 p-3.5">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
         {label}
       </p>
-      <p className="mt-1 text-sm font-medium text-slate-950">{value}</p>
+      <p className="mt-1.5 text-sm font-medium leading-6 text-slate-900">{value}</p>
     </div>
   )
+}
+
+function buildBusinessStory({
+  category,
+  city,
+  ratingAverage,
+  reviewsCount,
+  hasWhatsapp,
+}: {
+  category?: string | null
+  city?: string | null
+  ratingAverage?: number
+  reviewsCount?: number
+  hasWhatsapp: boolean
+}) {
+  const parts: string[] = []
+
+  if (category) {
+    parts.push(`Un negocio de ${category.toLowerCase()}`)
+  } else {
+    parts.push('Un negocio gastronómico local')
+  }
+
+  if (city) {
+    parts.push(`en ${city}`)
+  }
+
+  if (hasWhatsapp) {
+    parts.push('con atención por WhatsApp')
+  }
+
+  const ratingText =
+    typeof ratingAverage === 'number' && !Number.isNaN(ratingAverage)
+      ? ratingAverage.toFixed(1)
+      : '0.0'
+
+  if (reviewsCount && reviewsCount > 0) {
+    parts.push(
+      `y una reputación de ${ratingText} basada en ${reviewsCount} reseña${
+        reviewsCount === 1 ? '' : 's'
+      }.`
+    )
+  } else {
+    parts.push(`y una reputación inicial de ${ratingText}, aún sin reseñas públicas.`)
+  }
+
+  return parts.join(' ')
 }

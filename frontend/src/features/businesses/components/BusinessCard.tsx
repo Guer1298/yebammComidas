@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import Card from '../../../components/ui/Card'
 import Badge from '../../../components/ui/Badge'
 import Button from '../../../components/ui/Button'
+import { trackEvent } from '../../../lib/analytics'
 
 export interface BusinessCardData {
   id: number | string
@@ -85,13 +86,34 @@ export default function BusinessCard({
         </div>
 
         <div className="flex gap-3">
-          <Link to={`/businesses/${business.id}`} className="flex-1">
+          <Link
+            to={`/businesses/${business.id}`}
+            onClick={() =>
+              void trackEvent({
+                eventType: 'BUSINESS_PROFILE_VIEW',
+                entityType: 'business',
+                entityId: business.id,
+                sourceScreen: 'business_card',
+                metadata: { action: 'open_detail' },
+              })
+            }
+            className="flex-1"
+          >
             <Button fullWidth>Ver negocio</Button>
           </Link>
 
           <Button
             variant="outline"
-            onClick={() => onExplore?.(business.id)}
+            onClick={() => {
+              void trackEvent({
+                eventType: 'BUSINESS_PROFILE_VIEW',
+                entityType: 'business',
+                entityId: business.id,
+                sourceScreen: 'business_card',
+                metadata: { action: 'explore' },
+              })
+              onExplore?.(business.id)
+            }}
           >
             Explorar
           </Button>

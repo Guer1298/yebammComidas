@@ -11,6 +11,7 @@ import EmptyState from '../../components/ui/EmptyState'
 import Input from '../../components/ui/Input'
 import Modal from '../../components/ui/Modal'
 import { getBusinessById } from '../businesses/api'
+import { uploadMediaFile } from '../media/api'
 import {
   createPromotion,
   deactivatePromotionById,
@@ -50,6 +51,20 @@ const emptyForm: PromotionFormState = {
   endsAt: '',
   status: 'DRAFT',
   isHighlighted: false,
+}
+
+function isValidPromotionUrl(value: string) {
+  const trimmed = value.trim()
+  if (!trimmed) return false
+
+  if (trimmed.startsWith('/')) return true
+
+  try {
+    const parsed = new URL(trimmed)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+  } catch {
+    return false
+  }
 }
 
 function toDateTimeLocalValue(value?: string | null) {
@@ -98,6 +113,10 @@ export default function AdminPromotionsPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editingPromotionId, setEditingPromotionId] = useState<number | null>(null)
   const [form, setForm] = useState<PromotionFormState>(emptyForm)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState('')
+  const [imageUploadError, setImageUploadError] = useState('')
+  const [imageUploading, setImageUploading] = useState(false)
 
   async function loadData() {
     if (!businessId) {
@@ -139,6 +158,9 @@ export default function AdminPromotionsPage() {
       ...emptyForm,
       status: 'DRAFT',
     })
+    setImageFile(null)
+    setImagePreview('')
+    setImageUploadError('')
     setModalOpen(true)
   }
 
@@ -156,8 +178,23 @@ export default function AdminPromotionsPage() {
       status: promotion.status,
       isHighlighted: Boolean(promotion.isHighlighted),
     })
+    setImageFile(null)
+    setImagePreview('')
+    setImageUploadError('')
     setModalOpen(true)
   }
+
+  useEffect(() => {
+    if (!imageFile) {
+      setImagePreview('')
+      return
+    }
+
+    const preview = URL.createObjectURL(imageFile)
+    setImagePreview(preview)
+
+    return () => URL.revokeObjectURL(preview)
+  }, [imageFile])
 
   function updateField<K extends keyof PromotionFormState>(
     key: K,
@@ -173,17 +210,47 @@ export default function AdminPromotionsPage() {
 
     try {
       setSaving(true)
+      setImageUploadError('')
+
+      let nextImageUrl = form.imageUrl.trim()
+
+      if (imageFile) {
+        setImageUploading(true)
+        const formData = new FormData()
+        formData.append('businessId', String(businessId))
+        formData.append('file', imageFile)
+        const media = await uploadMediaFile(formData)
+        nextImageUrl = media?.url ? String(media.url) : ''
+      }
+
+      if (!nextImageUrl) {
+        setImageUploadError('Debes subir una imagen o pegar una URL válida.')
+        return
+      }
+
+      if (form.ctaUrl.trim() && !isValidPromotionUrl(form.ctaUrl)) {
+        setError('El enlace CTA debe ser una URL válida o una ruta interna que comience con /.')
+        return
+      }
+
+      const startsAt = form.startsAt || null
+      const endsAt = form.endsAt || null
+
+      if (startsAt && endsAt && new Date(startsAt) > new Date(endsAt)) {
+        setError('La fecha de inicio no puede ser mayor que la fecha de fin.')
+        return
+      }
 
       const payload = {
         businessId,
         title: form.title.trim(),
         slug: form.slug.trim() || slugify(form.title),
         description: form.description.trim() || null,
-        imageUrl: form.imageUrl.trim() || null,
+        imageUrl: nextImageUrl,
         ctaLabel: form.ctaLabel.trim() || null,
         ctaUrl: form.ctaUrl.trim() || null,
-        startsAt: form.startsAt || null,
-        endsAt: form.endsAt || null,
+        startsAt,
+        endsAt,
         status: form.status,
         isHighlighted: form.isHighlighted,
       }
@@ -203,6 +270,7 @@ export default function AdminPromotionsPage() {
       )
     } finally {
       setSaving(false)
+      setImageUploading(false)
     }
   }
 
@@ -340,13 +408,44 @@ export default function AdminPromotionsPage() {
             <Button variant="ghost" onClick={() => setModalOpen(false)}>
               Cancelar
             </Button>
-            <Button form="promotion-form" type="submit" loading={saving}>
+            <Button
+              form="promotion-form"
+              type="submit"
+              loading={saving || imageUploading}
+            >
               Guardar
             </Button>
           </>
         }
       >
         <form id="promotion-form" className="space-y-5" onSubmit={handleSubmit}>
+          <div className="space-y-3">
+            <label className="block text-sm font-medium text-slate-700">
+              Imagen de promoción
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
+              className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-2xl file:border-0 file:bg-orange-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-orange-600"
+            />
+            <p className="text-sm text-slate-500">
+              Sube una imagen o pega una URL directa. La promoción no se puede guardar sin imagen.
+            </p>
+            {(imagePreview || form.imageUrl) && (
+              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                <img
+                  src={imagePreview || form.imageUrl}
+                  alt={form.title || 'Imagen de promoción'}
+                  className="h-48 w-full object-cover"
+                />
+              </div>
+            )}
+            {imageUploadError ? (
+              <p className="text-sm text-red-600">{imageUploadError}</p>
+            ) : null}
+          </div>
+
           <div className="grid gap-4 md:grid-cols-2">
             <Input
               label="Título"
@@ -391,7 +490,7 @@ export default function AdminPromotionsPage() {
               value={form.imageUrl}
               onChange={(event) => updateField('imageUrl', event.target.value)}
               placeholder="https://..."
-              hint="Si no tienes imagen, igual puedes guardar y luego completarla."
+              hint="Obligatoria para guardar la promoción."
             />
 
             <Input
@@ -408,6 +507,7 @@ export default function AdminPromotionsPage() {
               value={form.ctaUrl}
               onChange={(event) => updateField('ctaUrl', event.target.value)}
               placeholder="https://wa.me/..."
+              hint="Opcional. Puedes usar una URL externa o una ruta interna que empiece por /."
             />
 
             <div className="space-y-1.5">

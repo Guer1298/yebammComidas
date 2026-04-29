@@ -152,10 +152,7 @@ export default function PromotionsPage() {
             description="Seleccionadas desde el backend y listas para llevar al usuario a la carta."
             items={cards}
             onSelectPromotion={(id) => {
-              const selected = promotions.find((promotion) => promotion.id === id)
-              if (selected?.businessId) {
-                navigate(`/businesses/${selected.businessId}`)
-              }
+              navigate(`/promotions/${id}`)
             }}
           />
         )}

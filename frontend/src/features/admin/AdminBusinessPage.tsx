@@ -8,6 +8,7 @@ import BusinessForm, {
   type BusinessFormValues,
 } from './components/BusinessForm'
 import { getBusinessById, updateBusinessById } from '../businesses/api'
+import { uploadMediaFile } from '../media/api'
 import { getPrimaryBusinessId } from '../../lib/session'
 
 type BusinessDetail = BusinessFormValues & {
@@ -16,6 +17,11 @@ type BusinessDetail = BusinessFormValues & {
   aboutArticle?: string | null
   website?: string | null
   instagram?: string | null
+  mediaAssets?: Array<{
+    id: number
+    url: string
+    isPrimary?: boolean
+  }>
 }
 
 export default function AdminBusinessPage() {
@@ -43,6 +49,10 @@ export default function AdminBusinessPage() {
           aboutArticle: data.aboutArticle || '',
           website: data.website || '',
           instagram: data.instagram || '',
+          coverImageUrl:
+            data.mediaAssets?.find((item) => item.isPrimary)?.url ||
+            data.mediaAssets?.[0]?.url ||
+            '',
         })
       } catch (err: any) {
         setError(
@@ -78,6 +88,7 @@ export default function AdminBusinessPage() {
         email: values.email || null,
         website: values.website || null,
         instagram: values.instagram || null,
+        coverImageUrl: values.coverImageUrl || null,
       })
 
       setBusiness({
@@ -86,6 +97,10 @@ export default function AdminBusinessPage() {
         aboutArticle: updated.aboutArticle || '',
         website: updated.website || '',
         instagram: updated.instagram || '',
+        coverImageUrl:
+          updated.mediaAssets?.find((item) => item.isPrimary)?.url ||
+          updated.mediaAssets?.[0]?.url ||
+          '',
       })
       setSuccess('Negocio actualizado correctamente.')
     } catch (err: any) {
@@ -96,6 +111,20 @@ export default function AdminBusinessPage() {
     } finally {
       setSaving(false)
     }
+  }
+
+  async function handleUploadCover(file: File) {
+    if (!businessId) {
+      throw new Error('No hay un negocio asociado a esta cuenta.')
+    }
+
+    const formData = new FormData()
+    formData.append('businessId', String(businessId))
+    formData.append('isPrimary', 'true')
+    formData.append('file', file)
+
+    const media = await uploadMediaFile(formData)
+    return media.url as string
   }
 
   if (loading) {
@@ -139,6 +168,7 @@ export default function AdminBusinessPage() {
           initialValues={business}
           loading={saving}
           onSubmit={handleSubmit}
+          onUploadCover={handleUploadCover}
         />
       ) : (
         <Card>

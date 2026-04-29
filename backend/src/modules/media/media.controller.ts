@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { uploadMedia } from './media.service'
+import { setPrimaryMedia, uploadMedia } from './media.service'
 
 export async function uploadMediaHandler(
   req: Request,
@@ -39,6 +39,39 @@ export async function uploadMediaHandler(
     res.status(201).json({
       ok: true,
       message: 'Archivo subido correctamente',
+      data: media,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export async function setPrimaryMediaHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const businessId = Number(req.body.businessId)
+    const mediaAssetId = Number(req.body.mediaAssetId)
+    const isPrimary = req.body.isPrimary !== 'false'
+
+    if (Number.isNaN(businessId) || Number.isNaN(mediaAssetId)) {
+      return res.status(400).json({
+        ok: false,
+        message: 'businessId y mediaAssetId son obligatorios y deben ser numéricos',
+      })
+    }
+
+    const media = await setPrimaryMedia({
+      businessId,
+      mediaAssetId,
+      isPrimary,
+    })
+
+    res.status(200).json({
+      ok: true,
+      message: 'Estado principal actualizado correctamente',
       data: media,
     })
   } catch (error) {

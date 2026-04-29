@@ -3,6 +3,7 @@ import Card from '../../../components/ui/Card'
 import Badge from '../../../components/ui/Badge'
 import Button from '../../../components/ui/Button'
 import { buildVisualImageDataUrl } from '../../../lib/visualImage'
+import { trackEvent } from '../../../lib/analytics'
 
 export interface ProductCardData {
   id: number | string
@@ -87,13 +88,34 @@ export default function ProductCard({
         )}
 
         <div className="flex gap-3">
-          <Link to={`/products/${product.id}`} className="flex-1">
+          <Link
+            to={`/products/${product.id}`}
+            onClick={() =>
+              void trackEvent({
+                eventType: 'PRODUCT_VIEW',
+                entityType: 'product',
+                entityId: product.id,
+                sourceScreen: 'product_card',
+                metadata: { action: 'open_detail' },
+              })
+            }
+            className="flex-1"
+          >
             <Button fullWidth>Ver producto</Button>
           </Link>
 
           <Button
             variant="outline"
-            onClick={() => onQuickAction?.(product.id)}
+            onClick={() => {
+              void trackEvent({
+                eventType: 'PRODUCT_VIEW',
+                entityType: 'product',
+                entityId: product.id,
+                sourceScreen: 'product_card',
+                metadata: { action: 'quick_action' },
+              })
+              onQuickAction?.(product.id)
+            }}
           >
             Ver más
           </Button>

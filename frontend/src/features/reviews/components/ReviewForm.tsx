@@ -22,8 +22,8 @@ interface ReviewFormProps {
 export default function ReviewForm({
   onSubmit,
   loading = false,
-  title = 'Escribe tu reseña',
-  description = 'Comparte tu experiencia para ayudar a otros usuarios a decidir mejor.',
+  title = 'Comparte tu experiencia',
+  description = 'Tu opinión ayuda a otros usuarios a decidir con más confianza.',
 }: ReviewFormProps) {
   const [rating, setRating] = React.useState(5)
   const [comment, setComment] = React.useState('')
@@ -58,14 +58,14 @@ export default function ReviewForm({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
+    <Card className="border-stone-200 bg-white shadow-sm">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-lg">{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
 
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <label className="block text-sm font-medium text-slate-700">
               Calificación
@@ -80,10 +80,10 @@ export default function ReviewForm({
                     key={value}
                     type="button"
                     onClick={() => setRating(value)}
-                    className={`inline-flex h-11 w-11 items-center justify-center rounded-2xl border text-sm font-semibold transition ${
+                    className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl border text-sm font-semibold transition ${
                       active
-                        ? 'border-orange-500 bg-orange-500 text-white'
-                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                        ? 'border-[var(--brand-green-600)] bg-[var(--brand-green-600)] text-white'
+                        : 'border-stone-200 bg-white text-slate-700 hover:bg-stone-50'
                     }`}
                   >
                     {value}
@@ -105,12 +105,12 @@ export default function ReviewForm({
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              rows={5}
+              rows={4}
               placeholder="Cuéntanos cómo fue tu experiencia"
               className={`w-full rounded-2xl border bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:ring-4 ${
                 errors.comment
                   ? 'border-red-300 focus:border-red-400 focus:ring-red-100'
-                  : 'border-slate-200 focus:border-orange-400 focus:ring-orange-100'
+                  : 'border-stone-200 focus:border-[var(--brand-green-600)] focus:ring-[rgba(22,164,76,0.12)]'
               }`}
             />
 

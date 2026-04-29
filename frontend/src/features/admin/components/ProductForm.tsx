@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import Button from '../../../components/ui/Button'
 import Input from '../../../components/ui/Input'
@@ -29,6 +29,7 @@ export type ProductCategoryOption = {
 interface ProductFormProps {
   initialValues?: Partial<ProductFormValues>
   onSubmit?: (values: ProductFormValues) => void
+  onUploadImage?: (file: File) => Promise<string>
   loading?: boolean
   businessName?: string
   businessCategory?: string
@@ -38,11 +39,16 @@ interface ProductFormProps {
 export default function ProductForm({
   initialValues = {},
   onSubmit,
+  onUploadImage,
   loading = false,
   businessName,
   businessCategory,
   categoryOptions = [],
 }: ProductFormProps) {
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState('')
+  const [imageUploadError, setImageUploadError] = useState('')
+  const [imageUploading, setImageUploading] = useState(false)
   const [values, setValues] = useState<ProductFormValues>({
     businessId: initialValues.businessId || '',
     categoryId: initialValues.categoryId || '',
@@ -59,6 +65,18 @@ export default function ProductForm({
     sortOrder: initialValues.sortOrder || '',
   })
   const [dirtySlug, setDirtySlug] = useState(Boolean(initialValues.slug))
+
+  useEffect(() => {
+    if (!imageFile) {
+      setImagePreview('')
+      return
+    }
+
+    const preview = URL.createObjectURL(imageFile)
+    setImagePreview(preview)
+
+    return () => URL.revokeObjectURL(preview)
+  }, [imageFile])
 
   function handleChange<K extends keyof ProductFormValues>(
     key: K,
@@ -80,9 +98,37 @@ export default function ProductForm({
     })
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    onSubmit?.(values)
+
+    try {
+      setImageUploadError('')
+
+      let nextImageUrl = values.imageUrl.trim()
+
+      if (imageFile && onUploadImage) {
+        setImageUploading(true)
+        nextImageUrl = await onUploadImage(imageFile)
+      }
+
+      if (!nextImageUrl) {
+        setImageUploadError('Debes subir una imagen o pegar una URL.')
+        return
+      }
+
+      await onSubmit?.({
+        ...values,
+        imageUrl: nextImageUrl,
+      })
+    } catch (error: any) {
+      setImageUploadError(
+        error?.response?.data?.message ||
+          error?.message ||
+          'No fue posible subir la imagen'
+      )
+    } finally {
+      setImageUploading(false)
+    }
   }
 
   return (
@@ -162,6 +208,31 @@ export default function ProductForm({
             title="Texto e imagen"
             description="La foto y la descripción hacen la diferencia."
           >
+            <div className="space-y-3">
+              <FieldLabel title="Imagen del producto" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
+                className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-2xl file:border-0 file:bg-orange-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-orange-600"
+              />
+              <p className="text-sm text-slate-500">
+                Sube una imagen o pega una URL directa. La imagen es obligatoria.
+              </p>
+              {(imagePreview || values.imageUrl) && (
+                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                  <img
+                    src={imagePreview || values.imageUrl}
+                    alt={values.name || 'Vista previa'}
+                    className="h-48 w-full object-cover"
+                  />
+                </div>
+              )}
+              {imageUploadError ? (
+                <p className="text-sm text-red-600">{imageUploadError}</p>
+              ) : null}
+            </div>
+
             <div className="grid gap-4 md:grid-cols-2">
               <Input
                 label="Precio"
@@ -175,6 +246,7 @@ export default function ProductForm({
                 value={values.imageUrl}
                 onChange={(e) => handleChange('imageUrl', e.target.value)}
                 placeholder="https://..."
+                hint="Obligatoria para publicar el producto."
               />
             </div>
 
@@ -244,7 +316,7 @@ export default function ProductForm({
             <p className="text-sm text-slate-500">
               Revisa categoría, precio y foto antes de guardar.
             </p>
-            <Button type="submit" loading={loading}>
+            <Button type="submit" loading={loading || imageUploading}>
               Guardar producto
             </Button>
           </div>

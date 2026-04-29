@@ -30,6 +30,7 @@ type ReviewSectionProps = {
 export default function ReviewSection({ businessId }: ReviewSectionProps) {
   const [data, setData] = useState<ReviewsResponse | null>(null)
   const [loading, setLoading] = useState(true)
+  const [submitLoading, setSubmitLoading] = useState(false)
   const [error, setError] = useState('')
 
   async function loadReviews() {
@@ -62,6 +63,17 @@ export default function ReviewSection({ businessId }: ReviewSectionProps) {
     [data]
   )
 
+  const distribution = useMemo(
+    () => ({
+      stars5: reviews.filter((review) => review.rating === 5).length,
+      stars4: reviews.filter((review) => review.rating === 4).length,
+      stars3: reviews.filter((review) => review.rating === 3).length,
+      stars2: reviews.filter((review) => review.rating === 2).length,
+      stars1: reviews.filter((review) => review.rating === 1).length,
+    }),
+    [reviews]
+  )
+
   const currentUser = getStoredUser()
   const canReview = isAuthenticated()
 
@@ -81,15 +93,21 @@ export default function ReviewSection({ businessId }: ReviewSectionProps) {
     <ReviewSectionView
       averageRating={data?.ratingAverage ?? 0}
       totalReviews={data?.reviewsCount ?? 0}
+      distribution={distribution}
       reviews={reviews}
-      submitLoading={false}
+      submitLoading={submitLoading}
       canSubmitReview={canReview}
       currentUserName={currentUser?.name}
       onSubmitReview={
         canReview
           ? async ({ rating, comment }) => {
-              await createReview({ businessId, rating, comment })
-              await loadReviews()
+              try {
+                setSubmitLoading(true)
+                await createReview({ businessId, rating, comment })
+                await loadReviews()
+              } finally {
+                setSubmitLoading(false)
+              }
             }
           : undefined
       }

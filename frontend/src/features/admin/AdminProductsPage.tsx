@@ -13,6 +13,7 @@ import {
   createProduct,
   updateProductById,
 } from '../products/api'
+import { uploadMediaFile } from '../media/api'
 import { getBusinessById } from '../businesses/api'
 import { getPrimaryBusinessId } from '../../lib/session'
 
@@ -183,6 +184,19 @@ export default function AdminProductsPage() {
     }
   }
 
+  async function handleUploadImage(file: File) {
+    if (!businessId) {
+      throw new Error('No hay un negocio asociado a esta cuenta.')
+    }
+
+    const formData = new FormData()
+    formData.append('businessId', String(businessId))
+    formData.append('file', file)
+
+    const media = await uploadMediaFile(formData)
+    return media.url as string
+  }
+
   async function handleToggleStatus(product: ProductRow) {
     if (!businessId) return
 
@@ -287,6 +301,7 @@ export default function AdminProductsPage() {
           initialValues={formInitialValues}
           loading={saving}
           onSubmit={handleSubmit}
+          onUploadImage={handleUploadImage}
           businessName={business?.name}
           businessCategory={business?.category}
           categoryOptions={categoryOptions}

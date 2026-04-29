@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import DashboardStatCard from './components/DashboardStatCard'
+import Button from '../../components/ui/Button'
 import Card, {
   CardContent,
   CardDescription,
@@ -7,7 +9,7 @@ import Card, {
   CardTitle,
 } from '../../components/ui/Card'
 import { getBusinessById } from '../businesses/api'
-import { getPrimaryBusinessId } from '../../lib/session'
+import { getPrimaryBusinessId, getStoredUser } from '../../lib/session'
 
 type AdminBusiness = {
   id: number
@@ -22,6 +24,8 @@ type AdminBusiness = {
 
 export default function AdminDashboardPage() {
   const businessId = getPrimaryBusinessId()
+  const navigate = useNavigate()
+  const user = getStoredUser()
   const [business, setBusiness] = useState<AdminBusiness | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -63,6 +67,38 @@ export default function AdminDashboardPage() {
 
   if (loading) {
     return <div className="space-y-8">Cargando dashboard...</div>
+  }
+
+  if (!businessId && user?.role === 'ADMIN') {
+    return (
+      <div className="space-y-8">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-500">
+            Dashboard
+          </p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+            Super administrador
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            Aún no has creado un negocio. Empieza por dar de alta la primera vitrina.
+          </p>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Crear primer negocio</CardTitle>
+            <CardDescription>
+              El alta crea el negocio, una portada principal y la estructura base del menú.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => navigate('/admin/business/new')}>
+              Crear negocio
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (

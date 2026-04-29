@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import RegisterForm, { type RegisterFormValues } from './components/RegisterForm'
 import { register } from './api'
+import { trackEvent } from '../../lib/analytics'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -21,6 +22,8 @@ export default function RegisterPage() {
 
       const token = result?.token
       const user = result?.user
+      const hasAdminAccess =
+        user?.role === 'ADMIN' || user?.role === 'BUSINESS_ADMIN'
 
       if (token) {
         localStorage.setItem('auth_token', token)
@@ -30,7 +33,13 @@ export default function RegisterPage() {
         localStorage.setItem('auth_user', JSON.stringify(user))
       }
 
-      navigate('/businesses')
+      void trackEvent({
+        eventType: 'REGISTER_SUCCESS',
+        sourceScreen: 'register',
+        metadata: { role: user?.role ?? null },
+      })
+
+      navigate(hasAdminAccess ? '/admin' : '/businesses')
     } catch (err: any) {
       setError(
         err?.response?.data?.message || err.message || 'No fue posible registrar el usuario'

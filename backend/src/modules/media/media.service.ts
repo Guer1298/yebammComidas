@@ -47,3 +47,66 @@ export async function uploadMedia(input: UploadMediaInput) {
 
   return media
 }
+
+export async function setPrimaryMedia(input: {
+  businessId: number
+  mediaAssetId: number
+  isPrimary: boolean
+}) {
+  const mediaAsset = await prisma.mediaAsset.findFirst({
+    where: {
+      id: input.mediaAssetId,
+      businessId: input.businessId,
+    },
+  })
+
+  if (!mediaAsset) {
+    const error = new Error('Media no encontrada')
+    ;(error as any).status = 404
+    throw error
+  }
+
+  return prisma.$transaction(async (tx) => {
+    const businessMedia = await tx.mediaAsset.findMany({
+      where: { businessId: input.businessId },
+      orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }, { createdAt: 'asc' }],
+    })
+
+    if (input.isPrimary) {
+      await tx.mediaAsset.updateMany({
+        where: { businessId: input.businessId },
+        data: { isPrimary: false },
+      })
+
+      const updated = await tx.mediaAsset.update({
+        where: { id: mediaAsset.id },
+        data: { isPrimary: true },
+      })
+
+      return updated
+    }
+
+    await tx.mediaAsset.update({
+      where: { id: mediaAsset.id },
+      data: { isPrimary: false },
+    })
+
+    const nextPrimary = businessMedia.find((item) => item.id !== mediaAsset.id)
+
+    if (nextPrimary) {
+      await tx.mediaAsset.updateMany({
+        where: { businessId: input.businessId },
+        data: { isPrimary: false },
+      })
+
+      const updated = await tx.mediaAsset.update({
+        where: { id: nextPrimary.id },
+        data: { isPrimary: true },
+      })
+
+      return updated
+    }
+
+    return mediaAsset
+  })
+}

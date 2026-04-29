@@ -104,12 +104,9 @@ export default function LoginForm({
               Crear cuenta
             </Link>
 
-            <a
-              href="#"
-              className="text-sm text-slate-500 transition hover:text-slate-700"
-            >
-              ¿Olvidaste tu contraseña?
-            </a>
+            <span className="text-sm text-slate-500">
+              ¿Olvidaste tu contraseña? Contacta soporte.
+            </span>
           </div>
 
           <Button type="submit" fullWidth loading={loading}>

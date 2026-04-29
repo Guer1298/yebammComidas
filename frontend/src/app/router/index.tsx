@@ -5,6 +5,7 @@ import HomePage from '../../features/home/HomePage'
 import LoginPage from '../../features/auth/LoginPage'
 import RegisterPage from '../../features/auth/RegisterPage'
 import PromotionsPage from '../../features/promotions/PromotionsPage'
+import PromotionDetailPage from '../../features/promotions/PromotionDetailPage'
 import BusinessListPage from '../../features/businesses/BusinessListPage'
 import ProductDetailPage from '../../features/products/ProductDetailPage'
 import GalleryPage from '../../features/media/GalleryPage'
@@ -13,6 +14,7 @@ import MenuPage from '../../features/menu/MenuPage'
 import { AdminGuard } from './guards'
 import AdminDashboardPage from '../../features/admin/AdminDashboardPage'
 import AdminBusinessPage from '../../features/admin/AdminBusinessPage'
+import AdminBusinessCreatePage from '../../features/admin/AdminBusinessCreatePage'
 import AdminProductsPage from '../../features/admin/AdminProductsPage'
 import AdminMediaPage from '../../features/admin/AdminMediaPage'
 import AdminPromotionsPage from '../../features/admin/AdminPromotionsPage'
@@ -37,6 +39,7 @@ export default function AppRouter() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/promotions" element={<PromotionsPage />} />
+          <Route path="/promotions/:id" element={<PromotionDetailPage />} />
           <Route path="/businesses" element={<BusinessListPage />} />
           <Route path="/products/:id" element={<ProductDetailPage />} />
           <Route path="/businesses/:id/gallery" element={<GalleryPage />} />
@@ -55,6 +58,7 @@ export default function AppRouter() {
           }
         >
           <Route index element={<AdminDashboardPage />} />
+          <Route path="business/new" element={<AdminBusinessCreatePage />} />
           <Route path="business" element={<AdminBusinessPage />} />
           <Route path="products" element={<AdminProductsPage />} />
           <Route path="media" element={<AdminMediaPage />} />

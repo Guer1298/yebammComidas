@@ -9,3 +9,13 @@ export async function uploadMediaFile(formData: FormData) {
 
   return response.data?.data
 }
+
+export async function setPrimaryMedia(businessId: number | string, mediaAssetId: number | string, isPrimary: boolean) {
+  const response = await api.patch('/media/primary', {
+    businessId,
+    mediaAssetId,
+    isPrimary,
+  })
+
+  return response.data?.data
+}

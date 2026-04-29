@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { FaBars, FaChevronRight, FaXmark } from 'react-icons/fa6'
 import Button from '../ui/Button'
 import BrandLogo from './BrandLogo'
+import { clearAuthSession, isAuthenticated } from '../../lib/session'
 
 export interface NavbarLink {
   label: string
@@ -41,6 +43,8 @@ export default function Navbar({
   showAuthActions = true,
 }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const navigate = useNavigate()
+  const authenticated = isAuthenticated()
 
   const handleToggleMenu = () => {
     setMobileMenuOpen((current) => !current)
@@ -49,6 +53,12 @@ export default function Navbar({
 
   const closeMobileMenu = () => {
     setMobileMenuOpen(false)
+  }
+
+  const handleLogout = () => {
+    clearAuthSession()
+    closeMobileMenu()
+    navigate('/login', { replace: true })
   }
 
   return (
@@ -78,7 +88,11 @@ export default function Navbar({
 
           <div className="hidden items-center gap-3 md:flex">
             {rightSlot}
-            {showAuthActions && (
+            {authenticated ? (
+              <Button variant="ghost" onClick={handleLogout}>
+                Cerrar sesión
+              </Button>
+            ) : showAuthActions ? (
               <>
                 <Button variant="ghost" onClick={onLogin} leftIcon={<FaChevronRight />}>
                   Iniciar sesión
@@ -87,7 +101,7 @@ export default function Navbar({
                   Crear cuenta
                 </Button>
               </>
-            )}
+            ) : null}
           </div>
 
           <button
@@ -127,7 +141,11 @@ export default function Navbar({
 
             <div className="mt-4 space-y-3">
               {rightSlot ? <div onClick={closeMobileMenu}>{rightSlot}</div> : null}
-              {showAuthActions && (
+              {authenticated ? (
+                <Button variant="ghost" onClick={handleLogout} fullWidth>
+                  Cerrar sesión
+                </Button>
+              ) : showAuthActions ? (
                 <div className="grid gap-3 sm:grid-cols-2">
                   <Button variant="ghost" onClick={onLogin} leftIcon={<FaChevronRight />}>
                     Iniciar sesión
@@ -136,7 +154,7 @@ export default function Navbar({
                     Crear cuenta
                   </Button>
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
         ) : null}

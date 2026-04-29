@@ -31,6 +31,18 @@ function sanitizeWhatsApp(value: string) {
   return value.replace(/[^\d]/g, '')
 }
 
+function dedupeCategories(categories: MenuCategory[]) {
+  const seen = new Map<number, MenuCategory>()
+
+  for (const category of categories) {
+    if (!seen.has(category.id)) {
+      seen.set(category.id, category)
+    }
+  }
+
+  return [...seen.values()]
+}
+
 export default function MenuPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -71,8 +83,7 @@ export default function MenuPage() {
 
   const categories = useMemo(() => {
     const menus = business?.menus ?? []
-    const firstMenu = menus[0]
-    return firstMenu?.categories ?? []
+    return dedupeCategories(menus.flatMap((menu) => menu.categories ?? []))
   }, [business])
 
   useEffect(() => {
@@ -95,9 +106,14 @@ export default function MenuPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-50 text-slate-900">
+      <main className="min-h-screen bg-[linear-gradient(180deg,#fbfaf7_0%,#f8fafc_100%)] text-slate-900">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <p className="text-sm text-slate-500">Cargando carta...</p>
+          <div className="rounded-[1.75rem] border border-slate-200 bg-white px-5 py-6 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--brand-green-700)]">
+              Carta
+            </p>
+            <p className="mt-2 text-sm text-slate-500">Cargando carta...</p>
+          </div>
         </div>
       </main>
     )
@@ -105,20 +121,26 @@ export default function MenuPage() {
 
   if (error || !business) {
     return (
-      <main className="min-h-screen bg-slate-50 text-slate-900">
+      <main className="min-h-screen bg-[linear-gradient(180deg,#fbfaf7_0%,#f8fafc_100%)] text-slate-900">
         <Navbar />
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <Link
             to={business ? `/businesses/${business.id}` : '/businesses'}
-            className="mb-4 inline-flex text-sm font-medium text-orange-600 transition hover:text-orange-700"
+            className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-[var(--brand-green-700)] transition hover:text-[var(--brand-green-600)]"
           >
-            ← Volver
+            <FaArrowLeft />
+            Volver
           </Link>
-          <div className="rounded-3xl border border-slate-200 bg-white p-6">
-            <h1 className="text-xl font-semibold text-slate-950">
+          <div className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--brand-green-700)]">
+              Carta completa
+            </p>
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
               No se pudo cargar la carta
             </h1>
-            <p className="mt-2 text-sm text-slate-500">{error || 'Carta no disponible'}</p>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              {error || 'Carta no disponible'}
+            </p>
           </div>
         </div>
       </main>
@@ -126,7 +148,7 @@ export default function MenuPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+    <main className="min-h-screen bg-[linear-gradient(180deg,#fbfaf7_0%,#f8fafc_100%)] text-slate-900">
       <Navbar
         brandName="Yebaam"
         brandHref="/"
@@ -138,8 +160,8 @@ export default function MenuPage() {
         onRegister={() => navigate('/register')}
       />
 
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <section className="border-b border-slate-200/80 bg-white/90 backdrop-blur">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
               <Link
@@ -156,21 +178,30 @@ export default function MenuPage() {
                 {business.name}
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
-                Recorre categorías, platos y precios en una sola vista diseñada para pedir rápido.
+                Recorre categorías, platos y precios en una experiencia clara, compacta y pensada
+                para pedir sin fricción.
               </p>
+
+              <div className="mt-5 flex flex-wrap gap-2">
+                <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm">
+                  <FaStar className="mr-1 text-amber-500" />
+                  {business.ratingAverage?.toFixed(1) ?? '0.0'} ·{' '}
+                  {business.reviewsCount ?? 0} reseñas
+                </span>
+                <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm">
+                  {categories.length} categoría{categories.length === 1 ? '' : 's'}
+                </span>
+                <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm">
+                  {categories.reduce((acc, cat) => acc + cat.products.length, 0)} platos
+                </span>
+                <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm">
+                  {business.city || 'Ubicación no definida'}
+                </span>
+              </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              <Badge>{business.category}</Badge>
-              <Badge variant="success">
-                <FaStar className="mr-1" /> {business.ratingAverage?.toFixed(1) ?? '0.0'}
-              </Badge>
-              <Badge variant="neutral">
-                {categories.length} categoría{categories.length === 1 ? '' : 's'}
-              </Badge>
-              <Badge variant="neutral">
-                {categories.reduce((acc, cat) => acc + cat.products.length, 0)} platos
-              </Badge>
+            <div className="flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
+              <Badge className="self-start">{business.category}</Badge>
               {whatsappUrl ? (
                 <Button
                   onClick={() => window.open(whatsappUrl, '_blank', 'noreferrer')}
@@ -179,12 +210,35 @@ export default function MenuPage() {
                   Pedir por WhatsApp
                 </Button>
               ) : null}
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/businesses/${business.id}`)}
+              >
+                Ver negocio
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
       <section id="carta" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-6 rounded-[1.75rem] border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--brand-green-700)]">
+                Navegación rápida
+              </p>
+              <p className="mt-1 text-sm leading-6 text-slate-600">
+                Elige una categoría y explora los platos con una lectura limpia y directa.
+              </p>
+            </div>
+
+            <Badge variant="neutral">
+              {categories.length} bloques disponibles
+            </Badge>
+          </div>
+        </div>
+
         <MenuCatalog
           businessName={business.name}
           businessCategory={business.category}

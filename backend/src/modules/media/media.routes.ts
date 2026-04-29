@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import multer from 'multer'
-import { uploadMediaHandler } from './media.controller'
+import { setPrimaryMediaHandler, uploadMediaHandler } from './media.controller'
 import { requireAuth } from '../../shared/middleware/requireAuth'
 import { requireRole } from '../../shared/middleware/requireRole'
 
@@ -21,6 +21,13 @@ router.post(
   requireRole('ADMIN', 'BUSINESS_ADMIN'),
   upload.single('file'),
   uploadMediaHandler
+)
+
+router.patch(
+  '/primary',
+  requireAuth,
+  requireRole('ADMIN', 'BUSINESS_ADMIN'),
+  setPrimaryMediaHandler
 )
 
 export default router

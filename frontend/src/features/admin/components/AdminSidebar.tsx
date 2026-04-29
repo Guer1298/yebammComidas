@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { FaChartLine, FaStore, FaBoxOpen, FaPhotoFilm, FaBullhorn, FaArrowRightFromBracket } from 'react-icons/fa6'
 import BrandLogo from '../../../components/shared/BrandLogo'
+import { clearAuthSession, getStoredUser } from '../../../lib/session'
 
 type AdminNavItem = {
   label: string
@@ -9,6 +10,7 @@ type AdminNavItem = {
 
 const DEFAULT_ITEMS: AdminNavItem[] = [
   { label: 'Dashboard', to: '/admin' },
+  { label: 'Nuevo negocio', to: '/admin/business/new' },
   { label: 'Negocio', to: '/admin/business' },
   { label: 'Productos', to: '/admin/products' },
   { label: 'Media', to: '/admin/media' },
@@ -17,6 +19,7 @@ const DEFAULT_ITEMS: AdminNavItem[] = [
 
 const ITEM_ICONS: Record<string, React.ReactNode> = {
   Dashboard: <FaChartLine />,
+  'Nuevo negocio': <FaStore />,
   Negocio: <FaStore />,
   Productos: <FaBoxOpen />,
   Media: <FaPhotoFilm />,
@@ -38,9 +41,14 @@ export default function AdminSidebar({
 }: AdminSidebarProps) {
   const location = useLocation()
   const navigate = useNavigate()
+  const user = getStoredUser()
+  const visibleItems =
+    user?.role === 'ADMIN'
+      ? items
+      : items.filter((item) => item.to !== '/admin/business/new')
 
   const handleLogout = () => {
-    localStorage.removeItem('auth_user')
+    clearAuthSession()
     navigate('/login', { replace: true })
   }
 
@@ -58,7 +66,7 @@ export default function AdminSidebar({
       </div>
 
       <nav className="space-y-2">
-        {items.map((item) => {
+        {visibleItems.map((item) => {
           const isActive =
             location.pathname === item.to ||
             (item.to !== '/admin' && location.pathname.startsWith(item.to))

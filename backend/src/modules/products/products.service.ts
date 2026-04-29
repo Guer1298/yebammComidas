@@ -5,6 +5,18 @@ function buildProductFallbackImage(name: string) {
   return `https://placehold.co/600x400?text=${label}`
 }
 
+function normalizeRequiredImageUrl(imageUrl: string | undefined) {
+  const trimmed = imageUrl?.trim()
+
+  if (!trimmed) {
+    const error = new Error('La imagen del producto es obligatoria')
+    ;(error as any).status = 400
+    throw error
+  }
+
+  return trimmed
+}
+
 export async function getProductById(id: number) {
   const product = await prisma.product.findUnique({
     where: { id },
@@ -95,9 +107,7 @@ export async function createProduct(input: CreateProductInput) {
       description: input.description ?? null,
       ingredients: input.ingredients ?? null,
       price: input.price,
-      imageUrl: input.imageUrl?.trim()
-        ? input.imageUrl
-        : buildProductFallbackImage(input.name),
+      imageUrl: normalizeRequiredImageUrl(input.imageUrl),
       isFeatured: input.isFeatured ?? false,
       isActive: input.isActive ?? true,
       sortOrder: input.sortOrder ?? 0,
@@ -181,9 +191,7 @@ export async function updateProduct(id: number, input: UpdateProductInput) {
       price: input.price ?? existingProduct.price,
       imageUrl:
         input.imageUrl !== undefined
-          ? input.imageUrl?.trim()
-            ? input.imageUrl
-            : buildProductFallbackImage(input.name ?? existingProduct.name)
+          ? normalizeRequiredImageUrl(input.imageUrl)
           : existingProduct.imageUrl ||
             buildProductFallbackImage(existingProduct.name),
       isFeatured: input.isFeatured ?? existingProduct.isFeatured,

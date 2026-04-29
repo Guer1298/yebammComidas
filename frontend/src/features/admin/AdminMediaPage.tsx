@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import MediaUploader from './components/MediaUploader'
+import Button from '../../components/ui/Button'
 import Card, {
   CardContent,
   CardHeader,
   CardTitle,
 } from '../../components/ui/Card'
 import { getBusinessById } from '../businesses/api'
-import { uploadMediaFile } from '../media/api'
+import { setPrimaryMedia, uploadMediaFile } from '../media/api'
 import { getPrimaryBusinessId } from '../../lib/session'
 
 type MediaAsset = {
@@ -79,6 +80,26 @@ export default function AdminMediaPage() {
     }
   }
 
+  async function handlePrimaryChange(mediaAssetId: number, nextPrimary: boolean) {
+    if (!businessId) return
+
+    setUploading(true)
+    setError('')
+
+    try {
+      await setPrimaryMedia(businessId, mediaAssetId, nextPrimary)
+      const refreshed = await getBusinessById<BusinessDetail>(businessId)
+      setBusiness(refreshed)
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.message ||
+          'No fue posible actualizar la media principal'
+      )
+    } finally {
+      setUploading(false)
+    }
+  }
+
   if (loading) {
     return <div>Cargando media...</div>
   }
@@ -129,9 +150,31 @@ export default function AdminMediaPage() {
                   alt={`media-${item.id}`}
                   className="h-52 w-full object-cover"
                 />
-                <div className="p-4 text-sm text-slate-600">
-                  {item.type}
-                  {item.isPrimary ? ' · Principal' : ''}
+                <div className="space-y-3 p-4 text-sm text-slate-600">
+                  <div>
+                    {item.type}
+                    {item.isPrimary ? ' · Principal' : ''}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {item.isPrimary ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handlePrimaryChange(item.id, false)}
+                        loading={uploading}
+                      >
+                        Quitar principal
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        onClick={() => handlePrimaryChange(item.id, true)}
+                        loading={uploading}
+                      >
+                        Marcar principal
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))
@@ -142,6 +185,17 @@ export default function AdminMediaPage() {
       {uploading ? (
         <p className="text-sm text-slate-500">Subiendo archivos...</p>
       ) : null}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Media por producto</CardTitle>
+        </CardHeader>
+        <CardContent className="text-sm text-slate-500">
+          La subida asociada a producto queda disponible desde el propio endpoint de media
+          cuando se envía `productId`. Si quieres, puedo añadir una vista específica para
+          gestionar media de cada producto desde el panel.
+        </CardContent>
+      </Card>
     </div>
   )
 }

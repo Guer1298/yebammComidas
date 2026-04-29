@@ -15,6 +15,59 @@ function buildFallbackPromotionSlug(title: string) {
   return slug.length > 0 ? slug : 'promocion'
 }
 
+function fail(message: string, status = 400): never {
+  const error = new Error(message)
+  ;(error as any).status = status
+  throw error
+}
+
+function normalizeRequiredImageUrl(imageUrl?: string | null) {
+  const trimmed = imageUrl?.trim()
+
+  if (!trimmed) {
+    fail('La imagen de la promoción es obligatoria')
+  }
+
+  return trimmed
+}
+
+function normalizeOptionalLink(url?: string | null) {
+  const trimmed = url?.trim()
+
+  if (!trimmed) return null
+
+  if (trimmed.startsWith('/')) return trimmed
+
+  try {
+    const parsed = new URL(trimmed)
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return parsed.toString()
+    }
+  } catch {
+    // handled below
+  }
+
+  fail('El CTA debe ser una URL válida o una ruta interna que empiece por /')
+}
+
+function parseOptionalDate(value?: string | Date | null, fieldName?: string) {
+  if (value === undefined || value === null || value === '') return null
+
+  const date = value instanceof Date ? value : new Date(value)
+
+  if (Number.isNaN(date.getTime())) {
+    fail(`La fecha ${fieldName ?? 'indicada'} no es válida`)
+  }
+
+  return date
+}
+
+function validateDateRange(startsAt: Date | null, endsAt: Date | null) {
+  if (startsAt && endsAt && startsAt > endsAt) {
+    fail('La fecha de inicio no puede ser mayor que la fecha de fin')
+  }
+}
+
 type PromotionQuery = {
   businessId?: number
   status?: PromotionStatus | 'ALL'
@@ -113,6 +166,9 @@ export async function createPromotion(input: CreatePromotionInput) {
   }
 
   const slug = input.slug?.trim() || buildFallbackPromotionSlug(input.title)
+  const startsAt = parseOptionalDate(input.startsAt, 'de inicio')
+  const endsAt = parseOptionalDate(input.endsAt, 'de fin')
+  validateDateRange(startsAt, endsAt)
 
   return prisma.promotion.create({
     data: {
@@ -120,11 +176,11 @@ export async function createPromotion(input: CreatePromotionInput) {
       title: input.title,
       slug,
       description: input.description ?? null,
-      imageUrl: input.imageUrl ?? null,
+      imageUrl: normalizeRequiredImageUrl(input.imageUrl),
       ctaLabel: input.ctaLabel ?? null,
-      ctaUrl: input.ctaUrl ?? null,
-      startsAt: input.startsAt ? new Date(input.startsAt) : null,
-      endsAt: input.endsAt ? new Date(input.endsAt) : null,
+      ctaUrl: normalizeOptionalLink(input.ctaUrl),
+      startsAt,
+      endsAt,
       status: input.status ?? PromotionStatus.DRAFT,
       isHighlighted: input.isHighlighted ?? false,
     },
@@ -143,6 +199,16 @@ export async function updatePromotion(id: number, input: UpdatePromotionInput) {
   }
 
   const nextBusinessId = input.businessId ?? existingPromotion.businessId
+  const startsAt =
+    input.startsAt !== undefined
+      ? parseOptionalDate(input.startsAt, 'de inicio')
+      : existingPromotion.startsAt
+  const endsAt =
+    input.endsAt !== undefined
+      ? parseOptionalDate(input.endsAt, 'de fin')
+      : existingPromotion.endsAt
+
+  validateDateRange(startsAt, endsAt)
 
   if (input.businessId !== undefined) {
     const business = await prisma.business.findUnique({
@@ -170,23 +236,16 @@ export async function updatePromotion(id: number, input: UpdatePromotionInput) {
         input.description !== undefined
           ? input.description
           : existingPromotion.description,
-      imageUrl:
-        input.imageUrl !== undefined ? input.imageUrl : existingPromotion.imageUrl,
+      imageUrl: normalizeRequiredImageUrl(
+        input.imageUrl !== undefined ? input.imageUrl : existingPromotion.imageUrl
+      ),
       ctaLabel:
         input.ctaLabel !== undefined ? input.ctaLabel : existingPromotion.ctaLabel,
-      ctaUrl: input.ctaUrl !== undefined ? input.ctaUrl : existingPromotion.ctaUrl,
-      startsAt:
-        input.startsAt !== undefined
-          ? input.startsAt
-            ? new Date(input.startsAt)
-            : null
-          : existingPromotion.startsAt,
-      endsAt:
-        input.endsAt !== undefined
-          ? input.endsAt
-            ? new Date(input.endsAt)
-            : null
-          : existingPromotion.endsAt,
+      ctaUrl: normalizeOptionalLink(
+        input.ctaUrl !== undefined ? input.ctaUrl : existingPromotion.ctaUrl
+      ),
+      startsAt,
+      endsAt,
       status: input.status ?? existingPromotion.status,
       isHighlighted:
         input.isHighlighted !== undefined

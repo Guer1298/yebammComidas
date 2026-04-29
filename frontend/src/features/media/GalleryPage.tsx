@@ -6,6 +6,7 @@ import SectionHeader from '../../components/shared/SectionHeader'
 import GalleryGrid, { type GalleryMediaItem } from './components/GalleryGrid'
 import MediaViewer from './components/MediaViewer'
 import { getBusinessById } from '../businesses/api'
+import { trackEvent } from '../../lib/analytics'
 
 type MediaAsset = {
   id: number
@@ -54,6 +55,18 @@ export default function GalleryPage() {
 
     loadBusiness()
   }, [id])
+
+  useEffect(() => {
+    if (!business?.id) return
+
+    void trackEvent({
+      eventType: 'GALLERY_OPEN',
+      entityType: 'business',
+      entityId: business.id,
+      sourceScreen: 'gallery_page',
+      metadata: { action: 'open_gallery' },
+    })
+  }, [business?.id])
 
   const items = useMemo<GalleryMediaItem[]>(() => {
     return (business?.mediaAssets ?? []).map((media) => ({
