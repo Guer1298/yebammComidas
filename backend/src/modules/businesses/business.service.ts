@@ -1,5 +1,6 @@
 import { MediaType, Prisma } from '@prisma/client'
 import { prisma } from '../../shared/db/prisma'
+import { hashPassword } from '../../shared/utils/hash'
 
 function buildBusinessFallbackImage(name: string) {
   const label = encodeURIComponent(name || 'Negocio')
@@ -96,6 +97,54 @@ export async function getBusinesses() {
     },
   })
 
+  return mapBusinessListItems(businesses)
+}
+
+export async function getBusinessesForAdmin() {
+  const businesses = await prisma.business.findMany({
+    include: {
+      mediaAssets: true,
+      reviews: true,
+      promotions: true,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  })
+
+  return mapBusinessListItems(businesses)
+}
+
+function mapBusinessListItems(
+  businesses: Array<{
+    id: number
+    name: string
+    category: string
+    description: string | null
+    city: string | null
+    address: string | null
+    phone: string | null
+    whatsapp: string | null
+    isActive: boolean
+    profileImageUrl: string | null
+    isVerified: boolean
+    mediaAssets: Array<{
+      id: number
+      url: string
+      isPrimary: boolean | null
+      createdAt: Date
+      updatedAt: Date
+    }>
+    reviews: Array<{
+      rating: number
+    }>
+    promotions: Array<{
+      id: number
+    }>
+    createdAt: Date
+    updatedAt: Date
+  }>
+) {
   return businesses.map((business) => {
     const avgRating =
       business.reviews.length > 0
@@ -118,6 +167,8 @@ export async function getBusinesses() {
       phone: business.phone,
       whatsapp: business.whatsapp,
       isActive: business.isActive,
+      profileImageUrl: business.profileImageUrl,
+      isVerified: business.isVerified,
       cover: primaryMedia,
       ratingAverage: Number(avgRating.toFixed(1)),
       reviewsCount: business.reviews.length,
@@ -144,6 +195,8 @@ type CreateBusinessInput = {
   facebook?: string | null
   tiktok?: string | null
   coverImageUrl?: string | null
+  adminEmail?: string | null
+  adminPassword?: string | null
   creatorUserId: number
   creatorDisplayName?: string | null
 }
@@ -232,6 +285,47 @@ export async function createBusiness(input: CreateBusinessInput) {
         caption: 'Imagen principal del negocio',
         isPrimary: true,
         sortOrder: 1,
+      },
+    })
+
+    const adminEmail = input.adminEmail?.trim().toLowerCase()
+    const adminPassword = input.adminPassword?.trim()
+
+    if (!adminEmail || !adminPassword) {
+      const error = new Error('Las credenciales de acceso inicial son obligatorias')
+      ;(error as any).status = 400
+      throw error
+    }
+
+    const existingAdmin = await tx.user.findUnique({
+      where: { email: adminEmail },
+    })
+
+    if (existingAdmin) {
+      const error = new Error('El correo de acceso inicial ya está registrado')
+      ;(error as any).status = 409
+      throw error
+    }
+
+    const passwordHash = await hashPassword(adminPassword)
+
+    const adminUser = await tx.user.create({
+      data: {
+        name: `${name} Admin`,
+        email: adminEmail,
+        passwordHash,
+        role: 'BUSINESS_ADMIN',
+      },
+    })
+
+    await tx.businessAdmin.create({
+      data: {
+        userId: adminUser.id,
+        businessId: business.id,
+        displayName: input.creatorDisplayName || 'Administrador del negocio',
+        title: 'Administrador principal',
+        isPrimary: true,
+        isVisibleOnProfile: true,
       },
     })
 
@@ -603,4 +697,27 @@ export async function toggleBusinessLike(businessId: number, userId: number) {
       likesCount,
     }
   })
+}
+
+export async function deleteBusiness(id: number) {
+  const existingBusiness = await prisma.business.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+    },
+  })
+
+  if (!existingBusiness) {
+    const error = new Error('Negocio no encontrado')
+    ;(error as any).status = 404
+    throw error
+  }
+
+  await prisma.business.delete({
+    where: { id },
+  })
+
+  return existingBusiness
 }

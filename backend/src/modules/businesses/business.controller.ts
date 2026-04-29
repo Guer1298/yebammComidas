@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express'
 import {
   createBusiness,
+  deleteBusiness,
+  getBusinessesForAdmin,
   getBusinessByIdWithUser,
   getBusinesses,
   toggleBusinessLike,
@@ -9,7 +11,7 @@ import {
 } from './business.service'
 import { AuthenticatedRequest } from '../../shared/middleware/requireAuth'
 import { verifyToken } from '../../shared/utils/jwt'
-import { updateBusinessProfileImageSchema } from './business.schemas'
+import { createBusinessSchema, updateBusinessProfileImageSchema } from './business.schemas'
 
 function getOptionalUserId(req: Request) {
   const authHeader = req.headers.authorization
@@ -37,6 +39,32 @@ export async function findAllBusinesses(
 ) {
   try {
     const businesses = await getBusinesses()
+
+    res.status(200).json({
+      ok: true,
+      data: businesses,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export async function findAllBusinessesForAdmin(
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const userId = Number(req.user?.sub)
+
+    if (!req.user || Number.isNaN(userId)) {
+      return res.status(401).json({
+        ok: false,
+        message: 'No autorizado',
+      })
+    }
+
+    const businesses = await getBusinessesForAdmin()
 
     res.status(200).json({
       ok: true,
@@ -115,24 +143,28 @@ export async function createBusinessHandler(
       })
     }
 
+    const payload = createBusinessSchema.parse(req.body)
+
     const created = await createBusiness({
-      name: req.body.name,
-      category: req.body.category,
-      businessType: req.body.businessType ?? null,
-      description: req.body.description ?? null,
-      aboutArticle: req.body.aboutArticle ?? null,
-      city: req.body.city ?? null,
-      address: req.body.address ?? null,
-      phone: req.body.phone ?? null,
-      whatsapp: req.body.whatsapp ?? null,
-      email: req.body.email ?? null,
-      website: req.body.website ?? null,
-      instagram: req.body.instagram ?? null,
-      facebook: req.body.facebook ?? null,
-      tiktok: req.body.tiktok ?? null,
-      coverImageUrl: req.body.coverImageUrl ?? null,
+      name: payload.name,
+      category: payload.category,
+      businessType: payload.businessType ?? null,
+      description: payload.description ?? null,
+      aboutArticle: payload.aboutArticle ?? null,
+      city: payload.city ?? null,
+      address: payload.address ?? null,
+      phone: payload.phone ?? null,
+      whatsapp: payload.whatsapp ?? null,
+      email: payload.email ?? null,
+      website: payload.website ?? null,
+      instagram: payload.instagram ?? null,
+      facebook: payload.facebook ?? null,
+      tiktok: payload.tiktok ?? null,
+      coverImageUrl: payload.coverImageUrl ?? null,
+      adminEmail: payload.adminEmail,
+      adminPassword: payload.adminPassword,
       creatorUserId: userId,
-      creatorDisplayName: req.body.creatorDisplayName || 'Super administrador',
+      creatorDisplayName: payload.creatorDisplayName || 'Super administrador',
     })
 
     res.status(201).json({
@@ -220,6 +252,33 @@ export async function toggleBusinessLikeHandler(
       ok: true,
       message: result.hasLiked ? 'Like agregado correctamente' : 'Like eliminado correctamente',
       data: result,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export async function deleteBusinessHandler(
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const businessId = Number(req.params.id)
+
+    if (Number.isNaN(businessId)) {
+      return res.status(400).json({
+        ok: false,
+        message: 'ID de negocio inválido',
+      })
+    }
+
+    const deleted = await deleteBusiness(businessId)
+
+    res.status(200).json({
+      ok: true,
+      message: 'Negocio eliminado correctamente',
+      data: deleted,
     })
   } catch (error) {
     next(error)

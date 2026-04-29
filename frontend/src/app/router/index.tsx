@@ -15,6 +15,7 @@ import { AdminGuard } from './guards'
 import AdminDashboardPage from '../../features/admin/AdminDashboardPage'
 import AdminBusinessPage from '../../features/admin/AdminBusinessPage'
 import AdminBusinessCreatePage from '../../features/admin/AdminBusinessCreatePage'
+import AdminBusinessesPage from '../../features/admin/AdminBusinessesPage'
 import AdminProductsPage from '../../features/admin/AdminProductsPage'
 import AdminMediaPage from '../../features/admin/AdminMediaPage'
 import AdminPromotionsPage from '../../features/admin/AdminPromotionsPage'
@@ -59,6 +60,7 @@ export default function AppRouter() {
         >
           <Route index element={<AdminDashboardPage />} />
           <Route path="business/new" element={<AdminBusinessCreatePage />} />
+          <Route path="businesses" element={<AdminBusinessesPage />} />
           <Route path="business" element={<AdminBusinessPage />} />
           <Route path="products" element={<AdminProductsPage />} />
           <Route path="media" element={<AdminMediaPage />} />

@@ -22,6 +22,9 @@ export interface BusinessFormValues {
   website: string
   instagram: string
   coverImageUrl: string
+  adminEmail?: string
+  adminPassword?: string
+  adminPasswordConfirm?: string
 }
 
 interface BusinessFormProps {
@@ -29,6 +32,7 @@ interface BusinessFormProps {
   onSubmit?: (values: BusinessFormValues) => void
   onUploadCover?: (file: File) => Promise<string>
   allowFileUpload?: boolean
+  showAccessCredentials?: boolean
   loading?: boolean
 }
 
@@ -37,11 +41,12 @@ export default function BusinessForm({
   onSubmit,
   onUploadCover,
   allowFileUpload = true,
+  showAccessCredentials = false,
   loading = false,
 }: BusinessFormProps) {
   const [coverFile, setCoverFile] = useState<File | null>(null)
   const [coverPreview, setCoverPreview] = useState('')
-  const [coverUploadError, setCoverUploadError] = useState('')
+  const [formError, setFormError] = useState('')
   const [coverUploading, setCoverUploading] = useState(false)
   const [values, setValues] = useState<BusinessFormValues>({
     name: initialValues.name || '',
@@ -57,6 +62,9 @@ export default function BusinessForm({
     website: initialValues.website || '',
     instagram: initialValues.instagram || '',
     coverImageUrl: initialValues.coverImageUrl || '',
+    adminEmail: initialValues.adminEmail || '',
+    adminPassword: initialValues.adminPassword || '',
+    adminPasswordConfirm: initialValues.adminPasswordConfirm || '',
   })
 
   useEffect(() => {
@@ -82,9 +90,36 @@ export default function BusinessForm({
     event.preventDefault()
 
     try {
-      setCoverUploadError('')
+      setFormError('')
 
       let nextCoverImageUrl = values.coverImageUrl.trim()
+
+      if (showAccessCredentials) {
+        const nextAdminEmail = values.adminEmail?.trim() || values.email.trim()
+        const nextAdminPassword = values.adminPassword?.trim()
+        const nextAdminPasswordConfirm = values.adminPasswordConfirm?.trim()
+
+        if (!nextAdminEmail) {
+          setFormError('Debes definir un correo de acceso inicial.')
+          return
+        }
+
+        if (!nextAdminPassword) {
+          setFormError('Debes definir una contraseña de acceso inicial.')
+          return
+        }
+
+        if (nextAdminPassword.length < 6) {
+          setFormError('La contraseña de acceso debe tener al menos 6 caracteres.')
+          return
+        }
+
+        if (nextAdminPassword !== nextAdminPasswordConfirm) {
+          setFormError('Las contraseñas de acceso no coinciden.')
+          return
+        }
+
+      }
 
       if (coverFile && onUploadCover) {
         setCoverUploading(true)
@@ -92,19 +127,21 @@ export default function BusinessForm({
       }
 
       if (!nextCoverImageUrl) {
-        setCoverUploadError('Debes subir una portada o pegar una URL.')
+        setFormError('Debes subir una portada o pegar una URL.')
         return
       }
 
       await onSubmit?.({
         ...values,
         coverImageUrl: nextCoverImageUrl,
+        adminEmail: values.adminEmail?.trim() || values.email.trim(),
+        adminPassword: values.adminPassword?.trim(),
       })
     } catch (error: any) {
-      setCoverUploadError(
+      setFormError(
         error?.response?.data?.message ||
           error?.message ||
-          'No fue posible subir la portada'
+          'No fue posible completar el alta'
       )
     } finally {
       setCoverUploading(false)
@@ -161,8 +198,8 @@ export default function BusinessForm({
                   />
                 </div>
               )}
-              {coverUploadError ? (
-                <p className="text-sm text-red-600">{coverUploadError}</p>
+              {formError ? (
+                <p className="text-sm text-red-600">{formError}</p>
               ) : null}
             </div>
           ) : (
@@ -194,7 +231,7 @@ export default function BusinessForm({
             hint={
               allowFileUpload
                 ? 'Opcional si subes un archivo; se completará automáticamente.'
-                : 'Obligatoria para crear el negocio.'
+              : 'Obligatoria para crear el negocio.'
             }
           />
 
@@ -207,12 +244,51 @@ export default function BusinessForm({
             />
 
             <Input
-              label="Correo"
+              label="Correo de contacto"
               value={values.email}
               onChange={(e) => handleChange('email', e.target.value)}
               placeholder="contacto@ejemplo.com"
             />
           </div>
+
+          {showAccessCredentials ? (
+            <div className="space-y-4 rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
+              <div>
+                <p className="text-sm font-semibold text-slate-900">
+                  Credenciales de acceso inicial
+                </p>
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  Este acceso queda listo para que el negocio entre al panel con su propio correo y contraseña.
+                </p>
+              </div>
+
+              <div className="grid gap-5 md:grid-cols-2">
+                <Input
+                  label="Correo de acceso inicial"
+                  value={values.adminEmail || ''}
+                  onChange={(e) => handleChange('adminEmail', e.target.value)}
+                  placeholder={values.email || 'admin@negocio.com'}
+                  hint="Si lo dejas vacío, se usará el correo del negocio."
+                />
+
+                <Input
+                  label="Contraseña de acceso inicial"
+                  type="password"
+                  value={values.adminPassword || ''}
+                  onChange={(e) => handleChange('adminPassword', e.target.value)}
+                  placeholder="Mínimo 6 caracteres"
+                />
+              </div>
+
+              <Input
+                label="Confirmar contraseña"
+                type="password"
+                value={values.adminPasswordConfirm || ''}
+                onChange={(e) => handleChange('adminPasswordConfirm', e.target.value)}
+                placeholder="Repite la contraseña"
+              />
+            </div>
+          ) : null}
 
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-slate-700">

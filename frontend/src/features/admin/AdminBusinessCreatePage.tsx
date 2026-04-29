@@ -39,6 +39,8 @@ export default function AdminBusinessCreatePage() {
         website: values.website || null,
         instagram: values.instagram || null,
         coverImageUrl: values.coverImageUrl || null,
+        adminEmail: values.adminEmail || values.email || null,
+        adminPassword: values.adminPassword || null,
       })
 
       prependBusinessIdToStoredUser(created.id)
@@ -77,6 +79,7 @@ export default function AdminBusinessCreatePage() {
 
       <BusinessForm
         allowFileUpload={false}
+        showAccessCredentials
         onSubmit={handleCreate}
         loading={saving}
       />
@@ -84,9 +87,10 @@ export default function AdminBusinessCreatePage() {
       <Card>
         <CardHeader>
           <CardTitle>Nota operativa</CardTitle>
-          <CardDescription>
+        <CardDescription>
             En esta primera versión, la portada se pega como URL para mantener el alta
-            atómica. Después puedes reemplazarla desde el panel de media y dejarla principal.
+            atómica. También se crea el acceso inicial del negocio para que no quede sin
+            contraseña.
           </CardDescription>
         </CardHeader>
       </Card>

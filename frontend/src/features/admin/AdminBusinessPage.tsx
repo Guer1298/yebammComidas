@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { FaTrash } from 'react-icons/fa6'
 import Card, {
   CardDescription,
   CardHeader,
@@ -7,9 +9,17 @@ import Card, {
 import BusinessForm, {
   type BusinessFormValues,
 } from './components/BusinessForm'
-import { getBusinessById, updateBusinessById } from '../businesses/api'
+import {
+  deleteBusinessById,
+  getBusinessById,
+  updateBusinessById,
+} from '../businesses/api'
 import { uploadMediaFile } from '../media/api'
-import { getPrimaryBusinessId } from '../../lib/session'
+import {
+  getPrimaryBusinessId,
+  getStoredUser,
+  removeBusinessIdFromStoredUser,
+} from '../../lib/session'
 
 type BusinessDetail = BusinessFormValues & {
   id: number
@@ -25,10 +35,14 @@ type BusinessDetail = BusinessFormValues & {
 }
 
 export default function AdminBusinessPage() {
+  const navigate = useNavigate()
+  const user = getStoredUser()
+  const isSuperAdmin = user?.role === 'ADMIN'
   const businessId = getPrimaryBusinessId()
   const [business, setBusiness] = useState<BusinessDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
@@ -127,6 +141,30 @@ export default function AdminBusinessPage() {
     return media.url as string
   }
 
+  async function handleDeleteBusiness() {
+    if (!businessId || !business || !isSuperAdmin) return
+
+    const confirmed = window.confirm(
+      `¿Eliminar "${business.name}"? Esta acción borrará el negocio y todo su contenido asociado.`
+    )
+
+    if (!confirmed) return
+
+    try {
+      setDeleting(true)
+      await deleteBusinessById(businessId)
+      removeBusinessIdFromStoredUser(businessId)
+      navigate('/admin/businesses', { replace: true })
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.message ||
+          'No fue posible eliminar el negocio'
+      )
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   if (loading) {
     return <div>Cargando negocio...</div>
   }
@@ -137,12 +175,28 @@ export default function AdminBusinessPage() {
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-500">
           Negocio
         </p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-          Editar perfil del negocio
-        </h1>
-        <p className="mt-3 text-sm leading-6 text-slate-600">
-          Mantén actualizada la información que ven los usuarios.
-        </p>
+        <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+              Editar perfil del negocio
+            </h1>
+            <p className="mt-3 text-sm leading-6 text-slate-600">
+              Mantén actualizada la información que ven los usuarios.
+            </p>
+          </div>
+
+          {business && isSuperAdmin ? (
+            <button
+              type="button"
+              onClick={handleDeleteBusiness}
+              disabled={deleting}
+              className="inline-flex items-center justify-center rounded-2xl border border-rose-200 px-4 py-2.5 text-sm font-semibold text-rose-700 transition hover:border-rose-300 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <FaTrash className="mr-2 text-xs" />
+              {deleting ? 'Eliminando...' : 'Eliminar negocio'}
+            </button>
+          ) : null}
+        </div>
       </div>
 
       {error ? (

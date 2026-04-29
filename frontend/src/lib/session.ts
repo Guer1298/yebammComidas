@@ -52,3 +52,20 @@ export function prependBusinessIdToStoredUser(businessId: number) {
     })
   )
 }
+
+export function removeBusinessIdFromStoredUser(businessId: number) {
+  const user = getStoredUser()
+  if (!user) return
+
+  const nextBusinessIds = (user.businessIds ?? []).filter(
+    (item) => item !== businessId
+  )
+
+  localStorage.setItem(
+    'auth_user',
+    JSON.stringify({
+      ...user,
+      businessIds: nextBusinessIds,
+    })
+  )
+}

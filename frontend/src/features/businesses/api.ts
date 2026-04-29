@@ -30,6 +30,11 @@ export async function listBusinesses() {
   return (response.data?.data ?? []) as BusinessListItem[]
 }
 
+export async function listBusinessesForAdmin() {
+  const response = await api.get('/businesses/admin')
+  return (response.data?.data ?? []) as BusinessListItem[]
+}
+
 export async function getBusinessById<T = any>(id: number | string) {
   const response = await api.get(`/businesses/${id}`)
   return response.data?.data as T
@@ -61,4 +66,9 @@ export async function updateBusinessById<T = any>(
 export async function createBusiness<T = any>(payload: Record<string, unknown>) {
   const response = await api.post('/businesses', payload)
   return response.data?.data as T
+}
+
+export async function deleteBusinessById(id: number | string) {
+  const response = await api.delete(`/businesses/${id}`)
+  return response.data?.data as { id: number; name: string; slug: string }
 }

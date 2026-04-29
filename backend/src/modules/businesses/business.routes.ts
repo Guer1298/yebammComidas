@@ -2,7 +2,9 @@ import { Router } from 'express'
 import {
   createBusinessHandler,
   findAllBusinesses,
+  findAllBusinessesForAdmin,
   findBusinessById,
+  deleteBusinessHandler,
   toggleBusinessLikeHandler,
   updateBusinessProfileImageHandler,
   updateBusinessHandler,
@@ -13,6 +15,12 @@ import { requireRole } from '../../shared/middleware/requireRole'
 const router = Router()
 
 router.get('/', findAllBusinesses)
+router.get(
+  '/admin',
+  requireAuth,
+  requireRole('ADMIN'),
+  findAllBusinessesForAdmin
+)
 router.post(
   '/',
   requireAuth,
@@ -31,6 +39,12 @@ router.patch(
   requireAuth,
   requireRole('ADMIN', 'BUSINESS_ADMIN'),
   updateBusinessProfileImageHandler
+)
+router.delete(
+  '/:id',
+  requireAuth,
+  requireRole('ADMIN'),
+  deleteBusinessHandler
 )
 router.post(
   '/:id/like',
