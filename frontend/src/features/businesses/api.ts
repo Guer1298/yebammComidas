@@ -18,6 +18,7 @@ export type BusinessListItem = {
   cover?: {
     url?: string
   } | null
+  isActive: boolean
 }
 
 export type BusinessLikeState = {
