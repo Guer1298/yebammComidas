@@ -8,6 +8,7 @@ import EmptyState from '../../components/ui/EmptyState'
 import { listPromotions, type PromotionRecord } from './api'
 import PromotionSection from './components/PromotionSection'
 import type { PromotionCardData } from './components/PromotionCard'
+import { getErrorMessage } from '../../lib/httpError'
 
 function buildFallbackPromotionImage(title: string) {
   const safeTitle = title.replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -74,11 +75,8 @@ export default function PromotionsPage() {
         setError('')
         const items = await listPromotions({ status: 'ACTIVE' })
         setPromotions(items)
-      } catch (err: any) {
-        setError(
-          err?.response?.data?.message ||
-            'No fue posible cargar las promociones'
-        )
+      } catch (err: unknown) {
+        setError(getErrorMessage(err, 'No fue posible cargar las promociones'))
       } finally {
         setLoading(false)
       }

@@ -7,9 +7,11 @@ import Card, {
   CardHeader,
   CardTitle,
 } from '../../../components/ui/Card'
+import { getErrorMessage } from '../../../lib/httpError'
 
 export interface BusinessFormValues {
   name: string
+  slug: string
   category: string
   businessType: string
   description: string
@@ -22,17 +24,34 @@ export interface BusinessFormValues {
   website: string
   instagram: string
   coverImageUrl: string
+  profileImageUrl: string
+  isActive: boolean
+  adminName?: string
   adminEmail?: string
   adminPassword?: string
   adminPasswordConfirm?: string
+  primaryAdminUserId?: number | null
+}
+
+export type BusinessAdminOption = {
+  id: number
+  name: string
+  email: string
+  isActive: boolean
 }
 
 interface BusinessFormProps {
   initialValues?: Partial<BusinessFormValues>
-  onSubmit?: (values: BusinessFormValues) => void
+  onSubmit?: (values: BusinessFormValues) => void | Promise<void>
   onUploadCover?: (file: File) => Promise<string>
   allowFileUpload?: boolean
   showAccessCredentials?: boolean
+  showSlug?: boolean
+  showLogo?: boolean
+  showStatus?: boolean
+  showAdminName?: boolean
+  showAdminAssignment?: boolean
+  businessAdminOptions?: BusinessAdminOption[]
   loading?: boolean
 }
 
@@ -42,6 +61,12 @@ export default function BusinessForm({
   onUploadCover,
   allowFileUpload = true,
   showAccessCredentials = false,
+  showSlug = false,
+  showLogo = false,
+  showStatus = false,
+  showAdminName = false,
+  showAdminAssignment = false,
+  businessAdminOptions = [],
   loading = false,
 }: BusinessFormProps) {
   const [coverFile, setCoverFile] = useState<File | null>(null)
@@ -50,6 +75,7 @@ export default function BusinessForm({
   const [coverUploading, setCoverUploading] = useState(false)
   const [values, setValues] = useState<BusinessFormValues>({
     name: initialValues.name || '',
+    slug: initialValues.slug || '',
     category: initialValues.category || '',
     businessType: initialValues.businessType || '',
     description: initialValues.description || '',
@@ -62,9 +88,13 @@ export default function BusinessForm({
     website: initialValues.website || '',
     instagram: initialValues.instagram || '',
     coverImageUrl: initialValues.coverImageUrl || '',
+    profileImageUrl: initialValues.profileImageUrl || '',
+    isActive: initialValues.isActive ?? true,
+    adminName: initialValues.adminName || '',
     adminEmail: initialValues.adminEmail || '',
     adminPassword: initialValues.adminPassword || '',
     adminPasswordConfirm: initialValues.adminPasswordConfirm || '',
+    primaryAdminUserId: initialValues.primaryAdminUserId ?? null,
   })
 
   useEffect(() => {
@@ -137,12 +167,8 @@ export default function BusinessForm({
         adminEmail: values.adminEmail?.trim() || values.email.trim(),
         adminPassword: values.adminPassword?.trim(),
       })
-    } catch (error: any) {
-      setFormError(
-        error?.response?.data?.message ||
-          error?.message ||
-          'No fue posible completar el alta'
-      )
+    } catch (error: unknown) {
+      setFormError(getErrorMessage(error, 'No fue posible completar el alta'))
     } finally {
       setCoverUploading(false)
     }
@@ -174,6 +200,39 @@ export default function BusinessForm({
               placeholder="Ej. Hamburguesas"
             />
           </div>
+
+          {showSlug || showStatus ? (
+            <div className="grid gap-5 md:grid-cols-2">
+              {showSlug ? (
+                <Input
+                  label="Slug público"
+                  value={values.slug}
+                  onChange={(e) => handleChange('slug', e.target.value)}
+                  placeholder="burger-house"
+                  hint="Cambiarlo en negocios activos puede romper URLs públicas."
+                />
+              ) : null}
+
+              {showStatus ? (
+                <label className="flex min-h-[72px] items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                  <span>
+                    <span className="block text-sm font-medium text-slate-700">
+                      Estado inicial
+                    </span>
+                    <span className="mt-1 block text-sm text-slate-500">
+                      Define si el negocio aparece publicado.
+                    </span>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={values.isActive}
+                    onChange={(e) => handleChange('isActive', e.target.checked)}
+                    className="h-5 w-5 rounded border-slate-300 text-orange-500"
+                  />
+                </label>
+              ) : null}
+            </div>
+          ) : null}
 
           {allowFileUpload ? (
             <div className="space-y-3">
@@ -235,6 +294,27 @@ export default function BusinessForm({
             }
           />
 
+          {showLogo ? (
+            <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_160px]">
+              <Input
+                label="Logo / imagen de perfil"
+                value={values.profileImageUrl}
+                onChange={(e) => handleChange('profileImageUrl', e.target.value)}
+                placeholder="https://..."
+                hint="Opcional. Se usa como imagen compacta del negocio."
+              />
+              {values.profileImageUrl ? (
+                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                  <img
+                    src={values.profileImageUrl}
+                    alt={values.name || 'Logo del negocio'}
+                    className="h-32 w-full object-cover"
+                  />
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
           <div className="grid gap-5 md:grid-cols-2">
             <Input
               label="Tipo de negocio"
@@ -262,6 +342,15 @@ export default function BusinessForm({
                 </p>
               </div>
 
+              {showAdminName ? (
+                <Input
+                  label="Nombre del administrador"
+                  value={values.adminName || ''}
+                  onChange={(e) => handleChange('adminName', e.target.value)}
+                  placeholder="Ej. Ana Gómez"
+                />
+              ) : null}
+
               <div className="grid gap-5 md:grid-cols-2">
                 <Input
                   label="Correo de acceso inicial"
@@ -287,6 +376,35 @@ export default function BusinessForm({
                 onChange={(e) => handleChange('adminPasswordConfirm', e.target.value)}
                 placeholder="Repite la contraseña"
               />
+            </div>
+          ) : null}
+
+          {showAdminAssignment ? (
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-slate-700">
+                Administrador asignado
+              </label>
+              <select
+                value={values.primaryAdminUserId ?? ''}
+                onChange={(event) =>
+                  handleChange(
+                    'primaryAdminUserId',
+                    event.target.value ? Number(event.target.value) : null
+                  )
+                }
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
+              >
+                <option value="">Sin administrador principal</option>
+                {businessAdminOptions.map((admin) => (
+                  <option key={admin.id} value={admin.id} disabled={!admin.isActive}>
+                    {admin.name} ({admin.email})
+                    {!admin.isActive ? ' - inactivo' : ''}
+                  </option>
+                ))}
+              </select>
+              <p className="text-sm text-slate-500">
+                La relación permite varios administradores; aquí se marca el principal para operación.
+              </p>
             </div>
           ) : null}
 

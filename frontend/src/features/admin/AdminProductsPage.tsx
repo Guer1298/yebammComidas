@@ -16,6 +16,7 @@ import {
 import { uploadMediaFile } from '../media/api'
 import { getBusinessById } from '../businesses/api'
 import { getPrimaryBusinessId } from '../../lib/session'
+import { getErrorMessage } from '../../lib/httpError'
 
 type ProductRow = {
   id: number
@@ -88,11 +89,8 @@ export default function AdminProductsPage() {
         setLoading(true)
         const data = await getBusinessById<BusinessDetail>(businessId)
         setBusiness(data)
-      } catch (err: any) {
-        setError(
-          err?.response?.data?.message ||
-            'No fue posible cargar los productos del negocio'
-        )
+      } catch (err: unknown) {
+        setError(getErrorMessage(err, 'No fue posible cargar los productos del negocio'))
       } finally {
         setLoading(false)
       }
@@ -175,10 +173,8 @@ export default function AdminProductsPage() {
       setBusiness(refreshed)
       setOpen(false)
       setEditingProduct(null)
-    } catch (err: any) {
-      setError(
-        err?.response?.data?.message || 'No fue posible guardar el producto'
-      )
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No fue posible guardar el producto'))
     } finally {
       setSaving(false)
     }
@@ -210,11 +206,8 @@ export default function AdminProductsPage() {
 
       const refreshed = await getBusinessById<BusinessDetail>(businessId)
       setBusiness(refreshed)
-    } catch (err: any) {
-      setError(
-        err?.response?.data?.message ||
-          'No fue posible actualizar el estado del producto'
-      )
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No fue posible actualizar el estado del producto'))
     } finally {
       setSaving(false)
     }

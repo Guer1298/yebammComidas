@@ -1,8 +1,24 @@
 import { NextFunction, Request, Response } from 'express'
 import { setPrimaryMedia, uploadMedia } from './media.service'
+import { AuthenticatedRequest } from '../../shared/middleware/requireAuth'
+
+function getActor(req: AuthenticatedRequest) {
+  const userId = Number(req.user?.sub)
+
+  if (!req.user || Number.isNaN(userId)) {
+    const error = new Error('No autorizado')
+    ;(error as any).status = 401
+    throw error
+  }
+
+  return {
+    userId,
+    role: req.user.role,
+  }
+}
 
 export async function uploadMediaHandler(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -34,6 +50,7 @@ export async function uploadMediaHandler(
       mimeType: file.mimetype,
       originalName: file.originalname,
       isPrimary,
+      actor: getActor(req),
     })
 
     res.status(201).json({
@@ -47,7 +64,7 @@ export async function uploadMediaHandler(
 }
 
 export async function setPrimaryMediaHandler(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -67,6 +84,7 @@ export async function setPrimaryMediaHandler(
       businessId,
       mediaAssetId,
       isPrimary,
+      actor: getActor(req),
     })
 
     res.status(200).json({

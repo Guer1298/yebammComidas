@@ -21,6 +21,7 @@ import {
   type PromotionStatus,
 } from '../promotions/api'
 import { getPrimaryBusinessId } from '../../lib/session'
+import { getErrorMessage } from '../../lib/httpError'
 
 type BusinessSummary = {
   id: number
@@ -135,11 +136,8 @@ export default function AdminPromotionsPage() {
 
       setBusiness(businessData)
       setPromotions(promotionsData)
-    } catch (err: any) {
-      setError(
-        err?.response?.data?.message ||
-          'No fue posible cargar las promociones'
-      )
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No fue posible cargar las promociones'))
     } finally {
       setLoading(false)
     }
@@ -263,11 +261,8 @@ export default function AdminPromotionsPage() {
 
       setModalOpen(false)
       await loadData()
-    } catch (err: any) {
-      setError(
-        err?.response?.data?.message ||
-          'No fue posible guardar la promoción'
-      )
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No fue posible guardar la promoción'))
     } finally {
       setSaving(false)
       setImageUploading(false)
@@ -284,11 +279,8 @@ export default function AdminPromotionsPage() {
       setSaving(true)
       await deactivatePromotionById(promotion.id)
       await loadData()
-    } catch (err: any) {
-      setError(
-        err?.response?.data?.message ||
-          'No fue posible desactivar la promoción'
-      )
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No fue posible desactivar la promoción'))
     } finally {
       setSaving(false)
     }

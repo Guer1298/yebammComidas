@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import LoginForm, { type LoginFormValues } from './components/LoginForm'
 import { login } from './api'
 import { trackEvent } from '../../lib/analytics'
+import { getErrorMessage } from '../../lib/httpError'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -41,10 +42,8 @@ export default function LoginPage() {
           : '/businesses'
 
       navigate(nextPath)
-    } catch (err: any) {
-      setError(
-        err?.response?.data?.message || err.message || 'No fue posible iniciar sesión'
-      )
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No fue posible iniciar sesión'))
     } finally {
       setLoading(false)
     }

@@ -17,6 +17,7 @@ import Badge from '../../components/ui/Badge'
 import { loadHomeCatalog, type HomeBusinessItem, type HomeProductItem } from './api'
 import { buildVisualImageDataUrl } from '../../lib/visualImage'
 import { trackEvent } from '../../lib/analytics'
+import { getErrorMessage } from '../../lib/httpError'
 
 function formatPrice(value: number | string, currency = 'COP') {
   const numericValue = typeof value === 'string' ? Number(value) : value
@@ -85,11 +86,8 @@ export default function HomePage() {
         const catalog = await loadHomeCatalog()
         setBusinesses(sortBusinesses(catalog.businesses))
         setProducts(sortProducts(catalog.products))
-      } catch (err: any) {
-        setError(
-          err?.response?.data?.message ||
-            'No fue posible cargar los negocios y productos de inicio'
-        )
+      } catch (err: unknown) {
+        setError(getErrorMessage(err, 'No fue posible cargar los negocios y productos de inicio'))
       } finally {
         setLoading(false)
       }

@@ -5,6 +5,22 @@ import {
   updateProduct,
   deactivateProduct,
 } from './products.service'
+import { AuthenticatedRequest } from '../../shared/middleware/requireAuth'
+
+function getActor(req: AuthenticatedRequest) {
+  const userId = Number(req.user?.sub)
+
+  if (!req.user || Number.isNaN(userId)) {
+    const error = new Error('No autorizado')
+    ;(error as any).status = 401
+    throw error
+  }
+
+  return {
+    userId,
+    role: req.user.role,
+  }
+}
 
 export async function findProductById(
   req: Request,
@@ -33,12 +49,12 @@ export async function findProductById(
 }
 
 export async function createProductHandler(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) {
   try {
-    const product = await createProduct(req.body)
+    const product = await createProduct(req.body, getActor(req))
 
     res.status(201).json({
       ok: true,
@@ -51,7 +67,7 @@ export async function createProductHandler(
 }
 
 export async function updateProductHandler(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -65,7 +81,7 @@ export async function updateProductHandler(
       })
     }
 
-    const product = await updateProduct(id, req.body)
+    const product = await updateProduct(id, req.body, getActor(req))
 
     res.status(200).json({
       ok: true,
@@ -78,7 +94,7 @@ export async function updateProductHandler(
 }
 
 export async function deactivateProductHandler(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -92,7 +108,7 @@ export async function deactivateProductHandler(
       })
     }
 
-    const product = await deactivateProduct(id)
+    const product = await deactivateProduct(id, getActor(req))
 
     res.status(200).json({
       ok: true,

@@ -20,6 +20,7 @@ import {
   getStoredUser,
   removeBusinessIdFromStoredUser,
 } from '../../lib/session'
+import { getErrorMessage } from '../../lib/httpError'
 
 type BusinessDetail = BusinessFormValues & {
   id: number
@@ -68,11 +69,8 @@ export default function AdminBusinessPage() {
             data.mediaAssets?.[0]?.url ||
             '',
         })
-      } catch (err: any) {
-        setError(
-          err?.response?.data?.message ||
-            'No fue posible cargar el negocio administrativo'
-        )
+      } catch (err: unknown) {
+        setError(getErrorMessage(err, 'No fue posible cargar el negocio administrativo'))
       } finally {
         setLoading(false)
       }
@@ -117,11 +115,8 @@ export default function AdminBusinessPage() {
           '',
       })
       setSuccess('Negocio actualizado correctamente.')
-    } catch (err: any) {
-      setError(
-        err?.response?.data?.message ||
-          'No fue posible guardar los cambios del negocio'
-      )
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No fue posible guardar los cambios del negocio'))
     } finally {
       setSaving(false)
     }
@@ -155,11 +150,8 @@ export default function AdminBusinessPage() {
       await deleteBusinessById(businessId)
       removeBusinessIdFromStoredUser(businessId)
       navigate('/admin/businesses', { replace: true })
-    } catch (err: any) {
-      setError(
-        err?.response?.data?.message ||
-          'No fue posible eliminar el negocio'
-      )
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No fue posible eliminar el negocio'))
     } finally {
       setDeleting(false)
     }

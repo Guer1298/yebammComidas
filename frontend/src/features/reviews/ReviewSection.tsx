@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import ReviewSectionView from './components/ReviewSection'
 import { createReview, getBusinessReviews } from './api'
 import { getStoredUser, isAuthenticated } from '../../lib/session'
+import { getErrorMessage } from '../../lib/httpError'
 
 type ReviewUser = {
   id: number
@@ -33,23 +34,21 @@ export default function ReviewSection({ businessId }: ReviewSectionProps) {
   const [submitLoading, setSubmitLoading] = useState(false)
   const [error, setError] = useState('')
 
-  async function loadReviews() {
+  const loadReviews = useCallback(async () => {
     try {
       setLoading(true)
       setError('')
       setData(await getBusinessReviews<ReviewsResponse>(businessId))
-    } catch (err: any) {
-      setError(
-        err?.response?.data?.message || 'No fue posible cargar las reviews'
-      )
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No fue posible cargar las reviews'))
     } finally {
       setLoading(false)
     }
-  }
+  }, [businessId])
 
   useEffect(() => {
     loadReviews()
-  }, [businessId])
+  }, [loadReviews])
 
   const reviews = useMemo(
     () =>

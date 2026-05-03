@@ -9,6 +9,7 @@ import Card, {
 import { getBusinessById } from '../businesses/api'
 import { setPrimaryMedia, uploadMediaFile } from '../media/api'
 import { getPrimaryBusinessId } from '../../lib/session'
+import { getErrorMessage } from '../../lib/httpError'
 
 type MediaAsset = {
   id: number
@@ -42,11 +43,8 @@ export default function AdminMediaPage() {
         setLoading(true)
         const data = await getBusinessById<BusinessDetail>(businessId)
         setBusiness(data)
-      } catch (err: any) {
-        setError(
-          err?.response?.data?.message ||
-            'No fue posible cargar la media del negocio'
-        )
+      } catch (err: unknown) {
+        setError(getErrorMessage(err, 'No fue posible cargar la media del negocio'))
       } finally {
         setLoading(false)
       }
@@ -71,10 +69,8 @@ export default function AdminMediaPage() {
 
       const refreshed = await getBusinessById<BusinessDetail>(businessId)
       setBusiness(refreshed)
-    } catch (err: any) {
-      setError(
-        err?.response?.data?.message || 'No fue posible subir la media'
-      )
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No fue posible subir la media'))
     } finally {
       setUploading(false)
     }
@@ -90,11 +86,8 @@ export default function AdminMediaPage() {
       await setPrimaryMedia(businessId, mediaAssetId, nextPrimary)
       const refreshed = await getBusinessById<BusinessDetail>(businessId)
       setBusiness(refreshed)
-    } catch (err: any) {
-      setError(
-        err?.response?.data?.message ||
-          'No fue posible actualizar la media principal'
-      )
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No fue posible actualizar la media principal'))
     } finally {
       setUploading(false)
     }

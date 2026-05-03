@@ -1,10 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import {
-  FaArrowRight,
-  FaMagnifyingGlass,
-  FaTrash,
-} from 'react-icons/fa6'
+import { FaPen, FaPowerOff, FaTrash } from 'react-icons/fa6'
 import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
 import Card, {
@@ -13,16 +9,25 @@ import Card, {
   CardHeader,
   CardTitle,
 } from '../../components/ui/Card'
-import { buildVisualImageDataUrl } from '../../lib/visualImage'
+import Input from '../../components/ui/Input'
+import Modal from '../../components/ui/Modal'
 import {
   deleteBusinessById,
   listBusinessesForAdmin,
+  updateBusinessStatus,
   type BusinessListItem,
 } from '../businesses/api'
-import {
-  getStoredUser,
-  removeBusinessIdFromStoredUser,
-} from '../../lib/session'
+import { getStoredUser, removeBusinessIdFromStoredUser } from '../../lib/session'
+import { getErrorMessage } from '../../lib/httpError'
+
+type StatusFilter = 'all' | 'active' | 'inactive'
+
+function formatDate(value?: string) {
+  if (!value) return '-'
+  return new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium' }).format(
+    new Date(value)
+  )
+}
 
 export default function AdminBusinessesPage() {
   const user = getStoredUser()
@@ -31,69 +36,78 @@ export default function AdminBusinessesPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
-  const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [savingId, setSavingId] = useState<number | null>(null)
+  const [businessToDelete, setBusinessToDelete] = useState<BusinessListItem | null>(null)
+  const [deleteConfirmation, setDeleteConfirmation] = useState('')
+
+  async function loadBusinesses() {
+    try {
+      setLoading(true)
+      setError('')
+      setBusinesses(await listBusinessesForAdmin())
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No fue posible cargar los negocios'))
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (!isSuperAdmin) return
-
-    async function loadBusinesses() {
-      try {
-        setLoading(true)
-        setError('')
-        setBusinesses(await listBusinessesForAdmin())
-      } catch (err: any) {
-        setError(
-          err?.response?.data?.message ||
-            'No fue posible cargar los negocios'
-        )
-      } finally {
-        setLoading(false)
-      }
-    }
-
     loadBusinesses()
   }, [isSuperAdmin])
 
   const filteredBusinesses = useMemo(() => {
     const term = search.trim().toLowerCase()
 
-    if (!term) return businesses
-
     return businesses.filter((business) => {
-      const searchable = [
-        business.name,
-        business.category,
-        business.description,
-        business.city,
-        business.address,
-      ]
+      const matchesStatus =
+        statusFilter === 'all' ||
+        (statusFilter === 'active' && business.isActive) ||
+        (statusFilter === 'inactive' && !business.isActive)
+
+      const searchable = [business.name, business.city, business.category]
         .filter(Boolean)
         .join(' ')
         .toLowerCase()
 
-      return searchable.includes(term)
+      return matchesStatus && (!term || searchable.includes(term))
     })
-  }, [businesses, search])
+  }, [businesses, search, statusFilter])
 
-  async function handleDelete(business: BusinessListItem) {
-    const confirmed = window.confirm(
-      `¿Eliminar "${business.name}"? Esta acción borrará el negocio y todo su contenido asociado.`
-    )
+  async function handleStatusChange(business: BusinessListItem, isActive: boolean) {
+    try {
+      setSavingId(business.id)
+      const updated = await updateBusinessStatus<BusinessListItem>(business.id, isActive)
+      setBusinesses((current) =>
+        current.map((item) =>
+          item.id === business.id ? { ...item, isActive: updated.isActive } : item
+        )
+      )
+    } catch (err: unknown) {
+      window.alert(getErrorMessage(err, 'No fue posible actualizar el estado'))
+    } finally {
+      setSavingId(null)
+    }
+  }
 
-    if (!confirmed) return
+  async function handleDelete() {
+    if (!businessToDelete || deleteConfirmation !== businessToDelete.name) return
 
     try {
-      setDeletingId(business.id)
-      await deleteBusinessById(business.id)
-      removeBusinessIdFromStoredUser(business.id)
-      setBusinesses((current) => current.filter((item) => item.id !== business.id))
-    } catch (err: any) {
-      window.alert(
-        err?.response?.data?.message ||
-          'No fue posible eliminar el negocio'
+      setSavingId(businessToDelete.id)
+      await deleteBusinessById(businessToDelete.id)
+      removeBusinessIdFromStoredUser(businessToDelete.id)
+      setBusinesses((current) =>
+        current.filter((item) => item.id !== businessToDelete.id)
       )
+      setBusinessToDelete(null)
+      setDeleteConfirmation('')
+    } catch (err: unknown) {
+      window.alert(getErrorMessage(err, 'No fue posible eliminar el negocio'))
     } finally {
-      setDeletingId(null)
+      setSavingId(null)
     }
   }
 
@@ -113,154 +127,173 @@ export default function AdminBusinessesPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--brand-green-700)]">
-            Negocios
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-500">
+            Super administración
           </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
-            Gestionar negocios
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+            Negocios
           </h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Revisa el inventario completo de negocios y elimina los que ya no deban estar activos.
+            Gestiona negocios activos e inactivos, sus estados y administradores principales.
           </p>
         </div>
-
-        <div className="flex items-center gap-3">
-          <Badge variant="neutral">{businesses.length} totales</Badge>
-          <Link
-            to="/admin/business/new"
-            className="inline-flex items-center gap-2 rounded-2xl bg-[var(--brand-green-600)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--brand-green-700)]"
-          >
-            Nuevo negocio
-            <FaArrowRight className="text-xs" />
-          </Link>
-        </div>
+        <Link to="/admin/businesses/new">
+          <Button>Nuevo negocio</Button>
+        </Link>
       </div>
 
-      <Card className="overflow-hidden">
-        <CardContent className="p-4 sm:p-5">
-          <div className="relative">
-            <FaMagnifyingGlass className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Buscar por nombre, categoría o ciudad..."
-              className="h-12 w-full rounded-2xl border border-slate-200 bg-white pl-11 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[var(--brand-green-400)] focus:ring-4 focus:ring-[color:rgba(22,164,76,0.10)]"
-            />
+      <Card>
+        <CardContent className="grid gap-4 md:grid-cols-[1fr_220px]">
+          <Input
+            label="Buscar"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Nombre, categoría o ciudad"
+          />
+          <div className="space-y-1.5">
+            <label className="block text-sm font-medium text-slate-700">Estado</label>
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
+            >
+              <option value="all">Todos</option>
+              <option value="active">Activos</option>
+              <option value="inactive">Inactivos</option>
+            </select>
           </div>
         </CardContent>
       </Card>
 
-      {loading ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Cargando negocios...</CardTitle>
-            <CardDescription>Obteniendo la lista completa para administración.</CardDescription>
-          </CardHeader>
-        </Card>
-      ) : error ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>No se pudieron cargar los negocios</CardTitle>
-            <CardDescription>{error}</CardDescription>
-          </CardHeader>
-        </Card>
-      ) : filteredBusinesses.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>No hay resultados</CardTitle>
-            <CardDescription>
-              No encontramos negocios con ese criterio de búsqueda.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      ) : (
-        <div className="grid gap-4 xl:grid-cols-2">
-          {filteredBusinesses.map((business) => {
-            const imageUrl =
-              business.cover?.url ||
-              business.profileImageUrl ||
-              buildVisualImageDataUrl(business.name, business.category || 'Negocio')
-
-            return (
-              <Card key={business.id} className="overflow-hidden">
-                <div className="grid gap-0 sm:grid-cols-[128px_minmax(0,1fr)]">
-                  <img
-                    src={imageUrl}
-                    alt={business.name}
-                    className="h-full min-h-[128px] w-full object-cover"
-                  />
-
-                  <CardContent className="flex h-full flex-col gap-4 p-4 sm:p-5">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h2 className="text-lg font-semibold tracking-tight text-slate-950">
-                            {business.name}
-                          </h2>
-                          {business.isVerified ? (
-                            <Badge variant="success">Verificado</Badge>
-                          ) : null}
-                        </div>
-                        <p className="mt-1 text-sm text-slate-500">
-                          {business.category}
-                          {business.city ? ` · ${business.city}` : ''}
+      <Card className="overflow-hidden" padding="none">
+        {loading ? (
+          <div className="p-6 text-sm text-slate-500">Cargando negocios...</div>
+        ) : error ? (
+          <div className="p-6 text-sm text-red-600">{error}</div>
+        ) : filteredBusinesses.length === 0 ? (
+          <div className="p-6 text-sm text-slate-500">No hay negocios para mostrar.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200 text-sm">
+              <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th className="px-5 py-3 font-semibold">Nombre</th>
+                  <th className="px-5 py-3 font-semibold">Ciudad</th>
+                  <th className="px-5 py-3 font-semibold">Estado</th>
+                  <th className="px-5 py-3 font-semibold">Administrador</th>
+                  <th className="px-5 py-3 font-semibold">Productos</th>
+                  <th className="px-5 py-3 font-semibold">Creado</th>
+                  <th className="px-5 py-3 text-right font-semibold">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {filteredBusinesses.map((business) => (
+                  <tr key={business.id}>
+                    <td className="px-5 py-4 font-medium text-slate-900">
+                      {business.name}
+                      <p className="mt-1 text-xs font-normal text-slate-500">
+                        {business.slug || business.category}
+                      </p>
+                    </td>
+                    <td className="px-5 py-4 text-slate-600">{business.city || '-'}</td>
+                    <td className="px-5 py-4">
+                      <Badge variant={business.isActive ? 'success' : 'neutral'}>
+                        {business.isActive ? 'Activo' : 'Inactivo'}
+                      </Badge>
+                    </td>
+                    <td className="px-5 py-4 text-slate-600">
+                      {business.primaryAdmin?.name || 'Sin asignar'}
+                      {business.primaryAdmin?.email ? (
+                        <p className="mt-1 text-xs text-slate-500">
+                          {business.primaryAdmin.email}
                         </p>
-                      </div>
-
-                      <div className="text-right">
-                        <p className="text-lg font-semibold text-slate-950">
-                          {business.ratingAverage?.toFixed(1) ?? '0.0'}
-                        </p>
-                        <p className="text-xs uppercase tracking-[0.14em] text-slate-500">
-                          {business.reviewsCount ?? 0} reseñas
-                        </p>
-                      </div>
-                    </div>
-
-                    <p className="line-clamp-2 text-sm leading-6 text-slate-600">
-                      {business.description ||
-                        'Negocio disponible para administración y acciones operativas.'}
-                    </p>
-
-                    <div className="mt-auto flex flex-wrap items-center justify-between gap-3">
-                      <div className="flex flex-wrap gap-2">
-                        <Badge variant={business.isActive ? 'success' : 'neutral'}>
-                          {business.isActive ? 'Activo' : 'Inactivo'}
-                        </Badge>
-                        <Badge variant="neutral">
-                          {business.activePromotionsCount ?? 0} promos
-                        </Badge>
-                      </div>
-
-                      <div className="flex flex-wrap gap-2">
-                        <Link
-                          to={`/businesses/${business.id}`}
-                          className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Ver perfil
+                      ) : null}
+                    </td>
+                    <td className="px-5 py-4 text-slate-600">
+                      {business.productsCount ?? 0}
+                    </td>
+                    <td className="px-5 py-4 text-slate-600">
+                      {formatDate(business.createdAt)}
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex flex-wrap justify-end gap-2">
+                        <Link to={`/admin/businesses/${business.id}/edit`}>
+                          <Button size="sm" variant="outline" leftIcon={<FaPen />}>
+                            Editar
+                          </Button>
                         </Link>
                         <Button
-                          variant="outline"
-                          className="border-rose-200 text-rose-700 hover:border-rose-300 hover:bg-rose-50"
-                          onClick={() => handleDelete(business)}
-                          disabled={deletingId === business.id}
+                          size="sm"
+                          variant="ghost"
+                          leftIcon={<FaPowerOff />}
+                          loading={savingId === business.id}
+                          onClick={() =>
+                            handleStatusChange(business, !business.isActive)
+                          }
                         >
-                          <FaTrash className="mr-2 text-xs" />
-                          {deletingId === business.id ? 'Eliminando...' : 'Eliminar'}
+                          {business.isActive ? 'Desactivar' : 'Activar'}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="danger"
+                          leftIcon={<FaTrash />}
+                          onClick={() => setBusinessToDelete(business)}
+                        >
+                          Eliminar
                         </Button>
                       </div>
-                    </div>
-                  </CardContent>
-                </div>
-              </Card>
-            )
-          })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+
+      <Modal
+        open={!!businessToDelete}
+        onClose={() => {
+          setBusinessToDelete(null)
+          setDeleteConfirmation('')
+        }}
+        title="Eliminar negocio definitivamente"
+        description="Esta acción puede eliminar productos, imágenes, menú, promociones y relaciones asociadas."
+        closeOnOverlayClick={false}
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setBusinessToDelete(null)
+                setDeleteConfirmation('')
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="danger"
+              loading={savingId === businessToDelete?.id}
+              disabled={deleteConfirmation !== businessToDelete?.name}
+              onClick={handleDelete}
+            >
+              Eliminar definitivamente
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-slate-700">
+            Para eliminar, escribe: <strong>{businessToDelete?.name}</strong>
+          </p>
+          <Input
+            value={deleteConfirmation}
+            onChange={(event) => setDeleteConfirmation(event.target.value)}
+            placeholder={businessToDelete?.name || ''}
+          />
         </div>
-      )}
+      </Modal>
     </div>
   )
 }

@@ -3,9 +3,15 @@ import {
   createBusinessHandler,
   findAllBusinesses,
   findAllBusinessesForAdmin,
+  findBusinessByIdForAdmin,
   findBusinessById,
   deleteBusinessHandler,
   toggleBusinessLikeHandler,
+  toggleBusinessFollowHandler,
+  toggleBusinessCustomerHandler,
+  getBusinessCustomersHandler,
+  getBusinessFollowersHandler,
+  updateBusinessStatusHandler,
   updateBusinessProfileImageHandler,
   updateBusinessHandler,
 } from './business.controller'
@@ -21,6 +27,12 @@ router.get(
   requireRole('ADMIN'),
   findAllBusinessesForAdmin
 )
+router.get(
+  '/admin/:id',
+  requireAuth,
+  requireRole('ADMIN'),
+  findBusinessByIdForAdmin
+)
 router.post(
   '/',
   requireAuth,
@@ -33,6 +45,12 @@ router.patch(
   requireAuth,
   requireRole('ADMIN', 'BUSINESS_ADMIN'),
   updateBusinessHandler
+)
+router.patch(
+  '/:id/status',
+  requireAuth,
+  requireRole('ADMIN'),
+  updateBusinessStatusHandler
 )
 router.patch(
   '/:id/profile-image',
@@ -50,6 +68,24 @@ router.post(
   '/:id/like',
   requireAuth,
   toggleBusinessLikeHandler
+)
+router.post(
+  '/:id/follow',
+  requireAuth,
+  toggleBusinessFollowHandler
+)
+router.post(
+  '/:id/customer',
+  requireAuth,
+  toggleBusinessCustomerHandler
+)
+router.get(
+  '/:id/customers',
+  getBusinessCustomersHandler
+)
+router.get(
+  '/:id/followers',
+  getBusinessFollowersHandler
 )
 
 export default router

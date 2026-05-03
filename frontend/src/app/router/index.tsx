@@ -15,7 +15,12 @@ import { AdminGuard } from './guards'
 import AdminDashboardPage from '../../features/admin/AdminDashboardPage'
 import AdminBusinessPage from '../../features/admin/AdminBusinessPage'
 import AdminBusinessCreatePage from '../../features/admin/AdminBusinessCreatePage'
+import AdminBusinessEditPage from '../../features/admin/AdminBusinessEditPage'
 import AdminBusinessesPage from '../../features/admin/AdminBusinessesPage'
+import AdminBusinessAdminsPage from '../../features/admin/AdminBusinessAdminsPage'
+import AdminBusinessAdminCreatePage from '../../features/admin/AdminBusinessAdminCreatePage'
+import AdminBusinessAdminEditPage from '../../features/admin/AdminBusinessAdminEditPage'
+import AdminActivityPage from '../../features/admin/AdminActivityPage'
 import AdminProductsPage from '../../features/admin/AdminProductsPage'
 import AdminMediaPage from '../../features/admin/AdminMediaPage'
 import AdminPromotionsPage from '../../features/admin/AdminPromotionsPage'
@@ -59,8 +64,24 @@ export default function AppRouter() {
           }
         >
           <Route index element={<AdminDashboardPage />} />
-          <Route path="business/new" element={<AdminBusinessCreatePage />} />
+          <Route path="dashboard" element={<AdminDashboardPage />} />
+          <Route
+            path="business/new"
+            element={<Navigate to="/admin/businesses/new" replace />}
+          />
+          <Route path="businesses/new" element={<AdminBusinessCreatePage />} />
+          <Route path="businesses/:id/edit" element={<AdminBusinessEditPage />} />
           <Route path="businesses" element={<AdminBusinessesPage />} />
+          <Route path="business-admins" element={<AdminBusinessAdminsPage />} />
+          <Route
+            path="business-admins/new"
+            element={<AdminBusinessAdminCreatePage />}
+          />
+          <Route
+            path="business-admins/:id/edit"
+            element={<AdminBusinessAdminEditPage />}
+          />
+          <Route path="activity" element={<AdminActivityPage />} />
           <Route path="business" element={<AdminBusinessPage />} />
           <Route path="products" element={<AdminProductsPage />} />
           <Route path="media" element={<AdminMediaPage />} />

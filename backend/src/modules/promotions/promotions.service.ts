@@ -1,5 +1,9 @@
 import { PromotionStatus } from '@prisma/client'
 import { prisma } from '../../shared/db/prisma'
+import {
+  assertCanManageBusiness,
+  BusinessActor,
+} from '../../shared/authz/businessAccess'
 
 function slugify(value: string) {
   return value
@@ -154,7 +158,10 @@ export async function listPromotionsByBusinessId(businessId: number) {
   return listPromotions({ businessId, status: 'ALL' })
 }
 
-export async function createPromotion(input: CreatePromotionInput) {
+export async function createPromotion(
+  input: CreatePromotionInput,
+  actor: BusinessActor
+) {
   const business = await prisma.business.findUnique({
     where: { id: input.businessId },
   })
@@ -164,6 +171,8 @@ export async function createPromotion(input: CreatePromotionInput) {
     ;(error as any).status = 404
     throw error
   }
+
+  await assertCanManageBusiness(prisma, input.businessId, actor)
 
   const slug = input.slug?.trim() || buildFallbackPromotionSlug(input.title)
   const startsAt = parseOptionalDate(input.startsAt, 'de inicio')
@@ -187,7 +196,11 @@ export async function createPromotion(input: CreatePromotionInput) {
   })
 }
 
-export async function updatePromotion(id: number, input: UpdatePromotionInput) {
+export async function updatePromotion(
+  id: number,
+  input: UpdatePromotionInput,
+  actor: BusinessActor
+) {
   const existingPromotion = await prisma.promotion.findUnique({
     where: { id },
   })
@@ -197,6 +210,8 @@ export async function updatePromotion(id: number, input: UpdatePromotionInput) {
     ;(error as any).status = 404
     throw error
   }
+
+  await assertCanManageBusiness(prisma, existingPromotion.businessId, actor)
 
   const nextBusinessId = input.businessId ?? existingPromotion.businessId
   const startsAt =
@@ -220,6 +235,8 @@ export async function updatePromotion(id: number, input: UpdatePromotionInput) {
       ;(error as any).status = 404
       throw error
     }
+
+    await assertCanManageBusiness(prisma, input.businessId, actor)
   }
 
   return prisma.promotion.update({
@@ -255,7 +272,7 @@ export async function updatePromotion(id: number, input: UpdatePromotionInput) {
   })
 }
 
-export async function deactivatePromotion(id: number) {
+export async function deactivatePromotion(id: number, actor: BusinessActor) {
   const existingPromotion = await prisma.promotion.findUnique({
     where: { id },
   })
@@ -265,6 +282,8 @@ export async function deactivatePromotion(id: number) {
     ;(error as any).status = 404
     throw error
   }
+
+  await assertCanManageBusiness(prisma, existingPromotion.businessId, actor)
 
   return prisma.promotion.update({
     where: { id },

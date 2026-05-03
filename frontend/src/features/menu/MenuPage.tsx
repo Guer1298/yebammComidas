@@ -7,6 +7,7 @@ import Button from '../../components/ui/Button'
 import Badge from '../../components/ui/Badge'
 import { getBusinessMenuById, type MenuCategory } from './api'
 import MenuCatalog from './components/MenuCatalog'
+import { getErrorMessage } from '../../lib/httpError'
 
 type BusinessMenuResponse = {
   id: number
@@ -71,8 +72,8 @@ export default function MenuPage() {
         setLoading(true)
         setError('')
         setBusiness(await getBusinessMenuById(businessId))
-      } catch (err: any) {
-        setError(err?.response?.data?.message || 'No fue posible cargar la carta')
+      } catch (err: unknown) {
+        setError(getErrorMessage(err, 'No fue posible cargar la carta'))
       } finally {
         setLoading(false)
       }

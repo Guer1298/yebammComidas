@@ -1,4 +1,8 @@
 import { prisma } from '../../shared/db/prisma'
+import {
+  assertCanManageBusiness,
+  BusinessActor,
+} from '../../shared/authz/businessAccess'
 
 function buildProductFallbackImage(name: string) {
   const label = encodeURIComponent(name || 'Producto')
@@ -65,7 +69,10 @@ type CreateProductInput = {
   sortOrder?: number
 }
 
-export async function createProduct(input: CreateProductInput) {
+export async function createProduct(
+  input: CreateProductInput,
+  actor: BusinessActor
+) {
   const business = await prisma.business.findUnique({
     where: { id: input.businessId },
   })
@@ -75,6 +82,8 @@ export async function createProduct(input: CreateProductInput) {
     ;(error as any).status = 404
     throw error
   }
+
+  await assertCanManageBusiness(prisma, input.businessId, actor)
 
   const category = await prisma.menuCategory.findUnique({
     where: { id: input.categoryId },
@@ -129,7 +138,11 @@ type UpdateProductInput = {
   sortOrder?: number
 }
 
-export async function updateProduct(id: number, input: UpdateProductInput) {
+export async function updateProduct(
+  id: number,
+  input: UpdateProductInput,
+  actor: BusinessActor
+) {
   const existingProduct = await prisma.product.findUnique({
     where: { id },
     include: {
@@ -146,6 +159,8 @@ export async function updateProduct(id: number, input: UpdateProductInput) {
     ;(error as any).status = 404
     throw error
   }
+
+  await assertCanManageBusiness(prisma, existingProduct.businessId, actor)
 
   if (input.categoryId !== undefined) {
     const category = await prisma.menuCategory.findUnique({
@@ -201,7 +216,7 @@ export async function updateProduct(id: number, input: UpdateProductInput) {
   })
 }
 
-export async function deactivateProduct(id: number) {
+export async function deactivateProduct(id: number, actor: BusinessActor) {
   const existingProduct = await prisma.product.findUnique({
     where: { id },
   })
@@ -211,6 +226,8 @@ export async function deactivateProduct(id: number) {
     ;(error as any).status = 404
     throw error
   }
+
+  await assertCanManageBusiness(prisma, existingProduct.businessId, actor)
 
   return prisma.product.update({
     where: { id },

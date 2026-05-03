@@ -10,6 +10,8 @@ import Card, {
 } from '../../components/ui/Card'
 import { getBusinessById } from '../businesses/api'
 import { getPrimaryBusinessId, getStoredUser } from '../../lib/session'
+import SuperAdminDashboardPage from './SuperAdminDashboardPage'
+import { getErrorMessage } from '../../lib/httpError'
 
 type AdminBusiness = {
   id: number
@@ -23,6 +25,16 @@ type AdminBusiness = {
 }
 
 export default function AdminDashboardPage() {
+  const user = getStoredUser()
+
+  if (user?.role === 'ADMIN') {
+    return <SuperAdminDashboardPage />
+  }
+
+  return <BusinessAdminDashboardPage />
+}
+
+function BusinessAdminDashboardPage() {
   const businessId = getPrimaryBusinessId()
   const navigate = useNavigate()
   const user = getStoredUser()
@@ -43,11 +55,8 @@ export default function AdminDashboardPage() {
         setError('')
         const data = await getBusinessById<AdminBusiness>(businessId)
         setBusiness(data)
-      } catch (err: any) {
-        setError(
-          err?.response?.data?.message ||
-            'No fue posible cargar el panel administrativo'
-        )
+      } catch (err: unknown) {
+        setError(getErrorMessage(err, 'No fue posible cargar el panel administrativo'))
       } finally {
         setLoading(false)
       }

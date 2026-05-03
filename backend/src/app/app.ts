@@ -10,6 +10,7 @@ import productsRoutes from '../modules/products/products.routes'
 import analyticsRoutes from '../modules/analytics/analytics.routes'
 import mediaRoutes from '../modules/media/media.routes'
 import promotionsRoutes from '../modules/promotions/promotions.routes'
+import adminRoutes from '../modules/admin/admin.routes'
 
 import { logger } from '../shared/logger/logger'
 import { notFound } from '../shared/middleware/notFound'
@@ -55,6 +56,7 @@ app.get('/health', (_req, res) => {
 
 // Rutas API
 app.use('/api/auth', authRoutes)
+app.use('/api/admin', adminRoutes)
 app.use('/api/businesses', businessRoutes)
 app.use('/api/events', analyticsRoutes)
 app.use('/api/products', productsRoutes)

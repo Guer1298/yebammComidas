@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import Button from '../../../components/ui/Button'
 import Input from '../../../components/ui/Input'
 import Card, { CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/Card'
+import { getErrorMessage } from '../../../lib/httpError'
 
 export interface ProductFormValues {
   businessId: string
@@ -120,12 +121,8 @@ export default function ProductForm({
         ...values,
         imageUrl: nextImageUrl,
       })
-    } catch (error: any) {
-      setImageUploadError(
-        error?.response?.data?.message ||
-          error?.message ||
-          'No fue posible subir la imagen'
-      )
+    } catch (error: unknown) {
+      setImageUploadError(getErrorMessage(error, 'No fue posible subir la imagen'))
     } finally {
       setImageUploading(false)
     }

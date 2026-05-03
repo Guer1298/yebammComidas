@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import { PromotionStatus } from '@prisma/client'
+import { AuthenticatedRequest } from '../../shared/middleware/requireAuth'
 import {
   createPromotion,
   deactivatePromotion,
@@ -10,6 +11,21 @@ import {
 } from './promotions.service'
 
 type PromotionStatusFilter = PromotionStatus | 'ALL'
+
+function getActor(req: AuthenticatedRequest) {
+  const userId = Number(req.user?.sub)
+
+  if (!req.user || Number.isNaN(userId)) {
+    const error = new Error('No autorizado')
+    ;(error as any).status = 401
+    throw error
+  }
+
+  return {
+    userId,
+    role: req.user.role,
+  }
+}
 
 function parseOptionalNumber(value: unknown) {
   if (value === undefined || value === null || value === '') {
@@ -127,12 +143,12 @@ export async function findPromotionsByBusinessId(
 }
 
 export async function createPromotionHandler(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) {
   try {
-    const promotion = await createPromotion(req.body)
+    const promotion = await createPromotion(req.body, getActor(req))
 
     res.status(201).json({
       ok: true,
@@ -145,7 +161,7 @@ export async function createPromotionHandler(
 }
 
 export async function updatePromotionHandler(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -159,7 +175,7 @@ export async function updatePromotionHandler(
       })
     }
 
-    const promotion = await updatePromotion(id, req.body)
+    const promotion = await updatePromotion(id, req.body, getActor(req))
 
     res.status(200).json({
       ok: true,
@@ -172,7 +188,7 @@ export async function updatePromotionHandler(
 }
 
 export async function deactivatePromotionHandler(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -186,7 +202,7 @@ export async function deactivatePromotionHandler(
       })
     }
 
-    const promotion = await deactivatePromotion(id)
+    const promotion = await deactivatePromotion(id, getActor(req))
 
     res.status(200).json({
       ok: true,

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { FaHeart, FaRegHeart } from 'react-icons/fa6'
 import { isAuthenticated } from '../../../lib/session'
 import { toggleBusinessLike } from '../api'
+import { getErrorMessage } from '../../../lib/httpError'
 
 interface BusinessLikeButtonProps {
   businessId: number
@@ -61,10 +62,10 @@ export default function BusinessLikeButton({
       const result = await toggleBusinessLike(businessId)
       setHasLiked(result.hasLiked)
       setLikesCount(result.likesCount)
-    } catch (err: any) {
+    } catch (err: unknown) {
       setHasLiked(previousHasLiked)
       setLikesCount(previousLikesCount)
-      setError(err?.response?.data?.message || 'No fue posible actualizar el me gusta.')
+      setError(getErrorMessage(err, 'No fue posible actualizar el me gusta.'))
     } finally {
       setLoading(false)
     }

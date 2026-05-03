@@ -56,11 +56,13 @@ model User {
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
 
-  reviews        Review[]
-  businessLikes  BusinessLike[]
-  follows        FollowRelation[]
-  events         InteractionEvent[]
-  businessAdmins BusinessAdmin[]
+  reviews           Review[]
+  businessLikes     BusinessLike[]
+  businessCustomers BusinessCustomer[]
+  follows           FollowRelation[]
+  events            InteractionEvent[]
+  businessAdmins    BusinessAdmin[]
+  activityLogs      ActivityLog[]
 
   @@index([email])
   @@index([role])
@@ -68,36 +70,37 @@ model User {
 }
 
 model Business {
-  id           Int       @id @default(autoincrement())
-  name         String
-  slug         String    @unique
-  category     String
-  businessType String?
-  description  String?
-  aboutArticle String?
+  id              Int       @id @default(autoincrement())
+  name            String
+  slug            String    @unique
+  category        String
+  businessType    String?
+  description     String?
+  aboutArticle    String?
   profileImageUrl String?
-  isVerified   Boolean   @default(false)
-  city         String?
-  address      String?
-  phone        String?
-  whatsapp     String?
-  email        String?
-  website      String?
-  instagram    String?
-  facebook     String?
-  tiktok       String?
-  foundedAt    DateTime?
-  capacity     Int?
-  isActive     Boolean   @default(true)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  deletedAt    DateTime?
+  isVerified      Boolean   @default(false)
+  city            String?
+  address         String?
+  phone           String?
+  whatsapp        String?
+  email           String?
+  website         String?
+  instagram       String?
+  facebook        String?
+  tiktok          String?
+  foundedAt       DateTime?
+  capacity        Int?
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
 
   menus       Menu[]
   products    Product[]
   mediaAssets MediaAsset[]
   reviews     Review[]
   likes       BusinessLike[]
+  customers   BusinessCustomer[]
   promotions  Promotion[]
   posts       Post[]
   faqs        FAQ[]
@@ -133,6 +136,24 @@ model BusinessAdmin {
   @@unique([userId, businessId])
   @@index([businessId])
   @@index([userId])
+}
+
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  action    String
+  entity    String
+  entityId  Int?
+  message   String
+  createdAt DateTime @default(now())
+
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([action])
+  @@index([entity])
+  @@index([entityId])
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model Menu {
@@ -328,6 +349,20 @@ model FollowRelation {
 }
 
 model BusinessLike {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  businessId Int
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, businessId])
+  @@index([userId])
+  @@index([businessId])
+}
+
+model BusinessCustomer {
   id         Int      @id @default(autoincrement())
   userId     Int
   businessId Int

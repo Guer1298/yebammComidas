@@ -10,8 +10,13 @@ type AdminNavItem = {
 
 const DEFAULT_ITEMS: AdminNavItem[] = [
   { label: 'Dashboard', to: '/admin' },
-  { label: 'Nuevo negocio', to: '/admin/business/new' },
   { label: 'Negocios', to: '/admin/businesses' },
+  { label: 'Administradores', to: '/admin/business-admins' },
+  { label: 'Actividad', to: '/admin/activity' },
+]
+
+const BUSINESS_ADMIN_ITEMS: AdminNavItem[] = [
+  { label: 'Dashboard', to: '/admin' },
   { label: 'Negocio', to: '/admin/business' },
   { label: 'Productos', to: '/admin/products' },
   { label: 'Media', to: '/admin/media' },
@@ -20,8 +25,9 @@ const DEFAULT_ITEMS: AdminNavItem[] = [
 
 const ITEM_ICONS: Record<string, React.ReactNode> = {
   Dashboard: <FaChartLine />,
-  'Nuevo negocio': <FaStore />,
   Negocios: <FaStore />,
+  Administradores: <FaBoxOpen />,
+  Actividad: <FaChartLine />,
   Negocio: <FaStore />,
   Productos: <FaBoxOpen />,
   Media: <FaPhotoFilm />,
@@ -44,13 +50,7 @@ export default function AdminSidebar({
   const location = useLocation()
   const navigate = useNavigate()
   const user = getStoredUser()
-  const visibleItems =
-    user?.role === 'ADMIN'
-      ? items
-      : items.filter(
-          (item) =>
-            item.to !== '/admin/business/new' && item.to !== '/admin/businesses'
-        )
+  const visibleItems = user?.role === 'ADMIN' ? items : BUSINESS_ADMIN_ITEMS
 
   const handleLogout = () => {
     clearAuthSession()

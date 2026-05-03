@@ -86,6 +86,12 @@ export async function loginUser(input: LoginInput) {
     throw error
   }
 
+  if (!user.isActive || user.deletedAt) {
+    const error = new Error('La cuenta está inactiva o no disponible')
+    ;(error as any).status = 403
+    throw error
+  }
+
   const passwordOk = await comparePassword(input.password, user.passwordHash)
 
   if (!passwordOk) {
@@ -123,6 +129,12 @@ export async function getCurrentUser(userId: number) {
   if (!user) {
     const error = new Error('Usuario no encontrado')
     ;(error as any).status = 404
+    throw error
+  }
+
+  if (!user.isActive || user.deletedAt) {
+    const error = new Error('La cuenta está inactiva o no disponible')
+    ;(error as any).status = 403
     throw error
   }
 

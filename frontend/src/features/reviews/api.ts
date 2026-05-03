@@ -1,11 +1,11 @@
 import { api } from '../../lib/api'
 
-export async function getBusinessReviews<T = any>(businessId: number | string) {
+export async function getBusinessReviews<T = unknown>(businessId: number | string) {
   const response = await api.get(`/businesses/${businessId}/reviews`)
   return response.data?.data as T
 }
 
-export async function createReview<T = any>(payload: {
+export async function createReview<T = unknown>(payload: {
   businessId: number | string
   rating: number
   comment?: string

@@ -27,6 +27,7 @@ export default function AdminBusinessCreatePage() {
     try {
       const created = await createBusiness<CreatedBusiness>({
         name: values.name,
+        slug: values.slug || null,
         category: values.category,
         businessType: values.businessType || null,
         description: values.description || null,
@@ -39,12 +40,15 @@ export default function AdminBusinessCreatePage() {
         website: values.website || null,
         instagram: values.instagram || null,
         coverImageUrl: values.coverImageUrl || null,
+        profileImageUrl: values.profileImageUrl || null,
+        isActive: values.isActive,
+        adminName: values.adminName || null,
         adminEmail: values.adminEmail || values.email || null,
         adminPassword: values.adminPassword || null,
       })
 
       prependBusinessIdToStoredUser(created.id)
-      navigate('/admin/business', { replace: true })
+      navigate(`/admin/businesses/${created.id}/edit`, { replace: true })
     } finally {
       setSaving(false)
     }
@@ -73,13 +77,17 @@ export default function AdminBusinessCreatePage() {
           Crear negocio
         </h1>
         <p className="mt-3 text-sm leading-6 text-slate-600">
-          Alta inicial del negocio, con portada obligatoria y menú base creado automáticamente.
+          Alta inicial del negocio, credenciales del BUSINESS_ADMIN y estructura base.
         </p>
       </div>
 
       <BusinessForm
         allowFileUpload={false}
         showAccessCredentials
+        showAdminName
+        showLogo
+        showSlug
+        showStatus
         onSubmit={handleCreate}
         loading={saving}
       />
@@ -87,16 +95,14 @@ export default function AdminBusinessCreatePage() {
       <Card>
         <CardHeader>
           <CardTitle>Nota operativa</CardTitle>
-        <CardDescription>
-            En esta primera versión, la portada se pega como URL para mantener el alta
-            atómica. También se crea el acceso inicial del negocio para que no quede sin
-            contraseña.
+          <CardDescription>
+            Para mantener el alta atómica, logo y portada se reciben como URL directa. Luego se puede gestionar media desde el panel del negocio.
           </CardDescription>
         </CardHeader>
       </Card>
 
-      <Button variant="ghost" onClick={() => navigate('/admin')}>
-        Volver al panel
+      <Button variant="ghost" onClick={() => navigate('/admin/businesses')}>
+        Volver a negocios
       </Button>
     </div>
   )

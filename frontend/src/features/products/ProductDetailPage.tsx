@@ -15,6 +15,7 @@ import ProductInfoPanel from './components/ProductInfoPanel'
 import { getProductById } from './api'
 import { buildVisualImageDataUrl } from '../../lib/visualImage'
 import { trackCtaClick, trackEvent } from '../../lib/analytics'
+import { getErrorMessage } from '../../lib/httpError'
 
 type ProductBusiness = {
   id: number
@@ -107,11 +108,8 @@ export default function ProductDetailPage() {
         setError('')
 
         setProduct(await getProductById<ProductDetail>(productId))
-      } catch (err: any) {
-        setError(
-          err?.response?.data?.message ||
-            'No fue posible cargar el detalle del producto'
-        )
+      } catch (err: unknown) {
+        setError(getErrorMessage(err, 'No fue posible cargar el detalle del producto'))
       } finally {
         setLoading(false)
       }

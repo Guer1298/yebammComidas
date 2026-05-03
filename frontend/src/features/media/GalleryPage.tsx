@@ -7,6 +7,7 @@ import GalleryGrid, { type GalleryMediaItem } from './components/GalleryGrid'
 import MediaViewer from './components/MediaViewer'
 import { getBusinessById } from '../businesses/api'
 import { trackEvent } from '../../lib/analytics'
+import { getErrorMessage } from '../../lib/httpError'
 
 type MediaAsset = {
   id: number
@@ -43,11 +44,8 @@ export default function GalleryPage() {
         setLoading(true)
         setError('')
         setBusiness(await getBusinessById<BusinessDetail>(id))
-      } catch (err: any) {
-        setError(
-          err?.response?.data?.message ||
-            'No fue posible cargar la galería del negocio'
-        )
+      } catch (err: unknown) {
+        setError(getErrorMessage(err, 'No fue posible cargar la galería del negocio'))
       } finally {
         setLoading(false)
       }

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import RegisterForm, { type RegisterFormValues } from './components/RegisterForm'
 import { register } from './api'
 import { trackEvent } from '../../lib/analytics'
+import { getErrorMessage } from '../../lib/httpError'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -40,10 +41,8 @@ export default function RegisterPage() {
       })
 
       navigate(hasAdminAccess ? '/admin' : '/businesses')
-    } catch (err: any) {
-      setError(
-        err?.response?.data?.message || err.message || 'No fue posible registrar el usuario'
-      )
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'No fue posible registrar el usuario'))
     } finally {
       setLoading(false)
     }

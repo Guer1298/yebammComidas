@@ -1,5 +1,9 @@
 import { cloudinary } from '../../shared/config/cloudinary'
 import { prisma } from '../../shared/db/prisma'
+import {
+  assertCanManageBusiness,
+  BusinessActor,
+} from '../../shared/authz/businessAccess'
 
 type UploadMediaInput = {
   businessId: number
@@ -8,9 +12,12 @@ type UploadMediaInput = {
   mimeType: string
   originalName: string
   isPrimary?: boolean
+  actor: BusinessActor
 }
 
 export async function uploadMedia(input: UploadMediaInput) {
+  await assertCanManageBusiness(prisma, input.businessId, input.actor)
+
   const uploadResult = await new Promise<any>((resolve, reject) => {
     const resourceType = input.mimeType.startsWith('video/') ? 'video' : 'image'
 
@@ -52,7 +59,10 @@ export async function setPrimaryMedia(input: {
   businessId: number
   mediaAssetId: number
   isPrimary: boolean
+  actor: BusinessActor
 }) {
+  await assertCanManageBusiness(prisma, input.businessId, input.actor)
+
   const mediaAsset = await prisma.mediaAsset.findFirst({
     where: {
       id: input.mediaAssetId,

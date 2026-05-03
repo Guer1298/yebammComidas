@@ -18,11 +18,16 @@ import Card, {
 import Modal from '../../components/ui/Modal'
 import { formatMenuPrice, type MenuCategory, type MenuProduct } from '../menu/api'
 import ReviewSection from '../reviews/ReviewSection'
-import { getBusinessById } from './api'
+import { getBusinessById, getBusinessCustomers, getBusinessFollowers } from './api'
 import { buildVisualImageDataUrl } from '../../lib/visualImage'
 import { trackCtaClick, trackEvent } from '../../lib/analytics'
+import { getErrorMessage } from '../../lib/httpError'
 import VerifiedBadge from './components/VerifiedBadge'
 import BusinessLikeButton from './components/BusinessLikeButton'
+import BusinessFollowButton from './components/BusinessFollowButton'
+import BusinessCustomerButton from './components/BusinessCustomerButton'
+import BusinessCommunitySection from './components/BusinessCommunitySection'
+import type { BusinessCommunityUser } from './api'
 
 type MediaAsset = {
   id: number
@@ -65,6 +70,10 @@ type BusinessDetail = {
   reviewsCount?: number
   likesCount?: number
   hasLiked?: boolean
+  isCustomer?: boolean
+  isFollowing?: boolean
+  followersCount?: number
+  customersCount?: number
   profileImageUrl?: string | null
   mediaAssets?: MediaAsset[]
   promotions?: Promotion[]
@@ -148,6 +157,9 @@ export default function BusinessDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  const [customers, setCustomers] = useState<BusinessCommunityUser[]>([])
+  const [followers, setFollowers] = useState<BusinessCommunityUser[]>([])
+
   useEffect(() => {
     async function loadBusiness() {
       if (!id) {
@@ -166,12 +178,13 @@ export default function BusinessDetailPage() {
       try {
         setLoading(true)
         setError('')
-        setBusiness(await getBusinessById<BusinessDetail>(businessId))
-      } catch (err: any) {
-        setError(
-          err?.response?.data?.message ||
-            'No fue posible cargar el detalle del negocio'
-        )
+        const businessData = await getBusinessById<BusinessDetail>(businessId)
+        setBusiness(businessData)
+
+        // Load community previews
+        await loadCommunityPreviews(businessId)
+      } catch (err: unknown) {
+        setError(getErrorMessage(err, 'No fue posible cargar el detalle del negocio'))
       } finally {
         setLoading(false)
       }
@@ -179,6 +192,28 @@ export default function BusinessDetailPage() {
 
     loadBusiness()
   }, [id])
+
+  async function loadCommunityPreviews(businessId: number) {
+    try {
+      const [customersRes, followersRes] = await Promise.all([
+        getBusinessCustomers(businessId, 6, 1),
+        getBusinessFollowers(businessId, 6, 1),
+      ])
+
+      setCustomers(customersRes.items)
+      setFollowers(followersRes.items)
+    } catch (error) {
+      // Silently handle errors for community data
+    }
+  }
+
+  function handleViewAllCustomers() {
+    // This will be handled by the component
+  }
+
+  function handleViewAllFollowers() {
+    // This will be handled by the component
+  }
 
   useEffect(() => {
     if (!business?.id) return
@@ -307,6 +342,7 @@ export default function BusinessDetailPage() {
     { id: 'promociones', label: 'Promociones' },
     { id: 'fotos', label: 'Fotos' },
     { id: 'reseñas', label: 'Reseñas' },
+    { id: 'comunidad', label: 'Comunidad' },
     { id: 'detalles', label: 'Información' },
     { id: 'posts', label: 'Posts' },
   ] as const
@@ -438,14 +474,6 @@ export default function BusinessDetailPage() {
               >
                 Pedir
               </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="bg-white/90 text-slate-900 hover:bg-white"
-                onClick={() => navigate('/register')}
-              >
-                Seguir
-              </Button>
             </div>
           </div>
 
@@ -480,6 +508,30 @@ export default function BusinessDetailPage() {
                       {business.ratingAverage?.toFixed(1) ?? '0.0'} ·{' '}
                       {business.reviewsCount ?? 0} reseñas
                     </span>
+
+                    <BusinessCustomerButton
+                      businessId={business.id}
+                      businessName={business.name}
+                      initialIsCustomer={business.isCustomer ?? false}
+                      initialCustomersCount={business.customersCount ?? 0}
+                      onRequireAuth={() => navigate('/login')}
+                      onStateChange={(isCustomer, customersCount) => {
+                        setBusiness(prev => prev ? { ...prev, isCustomer, customersCount } : null)
+                        loadCommunityPreviews(business.id)
+                      }}
+                    />
+
+                    <BusinessFollowButton
+                      businessId={business.id}
+                      businessName={business.name}
+                      initialIsFollowing={business.isFollowing ?? false}
+                      initialFollowersCount={business.followersCount ?? 0}
+                      onRequireAuth={() => navigate('/login')}
+                      onStateChange={(isFollowing, followersCount) => {
+                        setBusiness(prev => prev ? { ...prev, isFollowing, followersCount } : null)
+                        loadCommunityPreviews(business.id)
+                      }}
+                    />
 
                     <BusinessLikeButton
                       businessId={business.id}
@@ -905,6 +957,22 @@ export default function BusinessDetailPage() {
         >
           <ReviewSection
             businessId={business.id}
+          />
+        </section>
+
+        <section
+          id="comunidad"
+          className="scroll-mt-28 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm"
+        >
+          <BusinessCommunitySection
+            businessId={business.id}
+            businessName={business.name}
+            customersCount={business.customersCount ?? 0}
+            followersCount={business.followersCount ?? 0}
+            customers={customers}
+            followers={followers}
+            onViewAllCustomers={handleViewAllCustomers}
+            onViewAllFollowers={handleViewAllFollowers}
           />
         </section>
 

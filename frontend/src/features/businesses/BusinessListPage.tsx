@@ -14,6 +14,7 @@ import Badge from '../../components/ui/Badge'
 import { listBusinesses, type BusinessListItem } from './api'
 import { buildVisualImageDataUrl } from '../../lib/visualImage'
 import { trackEvent } from '../../lib/analytics'
+import { getErrorMessage } from '../../lib/httpError'
 
 export default function BusinessListPage() {
   const [businesses, setBusinesses] = useState<BusinessListItem[]>([])
@@ -28,11 +29,8 @@ export default function BusinessListPage() {
         setLoading(true)
         setError('')
         setBusinesses(await listBusinesses())
-      } catch (err: any) {
-        setError(
-          err?.response?.data?.message ||
-            'No fue posible cargar los negocios'
-        )
+      } catch (err: unknown) {
+        setError(getErrorMessage(err, 'No fue posible cargar los negocios'))
       } finally {
         setLoading(false)
       }

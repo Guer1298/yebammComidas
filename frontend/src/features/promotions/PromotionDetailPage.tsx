@@ -8,6 +8,7 @@ import Card, { CardDescription, CardHeader, CardTitle } from '../../components/u
 import { getPromotionById, type PromotionRecord } from './api'
 import { buildVisualImageDataUrl } from '../../lib/visualImage'
 import { trackCtaClick, trackEvent } from '../../lib/analytics'
+import { getErrorMessage } from '../../lib/httpError'
 
 function formatDateLabel(value?: string | null) {
   if (!value) return 'Sin fecha'
@@ -48,11 +49,8 @@ export default function PromotionDetailPage() {
         setLoading(true)
         setError('')
         setPromotion(await getPromotionById(promotionId))
-      } catch (err: any) {
-        setError(
-          err?.response?.data?.message ||
-            'No fue posible cargar el detalle de la promoción'
-        )
+      } catch (err: unknown) {
+        setError(getErrorMessage(err, 'No fue posible cargar el detalle de la promoción'))
       } finally {
         setLoading(false)
       }
