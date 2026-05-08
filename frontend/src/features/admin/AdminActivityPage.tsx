@@ -33,7 +33,7 @@ export default function AdminActivityPage() {
         setError('')
         setActivity(await listAdminActivity(80))
       } catch (err: unknown) {
-        setError(getErrorMessage(err, 'No fue posible cargar actividad'))
+        setError(getErrorMessage(err, 'No pudimos cargar la actividad'))
       } finally {
         setLoading(false)
       }
@@ -48,7 +48,7 @@ export default function AdminActivityPage() {
         <CardHeader>
           <CardTitle>Acceso restringido</CardTitle>
           <CardDescription>
-            Esta sección está disponible solo para superadmin.
+            Esta sección está disponible solo para superadministradores.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -62,10 +62,10 @@ export default function AdminActivityPage() {
           Super administración
         </p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-          Actividad reciente
+          Bitácora reciente
         </h1>
         <p className="mt-3 text-sm leading-6 text-slate-600">
-          Bitácora de acciones críticas del panel administrativo.
+          Registro de acciones importantes realizadas dentro del panel.
         </p>
       </div>
 

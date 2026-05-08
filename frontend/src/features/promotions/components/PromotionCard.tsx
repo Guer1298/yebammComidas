@@ -61,9 +61,9 @@ export default function PromotionCard({
         <div className="flex items-center justify-between gap-3">
           <div className="text-sm text-slate-500">
             {promotion.expiresAtLabel ? (
-              <span>Válida: {promotion.expiresAtLabel}</span>
+              <span>Vigente hasta: {promotion.expiresAtLabel}</span>
             ) : (
-              <span>Disponibilidad sujeta al negocio</span>
+              <span>Vigencia sujeta al negocio</span>
             )}
           </div>
 
@@ -79,7 +79,7 @@ export default function PromotionCard({
               onClick?.(promotion.id)
             }}
           >
-            Ver promoción
+            Ver oferta
           </Button>
         </div>
       </div>

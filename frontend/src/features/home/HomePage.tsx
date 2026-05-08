@@ -87,7 +87,7 @@ export default function HomePage() {
         setBusinesses(sortBusinesses(catalog.businesses))
         setProducts(sortProducts(catalog.products))
       } catch (err: unknown) {
-        setError(getErrorMessage(err, 'No fue posible cargar los negocios y productos de inicio'))
+        setError(getErrorMessage(err, 'No pudimos cargar las recomendaciones de inicio'))
       } finally {
         setLoading(false)
       }
@@ -139,10 +139,10 @@ export default function HomePage() {
 
   const stats = useMemo(
     () => [
-      { label: 'Negocios', value: businesses.length, icon: <FaHouse /> },
-      { label: 'Platos', value: products.length, icon: <FaUtensils /> },
+      { label: 'negocios para explorar', value: businesses.length, icon: <FaHouse /> },
+      { label: 'platos en vitrina', value: products.length, icon: <FaUtensils /> },
       {
-        label: 'Reseñas',
+        label: 'reseñas de la comunidad',
         value: businesses.reduce((acc, business) => acc + business.reviewsCount, 0),
         icon: <FaStar />,
       },
@@ -161,8 +161,8 @@ export default function HomePage() {
         brandHref="/"
         links={[
           { label: 'Negocios', href: '#resultados' },
-          { label: 'Carta', href: '#resultados' },
-          { label: 'Explorar', href: '#resultados' },
+          { label: 'Platos', href: '#resultados' },
+          { label: 'Ofertas', href: '/promotions' },
         ]}
         onLogin={() => navigate('/login')}
         onRegister={() => navigate('/register')}
@@ -174,15 +174,15 @@ export default function HomePage() {
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-orange-500">
               <span className="inline-flex items-center gap-2">
                 <FaMagnifyingGlass className="text-[0.7rem]" />
-                Busca negocios y platos reales
+                Antojos reales, negocios cerca
               </span>
             </p>
             <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
-              Tu comida favorita, a un clic de distancia
+              Encuentra qué pedir antes de que se enfríe el antojo
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
-              Un buscador simple para descubrir negocios, abrir su carta y entrar al detalle
-              de cada plato sin ruido visual.
+              Explora negocios locales, mira sus platos, compara ofertas y llega al contacto
+              correcto sin perder tiempo entre pantallas.
             </p>
 
             <div className="mx-auto mt-8 max-w-2xl">
@@ -218,7 +218,7 @@ export default function HomePage() {
                   navigate('/businesses')
                 }}
               >
-                Ver negocios
+                Explorar negocios
               </Button>
               <Button
                 variant="outline"
@@ -232,7 +232,7 @@ export default function HomePage() {
                   navigate('/promotions')
                 }}
               >
-                Ver promociones
+                Ver ofertas
               </Button>
               <Button
                 variant="outline"
@@ -246,7 +246,7 @@ export default function HomePage() {
                   navigate('/register')
                 }}
               >
-                Crear cuenta
+                Crear mi cuenta
               </Button>
             </div>
           </div>
@@ -259,8 +259,8 @@ export default function HomePage() {
           className="mx-auto max-w-7xl space-y-10 px-4 py-10 sm:px-6 lg:px-8"
         >
           <ShowcaseSection
-            title="Negocios Destacados"
-            subtitle="Los que más llaman la atención primero."
+            title="Negocios para empezar con hambre"
+            subtitle="Una selección de vitrinas activas, con reputación y platos listos para descubrir."
             actionLabel="Ver todos los negocios"
             actionIcon={<FaArrowRight />}
             onAction={() => navigate('/businesses')}
@@ -277,8 +277,8 @@ export default function HomePage() {
           </ShowcaseSection>
 
           <ShowcaseSection
-            title="Galería de Platos Populares"
-            subtitle="Fotos claras, precio visible y una acción directa."
+            title="Platos que abren la carta"
+            subtitle="Fotos, precio y contexto para elegir rápido sin perder el detalle."
             actionLabel="Ver carta completa"
             actionIcon={<FaUtensils />}
             onAction={() => navigate('/businesses')}
@@ -302,13 +302,13 @@ export default function HomePage() {
               <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-orange-500">
-                    Resultados
+                    Tu búsqueda
                   </p>
                   <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
-                    Coincidencias para "{search.trim()}"
+                    Encontramos opciones para "{search.trim()}"
                   </h2>
                   <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                    Los resultados están ordenados para que entres rápido al negocio o al plato.
+                    Priorizamos negocios y platos que te llevan rápido a una decisión clara.
                   </p>
                 </div>
 
@@ -316,7 +316,7 @@ export default function HomePage() {
                   <Chip label="Negocios" value={matchingBusinesses.length} />
                   <Chip label="Platos" value={matchingProducts.length} />
                   <Button variant="outline" onClick={() => setSearch('')}>
-                    Limpiar
+                    Limpiar búsqueda
                   </Button>
                 </div>
               </div>
@@ -335,7 +335,7 @@ export default function HomePage() {
                   <ResultGroup
                     title="Negocios"
                     count={matchingBusinesses.length}
-                    emptyLabel="No hay negocios para mostrar."
+                    emptyLabel="No encontramos negocios con ese término."
                   >
                     {matchingBusinesses.slice(0, 4).map((business) => (
                       <BusinessRow
@@ -349,7 +349,7 @@ export default function HomePage() {
                   <ResultGroup
                     title="Platos"
                     count={matchingProducts.length}
-                    emptyLabel="No hay platos para mostrar."
+                    emptyLabel="No encontramos platos con ese término."
                   >
                     {matchingProducts.slice(0, 6).map((product) => (
                       <ProductRow
@@ -381,38 +381,38 @@ export default function HomePage() {
     <div className="max-w-2xl text-white">
       <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white/90 backdrop-blur-md">
         <span className="h-2 w-2 rounded-full bg-lime-300" />
-        Yebaam para negocios
+        Yebaam para negocios locales
       </div>
 
       <h2 className="mt-6 max-w-2xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-[3.35rem] lg:leading-[1.04]">
-        Haz que tu negocio sea más fácil de descubrir
+        Convierte tu negocio en una vitrina que se encuentra fácil
       </h2>
 
       <p className="mt-6 max-w-xl text-lg leading-8 text-white/75 sm:text-xl">
-        Crea una vitrina digital simple para mostrar tu menú, productos,
-        fotos y promociones a nuevos clientes.
+        Muestra tu carta, tus fotos y tus promociones en un perfil pensado para que nuevos
+        clientes entiendan qué ofreces y cómo pedirte.
       </p>
 
       {/* Minimal value points */}
       <div className="mt-8 grid gap-3 sm:grid-cols-3">
         <div className="rounded-2xl border border-white/10 bg-white/[0.07] p-4">
-          <p className="text-sm font-semibold text-white">Perfil digital</p>
+          <p className="text-sm font-semibold text-white">Perfil listo</p>
           <p className="mt-1 text-sm leading-5 text-white/60">
-            Tu negocio en un solo lugar.
+            Datos, historia y contacto reunidos.
           </p>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-white/[0.07] p-4">
-          <p className="text-sm font-semibold text-white">Menú visual</p>
+          <p className="text-sm font-semibold text-white">Carta visual</p>
           <p className="mt-1 text-sm leading-5 text-white/60">
-            Fotos, precios y detalles claros.
+            Platos con fotos, precios y descripciones.
           </p>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-white/[0.07] p-4">
-          <p className="text-sm font-semibold text-white">Más visibilidad</p>
+          <p className="text-sm font-semibold text-white">Más alcance</p>
           <p className="mt-1 text-sm leading-5 text-white/60">
-            Ayuda a clientes a encontrarte.
+            Una ruta más corta entre buscar y pedir.
           </p>
         </div>
       </div>
@@ -453,12 +453,12 @@ export default function HomePage() {
           "
           onClick={() => navigate('/businesses')}
         >
-          Ver cómo se verá
+          Ver vitrinas activas
         </Button>
       </div>
 
       <p className="mt-4 text-sm leading-6 text-white/55">
-        Ideal para comidas rápidas, cafeterías, restaurantes y negocios locales.
+        Pensado para comidas rápidas, cafeterías, restaurantes y marcas gastronómicas locales.
       </p>
     </div>
 
@@ -480,7 +480,7 @@ export default function HomePage() {
                 {spotlightBusiness?.name || 'Tu negocio aquí'}
               </p>
               <p className="mt-1 text-xs text-white/65">
-                Menú, productos y promociones en una vitrina digital.
+                Carta, productos y ofertas en una vitrina clara.
               </p>
             </div>
 
@@ -496,25 +496,25 @@ export default function HomePage() {
 
       <Footer
         brandName="Yebaam"
-        description="Datos reales de negocios y productos, presentados con una interfaz limpia para descubrir y entrar a la carta rápido."
+        description="Negocios y platos locales presentados con claridad para que descubrir, comparar y pedir sea más simple."
         linkGroups={[
           {
             title: 'Explorar',
             links: [
               { label: 'Negocios', href: '#resultados' },
-              { label: 'Carta', href: '#resultados' },
+              { label: 'Platos', href: '#resultados' },
             ],
           },
           {
             title: 'Cuenta',
             links: [
               { label: 'Iniciar sesión', href: '/login' },
-              { label: 'Registrarse', href: '/register' },
+              { label: 'Crear cuenta', href: '/register' },
             ],
           },
           {
-            title: 'Acceso',
-            links: [{ label: 'Panel administrativo', href: '/admin' }],
+            title: 'Negocios',
+            links: [{ label: 'Panel de negocio', href: '/admin' }],
           },
         ]}
       />
@@ -598,7 +598,7 @@ function HighlightBusinessCard({
         <div className="absolute bottom-0 left-0 right-0 p-4">
           <p className="text-lg font-semibold text-white drop-shadow-sm">{business.name}</p>
           <p className="mt-1 text-sm text-slate-200 drop-shadow-sm">
-            {business.category || 'Sin categoría'} · ⭐ {business.ratingAverage.toFixed(1)}
+            {business.category || 'Categoría por definir'} · ⭐ {business.ratingAverage.toFixed(1)}
           </p>
         </div>
       </div>
@@ -643,10 +643,10 @@ function HighlightProductCard({
 
       <div className="flex gap-2 p-4">
         <Button variant="outline" fullWidth onClick={onOpenProduct}>
-          Foto/Plato
+          Ver plato
         </Button>
         <Button fullWidth onClick={onOpenBusiness}>
-          Ver carta
+          Abrir carta
         </Button>
       </div>
     </article>
@@ -717,7 +717,7 @@ function BusinessRow({
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-slate-950">{business.name}</p>
             <p className="mt-0.5 truncate text-xs text-slate-500">
-              {business.category || 'Sin categoría'} · ⭐ {business.ratingAverage.toFixed(1)}
+              {business.category || 'Categoría por definir'} · ⭐ {business.ratingAverage.toFixed(1)}
             </p>
           </div>
           {business.activePromotionsCount > 0 ? (
@@ -729,12 +729,12 @@ function BusinessRow({
         </div>
 
         <p className="mt-2 line-clamp-1 text-xs text-slate-500">
-          {business.description || 'Sin descripción disponible.'}
+          {business.description || 'Este negocio todavía está preparando su presentación.'}
         </p>
       </div>
 
       <Button variant="outline" size="sm" onClick={onOpen}>
-        Ver
+        Abrir
       </Button>
     </article>
   )
@@ -771,16 +771,16 @@ function ProductRow({
         </div>
 
         <p className="mt-2 line-clamp-1 text-xs text-slate-500">
-          {product.shortDescription || product.description || 'Sin descripción disponible.'}
+          {product.shortDescription || product.description || 'Este plato todavía no tiene descripción.'}
         </p>
       </div>
 
       <div className="flex flex-col gap-2">
         <Button variant="outline" size="sm" onClick={onOpenProduct}>
-          Plato
+          Ver plato
         </Button>
         <Button size="sm" onClick={onOpenBusiness}>
-          Carta
+          Ver carta
         </Button>
       </div>
     </article>
@@ -807,7 +807,7 @@ function LoadingState() {
 function ErrorState({ message }: { message: string }) {
   return (
     <div className="rounded-3xl border border-red-200 bg-red-50 p-6 text-center">
-      <p className="text-sm font-semibold text-red-700">No fue posible cargar los datos</p>
+      <p className="text-sm font-semibold text-red-700">No pudimos cargar la información</p>
       <p className="mt-2 text-sm text-red-600">{message}</p>
     </div>
   )
@@ -823,10 +823,10 @@ function EmptySearchState({
   return (
     <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
       <p className="text-lg font-semibold text-slate-950">
-        No encontramos resultados para "{term}"
+        No encontramos opciones para "{term}"
       </p>
       <p className="mt-2 text-sm text-slate-500">
-        Prueba con un plato, una categoría o el nombre de un negocio.
+        Intenta con otro plato, una categoría o el nombre de un negocio.
       </p>
       <div className="mt-6">
         <Button variant="outline" onClick={onReset}>

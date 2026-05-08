@@ -26,28 +26,28 @@ export interface FooterProps {
 }
 
 export default function Footer({
-  description = 'Descubre negocios, explora productos, compara promociones y toma decisiones más rápido dentro del ecosistema de comidas rápidas.',
+  description = 'Encuentra negocios locales, mira su carta, compara ofertas y decide dónde pedir con información clara desde el primer vistazo.',
   linkGroups = [
     {
       title: 'Plataforma',
       links: [
         { label: 'Inicio', href: '#' },
         { label: 'Negocios', href: '#negocios' },
-        { label: 'Promociones', href: '#promociones' },
+        { label: 'Ofertas', href: '#promociones' },
       ],
     },
     {
       title: 'Cuenta',
       links: [
         { label: 'Iniciar sesión', href: '#login' },
-        { label: 'Registrarse', href: '#register' },
+        { label: 'Crear cuenta', href: '#register' },
         { label: 'WhatsApp', href: '#contacto' },
       ],
     },
     {
       title: 'Negocios',
       links: [
-        { label: 'Publica tu negocio', href: '#publicar' },
+        { label: 'Publicar mi negocio', href: '#publicar' },
         { label: 'Panel administrativo', href: '#admin' },
       ],
     },
@@ -63,7 +63,7 @@ export default function Footer({
             <div className="mt-3 flex flex-wrap gap-2 text-sm text-slate-400">
               <span className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1">
                 <FaLeaf />
-                Plataforma digital
+                Directorio gastronómico
               </span>
             </div>
           </div>
@@ -87,9 +87,9 @@ export default function Footer({
                     >
                       {link.label === 'Inicio' && <FaHouse className="text-xs" />}
                       {link.label === 'Negocios' && <FaShop className="text-xs" />}
-                      {link.label === 'Promociones' && <FaBullhorn className="text-xs" />}
+                      {link.label === 'Ofertas' && <FaBullhorn className="text-xs" />}
                       {link.label === 'Iniciar sesión' && <FaRightToBracket className="text-xs" />}
-                      {link.label === 'Registrarse' && <FaUserPlus className="text-xs" />}
+                      {link.label === 'Crear cuenta' && <FaUserPlus className="text-xs" />}
                       {link.label === 'Panel administrativo' && <FaUtensils className="text-xs" />}
                       {link.label === 'WhatsApp' && <FaWhatsapp className="text-xs" />}
                       <span>{link.label}</span>
@@ -105,7 +105,7 @@ export default function Footer({
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 text-sm text-slate-500 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
           <p>{bottomText}</p>
-          <p>Diseñado para conversión, confianza visual y operación simple.</p>
+          <p>Hecho para descubrir, elegir y pedir sin dar vueltas.</p>
         </div>
       </div>
     </footer>

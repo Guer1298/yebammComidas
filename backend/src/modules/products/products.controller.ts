@@ -11,7 +11,7 @@ function getActor(req: AuthenticatedRequest) {
   const userId = Number(req.user?.sub)
 
   if (!req.user || Number.isNaN(userId)) {
-    const error = new Error('No autorizado')
+    const error = new Error('Inicia sesión para continuar.')
     ;(error as any).status = 401
     throw error
   }
@@ -33,7 +33,7 @@ export async function findProductById(
     if (Number.isNaN(id)) {
       return res.status(400).json({
         ok: false,
-        message: 'ID de producto inválido',
+        message: 'Selecciona un producto válido.',
       })
     }
 
@@ -58,7 +58,7 @@ export async function createProductHandler(
 
     res.status(201).json({
       ok: true,
-      message: 'Producto creado correctamente',
+      message: 'Producto creado correctamente.',
       data: product,
     })
   } catch (error) {
@@ -77,7 +77,7 @@ export async function updateProductHandler(
     if (Number.isNaN(id)) {
       return res.status(400).json({
         ok: false,
-        message: 'ID de producto inválido',
+        message: 'Selecciona un producto válido.',
       })
     }
 
@@ -85,7 +85,7 @@ export async function updateProductHandler(
 
     res.status(200).json({
       ok: true,
-      message: 'Producto actualizado correctamente',
+      message: 'Producto actualizado correctamente.',
       data: product,
     })
   } catch (error) {
@@ -104,7 +104,7 @@ export async function deactivateProductHandler(
     if (Number.isNaN(id)) {
       return res.status(400).json({
         ok: false,
-        message: 'ID de producto inválido',
+        message: 'Selecciona un producto válido.',
       })
     }
 
@@ -112,7 +112,7 @@ export async function deactivateProductHandler(
 
     res.status(200).json({
       ok: true,
-      message: 'Producto desactivado correctamente',
+      message: 'Producto desactivado correctamente.',
       data: product,
     })
   } catch (error) {

@@ -71,7 +71,7 @@ export async function setPrimaryMedia(input: {
   })
 
   if (!mediaAsset) {
-    const error = new Error('Media no encontrada')
+    const error = new Error('No encontramos el recurso visual solicitado.')
     ;(error as any).status = 404
     throw error
   }

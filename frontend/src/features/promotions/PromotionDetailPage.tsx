@@ -11,10 +11,10 @@ import { trackCtaClick, trackEvent } from '../../lib/analytics'
 import { getErrorMessage } from '../../lib/httpError'
 
 function formatDateLabel(value?: string | null) {
-  if (!value) return 'Sin fecha'
+  if (!value) return 'Fecha por confirmar'
 
   const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return 'Sin fecha'
+  if (Number.isNaN(date.getTime())) return 'Fecha por confirmar'
 
   return new Intl.DateTimeFormat('es-CO', {
     day: '2-digit',
@@ -33,14 +33,14 @@ export default function PromotionDetailPage() {
   useEffect(() => {
     async function loadPromotion() {
       if (!id) {
-        setError('ID de promoción no proporcionado')
+        setError('No recibimos el identificador de la promoción')
         setLoading(false)
         return
       }
 
       const promotionId = Number(id)
       if (Number.isNaN(promotionId)) {
-        setError('ID de promoción inválido')
+        setError('El identificador de la promoción no es válido')
         setLoading(false)
         return
       }
@@ -50,7 +50,7 @@ export default function PromotionDetailPage() {
         setError('')
         setPromotion(await getPromotionById(promotionId))
       } catch (err: unknown) {
-        setError(getErrorMessage(err, 'No fue posible cargar el detalle de la promoción'))
+        setError(getErrorMessage(err, 'No pudimos cargar el detalle de la promoción'))
       } finally {
         setLoading(false)
       }
@@ -94,7 +94,7 @@ export default function PromotionDetailPage() {
             ← Volver a promociones
           </Link>
           <p className="mt-4 text-sm text-red-600">
-            {error || 'Promoción no disponible'}
+            {error || 'Esta promoción no está disponible por ahora'}
           </p>
         </main>
         <Footer />
@@ -112,7 +112,7 @@ export default function PromotionDetailPage() {
         links={[
           { label: 'Inicio', href: '/' },
           { label: 'Negocios', href: '/businesses' },
-          { label: 'Promociones', href: '/promotions', isActive: true },
+          { label: 'Ofertas', href: '/promotions', isActive: true },
         ]}
         onLogin={() => navigate('/login')}
         onRegister={() => navigate('/register')}
@@ -146,24 +146,24 @@ export default function PromotionDetailPage() {
               </h1>
 
               <p className="mt-4 text-base leading-7 text-slate-600">
-                {promotion.description || 'Promoción activa disponible para este negocio.'}
+                {promotion.description || 'Una promoción activa para aprovechar en este negocio.'}
               </p>
 
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base">Vigencia</CardTitle>
+                    <CardTitle className="text-base">Comienza</CardTitle>
                     <CardDescription>
-                      {promotion.startsAt ? `Desde ${formatDateLabel(promotion.startsAt)}` : 'Sin fecha de inicio'}
+                      {promotion.startsAt ? `Desde ${formatDateLabel(promotion.startsAt)}` : 'Inicio por confirmar'}
                     </CardDescription>
                   </CardHeader>
                 </Card>
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base">Expira</CardTitle>
+                    <CardTitle className="text-base">Termina</CardTitle>
                     <CardDescription>
-                      {promotion.endsAt ? formatDateLabel(promotion.endsAt) : 'Sin fecha de cierre'}
+                      {promotion.endsAt ? formatDateLabel(promotion.endsAt) : 'Cierre por confirmar'}
                     </CardDescription>
                   </CardHeader>
                 </Card>
@@ -182,7 +182,7 @@ export default function PromotionDetailPage() {
                       window.open(ctaUrl, '_blank', 'noreferrer')
                     }}
                   >
-                    {promotion.ctaLabel || 'Ir al negocio'}
+                    {promotion.ctaLabel || 'Ver negocio'}
                   </Button>
                 ) : null}
                 {promotion.businessId ? (

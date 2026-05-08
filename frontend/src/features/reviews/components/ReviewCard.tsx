@@ -15,7 +15,7 @@ interface ReviewCardProps {
 }
 
 function formatDate(value?: string) {
-  if (!value) return 'Fecha no disponible'
+  if (!value) return 'Fecha por confirmar'
 
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
@@ -69,7 +69,7 @@ export default function ReviewCard({ review }: ReviewCardProps) {
 
           {review.isVerified && (
             <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
-              Verificada
+              Cuenta verificada
             </span>
           )}
         </div>

@@ -81,10 +81,10 @@ function toDateTimeLocalValue(value?: string | null) {
 }
 
 function formatDateLabel(value?: string | null) {
-  if (!value) return 'Sin fecha'
+  if (!value) return 'Fecha por definir'
 
   const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return 'Sin fecha'
+  if (Number.isNaN(date.getTime())) return 'Fecha por definir'
 
   return new Intl.DateTimeFormat('es-CO', {
     day: '2-digit',
@@ -121,7 +121,7 @@ export default function AdminPromotionsPage() {
 
   async function loadData() {
     if (!businessId) {
-      setError('No hay un negocio asociado a esta cuenta.')
+      setError('Esta cuenta todavía no tiene un negocio asociado.')
       setLoading(false)
       return
     }
@@ -137,7 +137,7 @@ export default function AdminPromotionsPage() {
       setBusiness(businessData)
       setPromotions(promotionsData)
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No fue posible cargar las promociones'))
+      setError(getErrorMessage(err, 'No pudimos cargar las promociones'))
     } finally {
       setLoading(false)
     }
@@ -222,12 +222,12 @@ export default function AdminPromotionsPage() {
       }
 
       if (!nextImageUrl) {
-        setImageUploadError('Debes subir una imagen o pegar una URL válida.')
+        setImageUploadError('Sube una imagen o pega una URL válida antes de guardar.')
         return
       }
 
       if (form.ctaUrl.trim() && !isValidPromotionUrl(form.ctaUrl)) {
-        setError('El enlace CTA debe ser una URL válida o una ruta interna que comience con /.')
+        setError('El enlace del botón debe ser una URL válida o una ruta interna que comience con /.')
         return
       }
 
@@ -235,7 +235,7 @@ export default function AdminPromotionsPage() {
       const endsAt = form.endsAt || null
 
       if (startsAt && endsAt && new Date(startsAt) > new Date(endsAt)) {
-        setError('La fecha de inicio no puede ser mayor que la fecha de fin.')
+        setError('La fecha de inicio no puede ser posterior a la fecha de cierre.')
         return
       }
 
@@ -262,7 +262,7 @@ export default function AdminPromotionsPage() {
       setModalOpen(false)
       await loadData()
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No fue posible guardar la promoción'))
+      setError(getErrorMessage(err, 'No pudimos guardar la promoción'))
     } finally {
       setSaving(false)
       setImageUploading(false)
@@ -280,7 +280,7 @@ export default function AdminPromotionsPage() {
       await deactivatePromotionById(promotion.id)
       await loadData()
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No fue posible desactivar la promoción'))
+      setError(getErrorMessage(err, 'No pudimos desactivar la promoción'))
     } finally {
       setSaving(false)
     }
@@ -301,13 +301,13 @@ export default function AdminPromotionsPage() {
             {business?.name || 'Tu negocio'}
           </h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Crea, edita y desactiva promociones desde el panel administrativo.
+            Crea ofertas claras, define su vigencia y decide cuándo mostrarlas en tu vitrina.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <Badge variant="neutral">{promotionsCount} promociones</Badge>
-          <Button onClick={openCreateModal}>Nueva promoción</Button>
+          <Button onClick={openCreateModal}>Crear promoción</Button>
         </div>
       </div>
 
@@ -322,8 +322,8 @@ export default function AdminPromotionsPage() {
 
       {promotions.length === 0 ? (
         <EmptyState
-          title="No hay promociones registradas"
-          description="Crea la primera promoción para mostrar ofertas activas o campañas del negocio."
+          title="Aún no hay promociones registradas"
+          description="Crea una primera oferta para destacar una campaña, combo o beneficio vigente."
           actionLabel="Crear promoción"
           onAction={openCreateModal}
         />
@@ -355,7 +355,7 @@ export default function AdminPromotionsPage() {
                     </div>
 
                     <CardDescription>
-                      {promotion.description || 'Sin descripción'}
+                      {promotion.description || 'Descripción pendiente por completar'}
                     </CardDescription>
 
                     <p className="text-xs text-slate-500">
@@ -393,7 +393,7 @@ export default function AdminPromotionsPage() {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         title={editingPromotionId ? 'Editar promoción' : 'Nueva promoción'}
-        description="Mantén el mensaje corto y directo para impulsar el clic."
+        description="Escribe una promesa clara, una vigencia entendible y una acción fácil de seguir."
         size="lg"
         footer={
           <>
@@ -413,7 +413,7 @@ export default function AdminPromotionsPage() {
         <form id="promotion-form" className="space-y-5" onSubmit={handleSubmit}>
           <div className="space-y-3">
             <label className="block text-sm font-medium text-slate-700">
-              Imagen de promoción
+              Imagen de la promoción
             </label>
             <input
               type="file"
@@ -422,7 +422,7 @@ export default function AdminPromotionsPage() {
               className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-2xl file:border-0 file:bg-orange-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-orange-600"
             />
             <p className="text-sm text-slate-500">
-              Sube una imagen o pega una URL directa. La promoción no se puede guardar sin imagen.
+              Sube una imagen o pega una URL directa. Una buena imagen aumenta la claridad de la oferta.
             </p>
             {(imagePreview || form.imageUrl) && (
               <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
@@ -459,7 +459,7 @@ export default function AdminPromotionsPage() {
               value={form.slug}
               onChange={(event) => updateField('slug', event.target.value)}
               placeholder="2x1-en-helados"
-              hint="Se genera solo si lo dejas vacío."
+              hint="Se genera automáticamente si lo dejas vacío."
             />
           </div>
 
@@ -471,7 +471,7 @@ export default function AdminPromotionsPage() {
               value={form.description}
               onChange={(event) => updateField('description', event.target.value)}
               rows={4}
-              placeholder="Describe la promoción en una frase clara."
+              placeholder="Ej. Lleva dos helados artesanales y paga uno hasta el domingo."
               className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
             />
           </div>
@@ -486,7 +486,7 @@ export default function AdminPromotionsPage() {
             />
 
             <Input
-              label="CTA"
+              label="Texto del botón"
               value={form.ctaLabel}
               onChange={(event) => updateField('ctaLabel', event.target.value)}
               placeholder="Pedir ahora"
@@ -495,7 +495,7 @@ export default function AdminPromotionsPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <Input
-              label="Enlace CTA"
+              label="Enlace del botón"
               value={form.ctaUrl}
               onChange={(event) => updateField('ctaUrl', event.target.value)}
               placeholder="https://wa.me/..."
@@ -523,14 +523,14 @@ export default function AdminPromotionsPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <Input
-              label="Inicio"
+              label="Fecha de inicio"
               type="datetime-local"
               value={form.startsAt}
               onChange={(event) => updateField('startsAt', event.target.value)}
             />
 
             <Input
-              label="Fin"
+              label="Fecha de cierre"
               type="datetime-local"
               value={form.endsAt}
               onChange={(event) => updateField('endsAt', event.target.value)}
@@ -544,7 +544,7 @@ export default function AdminPromotionsPage() {
               onChange={(event) => updateField('isHighlighted', event.target.checked)}
               className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-200"
             />
-            Marcar como destacada
+            Destacar esta promoción
           </label>
         </form>
       </Modal>

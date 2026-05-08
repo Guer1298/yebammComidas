@@ -99,7 +99,7 @@ export default function BusinessCard({
             }
             className="flex-1"
           >
-            <Button fullWidth>Ver negocio</Button>
+            <Button fullWidth>Abrir perfil</Button>
           </Link>
 
           <Button
@@ -115,7 +115,7 @@ export default function BusinessCard({
               onExplore?.(business.id)
             }}
           >
-            Explorar
+            Explorar carta
           </Button>
         </div>
       </div>

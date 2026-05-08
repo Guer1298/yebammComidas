@@ -57,7 +57,7 @@ export default function ProductCard({
           {product.category && <Badge>{product.category}</Badge>}
           {product.isPopular && <Badge variant="warning">Popular</Badge>}
           <Badge variant={product.isAvailable ? 'success' : 'neutral'}>
-            {product.isAvailable ? 'Disponible' : 'No disponible'}
+            {product.isAvailable ? 'Disponible' : 'No disponible por ahora'}
           </Badge>
         </div>
       </div>
@@ -101,7 +101,7 @@ export default function ProductCard({
             }
             className="flex-1"
           >
-            <Button fullWidth>Ver producto</Button>
+            <Button fullWidth>Ver detalle</Button>
           </Link>
 
           <Button
@@ -117,7 +117,7 @@ export default function ProductCard({
               onQuickAction?.(product.id)
             }}
           >
-            Ver más
+            Abrir
           </Button>
         </div>
       </div>

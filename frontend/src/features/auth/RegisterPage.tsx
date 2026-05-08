@@ -42,7 +42,7 @@ export default function RegisterPage() {
 
       navigate(hasAdminAccess ? '/admin' : '/businesses')
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No fue posible registrar el usuario'))
+      setError(getErrorMessage(err, 'No pudimos crear la cuenta'))
     } finally {
       setLoading(false)
     }
@@ -64,39 +64,39 @@ export default function RegisterPage() {
           </p>
 
           <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-            Crea tu cuenta y empieza a explorar mejor.
+            Crea tu cuenta y descubre dónde pedir con más confianza.
           </h1>
 
           <p className="mt-5 text-base leading-7 text-slate-600 sm:text-lg">
-            Regístrate para descubrir negocios, revisar productos, acceder a
-            promociones y continuar tu experiencia dentro de la plataforma.
+            Usa Yebaam para explorar negocios, escribir reseñas y acceder a tu panel
+            si administras una vitrina gastronómica.
           </p>
 
           <div className="mt-8 space-y-4">
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <p className="text-sm font-semibold text-slate-900">
-                Acceso más claro
+                Exploración más simple
               </p>
               <p className="mt-1 text-sm text-slate-500">
-                Guarda tu sesión y navega con menos fricción.
+                Mantén tu sesión y vuelve a lo que estabas revisando.
               </p>
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <p className="text-sm font-semibold text-slate-900">
-                Mejor experiencia
+                Participación real
               </p>
               <p className="mt-1 text-sm text-slate-500">
-                Interactúa con el ecosistema y avanza más rápido hacia la acción.
+                Comparte reseñas y señales útiles para otros usuarios.
               </p>
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <p className="text-sm font-semibold text-slate-900">
-                Base para escalar
+                Vitrina para negocios
               </p>
               <p className="mt-1 text-sm text-slate-500">
-                Más adelante podrás conectar beneficios, favoritos y funciones de negocio.
+                Si administras un negocio, tu cuenta puede abrir el panel de operación.
               </p>
             </div>
           </div>
@@ -108,7 +108,7 @@ export default function RegisterPage() {
             loading={loading}
             error={error}
             title="Crear cuenta"
-            description="Completa tus datos para registrarte en la plataforma."
+            description="Completa tus datos y empieza a usar Yebaam."
           />
         </div>
       </section>

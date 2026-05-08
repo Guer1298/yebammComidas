@@ -30,7 +30,7 @@ function NotFoundPage() {
   return (
     <div style={{ padding: '2rem' }}>
       <h1>404</h1>
-      <p>Página no encontrada</p>
+      <p>No encontramos esta página.</p>
       <Link to="/">Volver al inicio</Link>
     </div>
   )

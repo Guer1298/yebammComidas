@@ -50,7 +50,7 @@ export default function AdminBusinessPage() {
   useEffect(() => {
     async function loadBusiness() {
       if (!businessId) {
-        setError('No hay un negocio asociado a esta cuenta.')
+        setError('Esta cuenta todavía no tiene un negocio asociado.')
         setLoading(false)
         return
       }
@@ -70,7 +70,7 @@ export default function AdminBusinessPage() {
             '',
         })
       } catch (err: unknown) {
-        setError(getErrorMessage(err, 'No fue posible cargar el negocio administrativo'))
+        setError(getErrorMessage(err, 'No pudimos cargar el negocio'))
       } finally {
         setLoading(false)
       }
@@ -114,9 +114,9 @@ export default function AdminBusinessPage() {
           updated.mediaAssets?.[0]?.url ||
           '',
       })
-      setSuccess('Negocio actualizado correctamente.')
+      setSuccess('El perfil del negocio se actualizó correctamente.')
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No fue posible guardar los cambios del negocio'))
+      setError(getErrorMessage(err, 'No pudimos guardar los cambios del negocio'))
     } finally {
       setSaving(false)
     }
@@ -124,7 +124,7 @@ export default function AdminBusinessPage() {
 
   async function handleUploadCover(file: File) {
     if (!businessId) {
-      throw new Error('No hay un negocio asociado a esta cuenta.')
+      throw new Error('Esta cuenta todavía no tiene un negocio asociado.')
     }
 
     const formData = new FormData()
@@ -151,7 +151,7 @@ export default function AdminBusinessPage() {
       removeBusinessIdFromStoredUser(businessId)
       navigate('/admin/businesses', { replace: true })
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No fue posible eliminar el negocio'))
+      setError(getErrorMessage(err, 'No pudimos eliminar el negocio'))
     } finally {
       setDeleting(false)
     }
@@ -170,10 +170,10 @@ export default function AdminBusinessPage() {
         <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-              Editar perfil del negocio
+              Editar vitrina del negocio
             </h1>
             <p className="mt-3 text-sm leading-6 text-slate-600">
-              Mantén actualizada la información que ven los usuarios.
+              Ajusta datos, contacto e historia para que los usuarios sepan por qué elegirte.
             </p>
           </div>
 
@@ -219,9 +219,9 @@ export default function AdminBusinessPage() {
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>Sin negocio</CardTitle>
+            <CardTitle>Sin negocio asociado</CardTitle>
             <CardDescription>
-              No se encontró un negocio asociado a la sesión.
+              No encontramos un negocio vinculado a esta sesión.
             </CardDescription>
           </CardHeader>
         </Card>

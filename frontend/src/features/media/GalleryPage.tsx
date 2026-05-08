@@ -35,7 +35,7 @@ export default function GalleryPage() {
   useEffect(() => {
     async function loadBusiness() {
       if (!id) {
-        setError('ID de negocio no proporcionado')
+        setError('No recibimos el identificador del negocio')
         setLoading(false)
         return
       }
@@ -45,7 +45,7 @@ export default function GalleryPage() {
         setError('')
         setBusiness(await getBusinessById<BusinessDetail>(id))
       } catch (err: unknown) {
-        setError(getErrorMessage(err, 'No fue posible cargar la galería del negocio'))
+        setError(getErrorMessage(err, 'No pudimos cargar la galería del negocio'))
       } finally {
         setLoading(false)
       }
@@ -70,7 +70,7 @@ export default function GalleryPage() {
     return (business?.mediaAssets ?? []).map((media) => ({
       id: media.id,
       type: media.type === 'VIDEO' ? 'video' : 'image',
-      title: media.title || media.altText || business?.name || 'Media',
+      title: media.title || media.altText || business?.name || 'Contenido visual',
       url: media.url,
       thumbnailUrl: media.thumbnailUrl || undefined,
       alt: media.altText || undefined,
@@ -130,9 +130,9 @@ export default function GalleryPage() {
 
       <main className="mx-auto max-w-7xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
         <SectionHeader
-          eyebrow="Media"
-          title={`Galería visual de ${business?.name || 'este negocio'}`}
-          description="Explora fotos y videos que ayudan al usuario a entender mejor la propuesta del negocio antes de tomar una decisión."
+          eyebrow="Fotos y videos"
+          title={`Galería de ${business?.name || 'este negocio'}`}
+          description="Mira platos, ambiente y detalles visuales para conocer mejor la propuesta antes de decidir."
         />
 
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -144,7 +144,7 @@ export default function GalleryPage() {
               {items.filter((item) => item.type === 'video').length} videos
             </span>
             <span className="rounded-full bg-slate-100 px-3 py-1">
-              Contenido visual orientado a conversión
+              Contenido visual del negocio
             </span>
           </div>
         </div>

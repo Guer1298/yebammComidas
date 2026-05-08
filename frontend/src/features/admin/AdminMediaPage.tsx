@@ -34,7 +34,7 @@ export default function AdminMediaPage() {
   useEffect(() => {
     async function loadBusiness() {
       if (!businessId) {
-        setError('No hay un negocio asociado a esta cuenta.')
+        setError('Esta cuenta todavía no tiene un negocio asociado.')
         setLoading(false)
         return
       }
@@ -44,7 +44,7 @@ export default function AdminMediaPage() {
         const data = await getBusinessById<BusinessDetail>(businessId)
         setBusiness(data)
       } catch (err: unknown) {
-        setError(getErrorMessage(err, 'No fue posible cargar la media del negocio'))
+        setError(getErrorMessage(err, 'No pudimos cargar la galería del negocio'))
       } finally {
         setLoading(false)
       }
@@ -70,7 +70,7 @@ export default function AdminMediaPage() {
       const refreshed = await getBusinessById<BusinessDetail>(businessId)
       setBusiness(refreshed)
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No fue posible subir la media'))
+      setError(getErrorMessage(err, 'No pudimos subir los archivos'))
     } finally {
       setUploading(false)
     }
@@ -87,27 +87,27 @@ export default function AdminMediaPage() {
       const refreshed = await getBusinessById<BusinessDetail>(businessId)
       setBusiness(refreshed)
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No fue posible actualizar la media principal'))
+      setError(getErrorMessage(err, 'No pudimos actualizar el recurso principal'))
     } finally {
       setUploading(false)
     }
   }
 
   if (loading) {
-    return <div>Cargando media...</div>
+    return <div>Cargando galería...</div>
   }
 
   return (
     <div className="space-y-6">
       <div>
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-500">
-          Media
+          Galería
         </p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-          Administra imágenes y videos
+          Administra fotos y videos
         </h1>
         <p className="mt-3 text-sm leading-6 text-slate-600">
-          Mantén actualizada la vitrina visual del negocio.
+          Renueva la primera impresión visual del negocio con contenido claro y reciente.
         </p>
       </div>
 
@@ -124,13 +124,13 @@ export default function AdminMediaPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Media publicada</CardTitle>
+          <CardTitle>Contenido publicado</CardTitle>
         </CardHeader>
 
         <CardContent className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {(business?.mediaAssets ?? []).length === 0 ? (
             <p className="text-sm text-slate-500">
-              Aún no hay recursos visuales publicados.
+              Aún no hay fotos ni videos publicados.
             </p>
           ) : (
             business?.mediaAssets?.map((item) => (
@@ -156,7 +156,7 @@ export default function AdminMediaPage() {
                         onClick={() => handlePrimaryChange(item.id, false)}
                         loading={uploading}
                       >
-                        Quitar principal
+                        Quitar como principal
                       </Button>
                     ) : (
                       <Button
@@ -164,7 +164,7 @@ export default function AdminMediaPage() {
                         onClick={() => handlePrimaryChange(item.id, true)}
                         loading={uploading}
                       >
-                        Marcar principal
+                        Usar como principal
                       </Button>
                     )}
                   </div>
@@ -181,12 +181,11 @@ export default function AdminMediaPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Media por producto</CardTitle>
+          <CardTitle>Contenido por producto</CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-slate-500">
-          La subida asociada a producto queda disponible desde el propio endpoint de media
-          cuando se envía `productId`. Si quieres, puedo añadir una vista específica para
-          gestionar media de cada producto desde el panel.
+          Para asociar contenido a un producto, usa la ficha del producto correspondiente.
+          Esta sección administra la galería general del negocio.
         </CardContent>
       </Card>
     </div>

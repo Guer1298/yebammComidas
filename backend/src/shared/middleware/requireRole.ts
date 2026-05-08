@@ -6,14 +6,14 @@ export function requireRole(...allowedRoles: string[]) {
     if (!req.user) {
       return res.status(401).json({
         ok: false,
-        message: 'No autorizado',
+        message: 'Inicia sesión para continuar.',
       })
     }
 
     if (!allowedRoles.includes(req.user.role)) {
       return res.status(403).json({
         ok: false,
-        message: 'No tienes permisos para realizar esta acción',
+        message: 'No tienes permisos para realizar esta acción.',
       })
     }
 

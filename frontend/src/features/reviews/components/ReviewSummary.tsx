@@ -39,20 +39,20 @@ export default function ReviewSummary({
   const starLabel =
     totalReviews > 0
       ? `${'★'.repeat(Math.round(roundedRating))}${'☆'.repeat(5 - Math.round(roundedRating))}`
-      : 'Sin calificaciones aún'
+      : 'Sin calificaciones por ahora'
   const reputationNote =
     totalReviews === 0
-      ? 'Este negocio aún no tiene reseñas. Sé de los primeros en compartir tu experiencia.'
+      ? 'Este negocio todavía no tiene reseñas. Puedes ser de los primeros en contar cómo te fue.'
       : totalReviews < 3
         ? 'Este negocio está empezando a construir su reputación.'
-        : 'Reputación basada en opiniones reales de clientes.'
+        : 'Reputación construida con opiniones reales de clientes.'
 
   return (
     <Card className="overflow-hidden border-stone-200 bg-white shadow-sm">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg sm:text-xl">Resumen de reputación</CardTitle>
+        <CardTitle className="text-lg sm:text-xl">Reputación del negocio</CardTitle>
         <CardDescription>
-          Confianza visible, construida con opiniones reales de clientes.
+          Opiniones reales para entender mejor la experiencia antes de decidir.
         </CardDescription>
       </CardHeader>
 

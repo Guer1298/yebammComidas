@@ -71,7 +71,7 @@ export async function findAllBusinessesForAdmin(
     if (!req.user || Number.isNaN(userId)) {
       return res.status(401).json({
         ok: false,
-        message: 'No autorizado',
+        message: 'Inicia sesión para continuar.',
       })
     }
 
@@ -97,7 +97,7 @@ export async function findBusinessByIdForAdmin(
     if (Number.isNaN(id)) {
       return res.status(400).json({
         ok: false,
-        message: 'ID de negocio inválido',
+        message: 'Selecciona un negocio válido.',
       })
     }
 
@@ -123,7 +123,7 @@ export async function findBusinessById(
     if (Number.isNaN(id)) {
       return res.status(400).json({
         ok: false,
-        message: 'ID de negocio inválido',
+        message: 'Selecciona un negocio válido.',
       })
     }
 
@@ -149,7 +149,7 @@ export async function updateBusinessHandler(
     if (Number.isNaN(id)) {
       return res.status(400).json({
         ok: false,
-        message: 'ID de negocio inválido',
+        message: 'Selecciona un negocio válido.',
       })
     }
 
@@ -158,7 +158,7 @@ export async function updateBusinessHandler(
     if (!req.user || Number.isNaN(userId)) {
       return res.status(401).json({
         ok: false,
-        message: 'No autorizado',
+        message: 'Inicia sesión para continuar.',
       })
     }
 
@@ -170,7 +170,7 @@ export async function updateBusinessHandler(
 
     res.status(200).json({
       ok: true,
-      message: 'Negocio actualizado correctamente',
+      message: 'Negocio actualizado correctamente.',
       data: business,
     })
   } catch (error) {
@@ -189,7 +189,7 @@ export async function updateBusinessStatusHandler(
     if (Number.isNaN(id)) {
       return res.status(400).json({
         ok: false,
-        message: 'ID de negocio inválido',
+        message: 'Selecciona un negocio válido.',
       })
     }
 
@@ -198,7 +198,7 @@ export async function updateBusinessStatusHandler(
     if (!req.user || Number.isNaN(userId)) {
       return res.status(401).json({
         ok: false,
-        message: 'No autorizado',
+        message: 'Inicia sesión para continuar.',
       })
     }
 
@@ -211,8 +211,8 @@ export async function updateBusinessStatusHandler(
     res.status(200).json({
       ok: true,
       message: payload.isActive
-        ? 'Negocio activado correctamente'
-        : 'Negocio desactivado correctamente',
+        ? 'Negocio activado correctamente.'
+        : 'Negocio desactivado correctamente.',
       data: business,
     })
   } catch (error) {
@@ -231,7 +231,7 @@ export async function createBusinessHandler(
     if (!req.user || Number.isNaN(userId)) {
       return res.status(401).json({
         ok: false,
-        message: 'No autorizado',
+        message: 'Inicia sesión para continuar.',
       })
     }
 
@@ -265,7 +265,7 @@ export async function createBusinessHandler(
 
     res.status(201).json({
       ok: true,
-      message: 'Negocio creado correctamente',
+      message: 'Negocio creado correctamente.',
       data: created,
     })
   } catch (error) {
@@ -284,7 +284,7 @@ export async function updateBusinessProfileImageHandler(
     if (Number.isNaN(businessId)) {
       return res.status(400).json({
         ok: false,
-        message: 'ID de negocio inválido',
+        message: 'Selecciona un negocio válido.',
       })
     }
 
@@ -293,7 +293,7 @@ export async function updateBusinessProfileImageHandler(
     if (!req.user || Number.isNaN(userId)) {
       return res.status(401).json({
         ok: false,
-        message: 'No autorizado',
+        message: 'Inicia sesión para continuar.',
       })
     }
 
@@ -329,7 +329,7 @@ export async function toggleBusinessLikeHandler(
     if (Number.isNaN(businessId)) {
       return res.status(400).json({
         ok: false,
-        message: 'ID de negocio inválido',
+        message: 'Selecciona un negocio válido.',
       })
     }
 
@@ -338,7 +338,7 @@ export async function toggleBusinessLikeHandler(
     if (!req.user || Number.isNaN(userId)) {
       return res.status(401).json({
         ok: false,
-        message: 'No autorizado',
+        message: 'Inicia sesión para continuar.',
       })
     }
 
@@ -346,7 +346,7 @@ export async function toggleBusinessLikeHandler(
 
     res.status(200).json({
       ok: true,
-      message: result.hasLiked ? 'Like agregado correctamente' : 'Like eliminado correctamente',
+      message: result.hasLiked ? 'Negocio guardado en favoritos.' : 'Negocio eliminado de favoritos.',
       data: result,
     })
   } catch (error) {
@@ -365,7 +365,7 @@ export async function toggleBusinessFollowHandler(
     if (Number.isNaN(businessId)) {
       return res.status(400).json({
         ok: false,
-        message: 'ID de negocio inválido',
+        message: 'Selecciona un negocio válido.',
       })
     }
 
@@ -374,7 +374,7 @@ export async function toggleBusinessFollowHandler(
     if (!req.user || Number.isNaN(userId)) {
       return res.status(401).json({
         ok: false,
-        message: 'No autorizado',
+        message: 'Inicia sesión para continuar.',
       })
     }
 
@@ -382,7 +382,7 @@ export async function toggleBusinessFollowHandler(
 
     res.status(200).json({
       ok: true,
-      message: result.isFollowing ? 'Ahora sigues este negocio' : 'Ya no sigues este negocio',
+      message: result.isFollowing ? 'Ahora sigues las novedades de este negocio.' : 'Dejaste de seguir este negocio.',
       data: result,
     })
   } catch (error) {
@@ -401,7 +401,7 @@ export async function toggleBusinessCustomerHandler(
     if (Number.isNaN(businessId)) {
       return res.status(400).json({
         ok: false,
-        message: 'ID de negocio inválido',
+        message: 'Selecciona un negocio válido.',
       })
     }
 
@@ -410,7 +410,7 @@ export async function toggleBusinessCustomerHandler(
     if (!req.user || Number.isNaN(userId)) {
       return res.status(401).json({
         ok: false,
-        message: 'No autorizado',
+        message: 'Inicia sesión para continuar.',
       })
     }
 
@@ -418,7 +418,7 @@ export async function toggleBusinessCustomerHandler(
 
     res.status(200).json({
       ok: true,
-      message: result.isCustomer ? 'Ahora eres cliente de este negocio' : 'Ya no eres cliente de este negocio',
+      message: result.isCustomer ? 'Marcaste este negocio como frecuente.' : 'Quitaste este negocio de tus frecuentes.',
       data: result,
     })
   } catch (error) {
@@ -437,7 +437,7 @@ export async function getBusinessCustomersHandler(
     if (Number.isNaN(businessId)) {
       return res.status(400).json({
         ok: false,
-        message: 'ID de negocio inválido',
+        message: 'Selecciona un negocio válido.',
       })
     }
 
@@ -466,7 +466,7 @@ export async function getBusinessFollowersHandler(
     if (Number.isNaN(businessId)) {
       return res.status(400).json({
         ok: false,
-        message: 'ID de negocio inválido',
+        message: 'Selecciona un negocio válido.',
       })
     }
 
@@ -495,7 +495,7 @@ export async function deleteBusinessHandler(
     if (Number.isNaN(businessId)) {
       return res.status(400).json({
         ok: false,
-        message: 'ID de negocio inválido',
+        message: 'Selecciona un negocio válido.',
       })
     }
 
@@ -504,7 +504,7 @@ export async function deleteBusinessHandler(
     if (!req.user || Number.isNaN(userId)) {
       return res.status(401).json({
         ok: false,
-        message: 'No autorizado',
+        message: 'Inicia sesión para continuar.',
       })
     }
 
@@ -515,7 +515,7 @@ export async function deleteBusinessHandler(
 
     res.status(200).json({
       ok: true,
-      message: 'Negocio eliminado correctamente',
+      message: 'Negocio eliminado correctamente.',
       data: deleted,
     })
   } catch (error) {

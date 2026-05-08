@@ -32,7 +32,7 @@ export async function assertCanManageBusiness(
   tx: PrismaClientLike,
   businessId: number,
   actor: BusinessActor,
-  message = 'No tienes permisos para administrar este negocio'
+  message = 'No tienes permisos para administrar este negocio.'
 ) {
   const allowed = await canManageBusiness(tx, businessId, actor)
 

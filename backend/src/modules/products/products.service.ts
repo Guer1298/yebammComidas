@@ -13,7 +13,7 @@ function normalizeRequiredImageUrl(imageUrl: string | undefined) {
   const trimmed = imageUrl?.trim()
 
   if (!trimmed) {
-    const error = new Error('La imagen del producto es obligatoria')
+    const error = new Error('Agrega una imagen para publicar el producto.')
     ;(error as any).status = 400
     throw error
   }
@@ -46,7 +46,7 @@ export async function getProductById(id: number) {
   })
 
   if (!product || !product.isActive) {
-    const error = new Error('Producto no encontrado')
+    const error = new Error('No encontramos el producto solicitado.')
     ;(error as any).status = 404
     throw error
   }
@@ -78,7 +78,7 @@ export async function createProduct(
   })
 
   if (!business) {
-    const error = new Error('Negocio no encontrado')
+    const error = new Error('No encontramos el negocio seleccionado.')
     ;(error as any).status = 404
     throw error
   }
@@ -93,14 +93,14 @@ export async function createProduct(
   })
 
   if (!category) {
-    const error = new Error('Categoría no encontrada')
+    const error = new Error('No encontramos la sección de carta seleccionada.')
     ;(error as any).status = 404
     throw error
   }
 
   if (category.menu.businessId !== input.businessId) {
     const error = new Error(
-      'La categoría no pertenece al negocio indicado'
+      'La sección seleccionada no pertenece a este negocio.'
     )
     ;(error as any).status = 400
     throw error
@@ -155,7 +155,7 @@ export async function updateProduct(
   })
 
   if (!existingProduct) {
-    const error = new Error('Producto no encontrado')
+      const error = new Error('No encontramos el producto solicitado.')
     ;(error as any).status = 404
     throw error
   }
@@ -171,14 +171,14 @@ export async function updateProduct(
     })
 
     if (!category) {
-      const error = new Error('Categoría no encontrada')
+      const error = new Error('No encontramos la sección de carta seleccionada.')
       ;(error as any).status = 404
       throw error
     }
 
     if (category.menu.businessId !== existingProduct.businessId) {
       const error = new Error(
-        'La categoría no pertenece al negocio del producto'
+        'La sección seleccionada no pertenece al negocio del producto.'
       )
       ;(error as any).status = 400
       throw error
@@ -222,7 +222,7 @@ export async function deactivateProduct(id: number, actor: BusinessActor) {
   })
 
   if (!existingProduct) {
-    const error = new Error('Producto no encontrado')
+    const error = new Error('No encontramos el producto solicitado.')
     ;(error as any).status = 404
     throw error
   }

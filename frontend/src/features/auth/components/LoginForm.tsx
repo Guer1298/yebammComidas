@@ -26,8 +26,8 @@ export default function LoginForm({
   onSubmit,
   loading = false,
   error = '',
-  title = 'Inicia sesión',
-  description = 'Accede a tu cuenta para continuar explorando, interactuar o administrar tu negocio.',
+  title = 'Entra a tu cuenta',
+  description = 'Continúa explorando negocios, guardando señales y administrando tu vitrina si tienes acceso.',
 }: LoginFormProps) {
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
@@ -37,13 +37,13 @@ export default function LoginForm({
     const nextErrors: Partial<Record<keyof LoginFormValues, string>> = {}
 
     if (!email.trim()) {
-      nextErrors.email = 'El correo es obligatorio.'
+      nextErrors.email = 'Escribe tu correo para continuar.'
     } else if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
       nextErrors.email = 'Ingresa un correo válido.'
     }
 
     if (!password.trim()) {
-      nextErrors.password = 'La contraseña es obligatoria.'
+      nextErrors.password = 'Escribe tu contraseña.'
     }
 
     setFieldErrors(nextErrors)
@@ -101,16 +101,16 @@ export default function LoginForm({
               to="/register"
               className="text-sm font-medium text-orange-600 transition hover:text-orange-700"
             >
-              Crear cuenta
+              Crear una cuenta
             </Link>
 
             <span className="text-sm text-slate-500">
-              ¿Olvidaste tu contraseña? Contacta soporte.
+              ¿Olvidaste tu contraseña? Contacta al equipo de soporte.
             </span>
           </div>
 
           <Button type="submit" fullWidth loading={loading}>
-            Iniciar sesión
+            Entrar
           </Button>
         </form>
       </CardContent>

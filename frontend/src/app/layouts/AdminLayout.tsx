@@ -6,10 +6,10 @@ export default function AdminLayout() {
   const user = getStoredUser()
   const brandName =
     user?.role === 'ADMIN'
-      ? 'Yebaam Super Admin'
+      ? 'Yebaam Superadmin'
       : user?.name
-      ? `${user.name} Admin`
-      : 'Yebaam Admin'
+      ? `Panel de ${user.name}`
+      : 'Panel Yebaam'
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">

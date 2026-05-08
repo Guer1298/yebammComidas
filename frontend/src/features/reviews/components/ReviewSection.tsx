@@ -24,8 +24,8 @@ export interface ReviewSectionProps {
 }
 
 export default function ReviewSection({
-  title = 'Reseñas y reputación',
-  description = 'Opiniones reales para evaluar confianza, experiencia y consistencia.',
+  title = 'Reseñas de la comunidad',
+  description = 'Experiencias reales para medir confianza, atención y consistencia.',
   averageRating,
   totalReviews,
   distribution,
@@ -66,7 +66,7 @@ export default function ReviewSection({
                 Aún no hay reseñas
               </h3>
               <p className="mt-2 text-sm leading-6 text-slate-500">
-                Este negocio aún está construyendo su reputación. Sé de los primeros en compartir tu experiencia.
+                Este negocio está empezando a construir su reputación. Puedes ser de los primeros en contar tu experiencia.
               </p>
             </div>
           ) : (
@@ -81,7 +81,7 @@ export default function ReviewSection({
             <div id="review-form" className="space-y-3">
               {currentUserName ? (
                 <div className="rounded-[1.25rem] border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                  Estás reseñando como{' '}
+                Estás publicando como{' '}
                   <span className="font-semibold text-slate-900">{currentUserName}</span>.
                 </div>
               ) : null}
@@ -93,13 +93,13 @@ export default function ReviewSection({
           ) : (
             <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5 shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--brand-green-700)]">
-                Participación real
+                Opiniones con cuenta
               </p>
               <h3 className="mt-2 text-lg font-semibold text-slate-900">
-                Inicia sesión para reseñar
+                Inicia sesión para escribir una reseña
               </h3>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Solo usuarios registrados pueden publicar opiniones. Así mantenemos la reputación ligada a cuentas reales.
+                Las reseñas se publican desde cuentas registradas para mantener una reputación más confiable.
               </p>
 
               <div className="mt-4 flex flex-col gap-3">
@@ -118,7 +118,7 @@ export default function ReviewSection({
               </div>
 
               <p className="mt-3 text-xs leading-5 text-slate-500">
-                Publica una opinión para ayudar a otros usuarios a decidir con más confianza.
+                Comparte una experiencia concreta para ayudar a otros a elegir mejor.
               </p>
             </div>
           )}

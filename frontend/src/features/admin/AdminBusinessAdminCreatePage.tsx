@@ -28,7 +28,7 @@ export default function AdminBusinessAdminCreatePage() {
         setError('')
         setBusinesses(await listBusinessesForAdmin())
       } catch (err: unknown) {
-        setError(getErrorMessage(err, 'No fue posible cargar negocios'))
+        setError(getErrorMessage(err, 'No pudimos cargar los negocios'))
       } finally {
         setLoading(false)
       }
@@ -49,7 +49,7 @@ export default function AdminBusinessAdminCreatePage() {
       })
       navigate('/admin/business-admins', { replace: true })
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No fue posible crear el administrador'))
+      setError(getErrorMessage(err, 'No pudimos crear el administrador'))
     } finally {
       setSaving(false)
     }
@@ -60,7 +60,7 @@ export default function AdminBusinessAdminCreatePage() {
       <Card>
         <CardHeader>
           <CardTitle>Acceso restringido</CardTitle>
-          <CardDescription>Solo superadmin puede crear administradores.</CardDescription>
+          <CardDescription>Solo un superadministrador puede crear administradores.</CardDescription>
         </CardHeader>
       </Card>
     )
@@ -74,7 +74,7 @@ export default function AdminBusinessAdminCreatePage() {
             Super administración
           </p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-            Crear BUSINESS_ADMIN
+            Crear administrador de negocio
           </h1>
         </div>
         <Link to="/admin/business-admins">
@@ -92,7 +92,7 @@ export default function AdminBusinessAdminCreatePage() {
       ) : null}
 
       {loading ? (
-        <p className="text-sm text-slate-500">Cargando negocios...</p>
+        <p className="text-sm text-slate-500">Cargando negocios disponibles...</p>
       ) : (
         <BusinessAdminForm
           mode="create"

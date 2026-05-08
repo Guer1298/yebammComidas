@@ -45,7 +45,7 @@ function BusinessAdminDashboardPage() {
   useEffect(() => {
     async function loadDashboard() {
       if (!businessId) {
-        setError('No hay un negocio asociado a esta cuenta administrativa.')
+        setError('Esta cuenta todavía no tiene un negocio asociado.')
         setLoading(false)
         return
       }
@@ -56,7 +56,7 @@ function BusinessAdminDashboardPage() {
         const data = await getBusinessById<AdminBusiness>(businessId)
         setBusiness(data)
       } catch (err: unknown) {
-        setError(getErrorMessage(err, 'No fue posible cargar el panel administrativo'))
+        setError(getErrorMessage(err, 'No pudimos cargar el panel administrativo'))
       } finally {
         setLoading(false)
       }
@@ -75,7 +75,7 @@ function BusinessAdminDashboardPage() {
   }, [business])
 
   if (loading) {
-    return <div className="space-y-8">Cargando dashboard...</div>
+    return <div className="space-y-8">Cargando panel...</div>
   }
 
   if (!businessId && user?.role === 'ADMIN') {
@@ -83,21 +83,21 @@ function BusinessAdminDashboardPage() {
       <div className="space-y-8">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-500">
-            Dashboard
+            Resumen
           </p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
             Super administrador
           </h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Aún no has creado un negocio. Empieza por dar de alta la primera vitrina.
+            Aún no has creado un negocio. Empieza publicando la primera vitrina.
           </p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Crear primer negocio</CardTitle>
+            <CardTitle>Crear la primera vitrina</CardTitle>
             <CardDescription>
-              El alta crea el negocio, una portada principal y la estructura base del menú.
+              Registra el negocio, define su portada y deja lista la base para su carta.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -114,20 +114,20 @@ function BusinessAdminDashboardPage() {
     <div className="space-y-8">
       <div>
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-500">
-          Dashboard
+          Resumen
         </p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-          Resumen operativo del negocio
+          Resumen de tu vitrina
         </h1>
         <p className="mt-3 text-sm leading-6 text-slate-600">
-          Vista real basada en el negocio asociado a tu sesión.
+          Revisa productos, fotos, promociones y reseñas del negocio asociado a tu cuenta.
         </p>
       </div>
 
       {error ? (
         <Card>
           <CardHeader>
-            <CardTitle>No se pudo cargar el dashboard</CardTitle>
+            <CardTitle>No pudimos cargar el panel</CardTitle>
             <CardDescription>{error}</CardDescription>
           </CardHeader>
         </Card>
@@ -140,24 +140,24 @@ function BusinessAdminDashboardPage() {
               hint="Catálogo real"
             />
             <DashboardStatCard
-              label="Media"
+              label="Galería"
               value={stats.media}
-              hint="Recursos visuales"
+              hint="Fotos y videos"
             />
             <DashboardStatCard
               label="Promociones"
               value={stats.promotions}
-              hint="Activas o históricas"
+              hint="Vigentes o anteriores"
             />
             <DashboardStatCard
-              label="Reviews"
+              label="Reseñas"
               value={business?.reviewsCount ?? stats.reviews}
               trend={
                 business?.ratingAverage
                   ? `${business.ratingAverage.toFixed(1)}/5`
                   : undefined
               }
-              hint="Opinión visible"
+              hint="Reputación visible"
             />
           </div>
 
@@ -166,7 +166,7 @@ function BusinessAdminDashboardPage() {
               <CardHeader>
                 <CardTitle>Negocio actual</CardTitle>
                 <CardDescription>
-                  Datos tomados del backend, no de mocks.
+                  Información conectada a la vitrina publicada.
                 </CardDescription>
               </CardHeader>
 
@@ -182,17 +182,17 @@ function BusinessAdminDashboardPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Acciones rápidas</CardTitle>
+                <CardTitle>Próximas tareas sugeridas</CardTitle>
                 <CardDescription>
-                  Tareas frecuentes para mantener el negocio actualizado.
+                  Mantén tu perfil fresco y útil para quien está por pedir.
                 </CardDescription>
               </CardHeader>
 
               <CardContent className="space-y-3">
                 {[
                   'Actualizar datos del negocio',
-                  'Crear un nuevo producto',
-                  'Subir imágenes recientes',
+                  'Crear un producto nuevo',
+                  'Subir fotos recientes',
                   'Revisar promociones activas',
                 ].map((item) => (
                   <div

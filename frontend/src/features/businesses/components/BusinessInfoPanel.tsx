@@ -27,9 +27,9 @@ export default function BusinessInfoPanel({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Información del negocio</CardTitle>
+        <CardTitle>Datos útiles del negocio</CardTitle>
         <CardDescription>
-          Datos clave para reforzar confianza y facilitar la decisión.
+          Información práctica para ubicarlo, contactarlo y decidir con confianza.
         </CardDescription>
       </CardHeader>
 
@@ -48,7 +48,7 @@ export default function BusinessInfoPanel({
         {categories.length > 0 && (
           <div>
             <p className="mb-2 text-sm font-semibold text-slate-900">
-              Categorías
+              Especialidades
             </p>
             <div className="flex flex-wrap gap-2">
               {categories.map((item) => (
@@ -83,7 +83,7 @@ export default function BusinessInfoPanel({
 
         {notes && (
           <div className="rounded-2xl bg-amber-50 p-4">
-            <p className="text-sm font-semibold text-slate-900">Notas</p>
+            <p className="text-sm font-semibold text-slate-900">Dato útil</p>
             <p className="mt-1 text-sm leading-6 text-slate-600">{notes}</p>
           </div>
         )}

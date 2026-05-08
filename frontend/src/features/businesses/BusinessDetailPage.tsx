@@ -163,14 +163,14 @@ export default function BusinessDetailPage() {
   useEffect(() => {
     async function loadBusiness() {
       if (!id) {
-        setError('ID de negocio no proporcionado')
+        setError('No recibimos el identificador del negocio')
         setLoading(false)
         return
       }
 
       const businessId = Number(id)
       if (Number.isNaN(businessId)) {
-        setError('ID de negocio inválido')
+        setError('El identificador del negocio no es válido')
         setLoading(false)
         return
       }
@@ -184,7 +184,7 @@ export default function BusinessDetailPage() {
         // Load community previews
         await loadCommunityPreviews(businessId)
       } catch (err: unknown) {
-        setError(getErrorMessage(err, 'No fue posible cargar el detalle del negocio'))
+        setError(getErrorMessage(err, 'No pudimos cargar el detalle del negocio'))
       } finally {
         setLoading(false)
       }
@@ -339,12 +339,12 @@ export default function BusinessDetailPage() {
 
   const sectionTabs = [
     { id: 'menu', label: 'Carta' },
-    { id: 'promociones', label: 'Promociones' },
+    { id: 'promociones', label: 'Ofertas' },
     { id: 'fotos', label: 'Fotos' },
     { id: 'reseñas', label: 'Reseñas' },
     { id: 'comunidad', label: 'Comunidad' },
-    { id: 'detalles', label: 'Información' },
-    { id: 'posts', label: 'Posts' },
+    { id: 'detalles', label: 'Datos útiles' },
+    { id: 'posts', label: 'Novedades' },
   ] as const
 
   const [activeSection, setActiveSection] = useState<(typeof sectionTabs)[number]['id']>('menu')
@@ -371,7 +371,7 @@ export default function BusinessDetailPage() {
     return (
       <main className="min-h-screen bg-slate-50 text-slate-900">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <p className="text-sm text-slate-500">Cargando negocio...</p>
+          <p className="text-sm text-slate-500">Cargando perfil del negocio...</p>
         </div>
       </main>
     )
@@ -393,7 +393,7 @@ export default function BusinessDetailPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>No se pudo cargar el negocio</CardTitle>
+              <CardTitle>No pudimos cargar el negocio</CardTitle>
               <CardDescription>{error}</CardDescription>
             </CardHeader>
           </Card>
@@ -418,9 +418,9 @@ export default function BusinessDetailPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Negocio no encontrado</CardTitle>
+              <CardTitle>No encontramos este negocio</CardTitle>
               <CardDescription>
-                El negocio solicitado no existe o no está disponible.
+                El negocio solicitado no existe o no está disponible por ahora.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -436,8 +436,8 @@ export default function BusinessDetailPage() {
         brandHref="/"
         links={[
           { label: 'Negocios', href: '/businesses' },
-          { label: 'Fotos', href: '#fotos' },
           { label: 'Carta', href: '#menu' },
+          { label: 'Fotos', href: '#fotos' },
           { label: 'Reseñas', href: '#reseñas' },
         ]}
         onLogin={() => navigate('/login')}
@@ -472,7 +472,7 @@ export default function BusinessDetailPage() {
                   }
                 }}
               >
-                Pedir
+                Pedir ahora
               </Button>
             </div>
           </div>
@@ -604,10 +604,10 @@ export default function BusinessDetailPage() {
                 Carta
               </p>
               <h2 className="text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
-                Explora los platos del negocio
+                Explora los platos de {business.name}
               </h2>
               <p className="text-sm leading-6 text-slate-600">
-                Fotos, precios y detalles claros para elegir rápido.
+                Fotos, precios y descripciones para elegir con calma y pedir sin dudas.
               </p>
             </div>
 
@@ -627,17 +627,17 @@ export default function BusinessDetailPage() {
               <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                    Categorías
+                    Secciones
                   </p>
                   <p className="mt-1 text-sm text-slate-600">
-                    Navega la carta con una lectura suave y precisa.
+                    Recorre la carta por categorías y mantén el antojo a la vista.
                   </p>
                 </div>
 
                 <p className="text-xs text-slate-500">
                   {menuCategories.length > 0
-                    ? `${menuCategories.length} categorías disponibles`
-                    : 'Sin categorías visibles'}
+                    ? `${menuCategories.length} secciones disponibles`
+                    : 'Sin secciones visibles'}
                 </p>
               </div>
 
@@ -669,7 +669,7 @@ export default function BusinessDetailPage() {
                 </div>
               ) : (
                 <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">
-                  Aún no hay categorías visibles para mostrar.
+                  Esta carta todavía no tiene secciones visibles.
                 </div>
               )}
             </div>
@@ -694,7 +694,7 @@ export default function BusinessDetailPage() {
                         />
                         {product.isFeatured ? (
                           <div className="absolute left-3 top-3">
-                            <Badge variant="success">Signature</Badge>
+                            <Badge variant="success">Recomendado</Badge>
                           </div>
                         ) : null}
                       </div>
@@ -715,7 +715,7 @@ export default function BusinessDetailPage() {
                             </p>
                           ) : (
                             <p className="line-clamp-2 text-xs leading-5 text-slate-500">
-                              Sin descripción visible por ahora.
+                              Descripción pendiente por el negocio.
                             </p>
                           )}
                         </div>
@@ -730,7 +730,7 @@ export default function BusinessDetailPage() {
                             variant="outline"
                             onClick={() => navigate(`/products/${product.id}`)}
                           >
-                            Ver detalle
+                            Ver plato
                           </Button>
                         </div>
                       </div>
@@ -745,10 +745,10 @@ export default function BusinessDetailPage() {
                     Carta visual
                   </p>
                   <h3 className="text-2xl font-semibold tracking-tight text-slate-950">
-                    Aún no hay platos visibles en esta categoría
+                    Aún no hay platos visibles en esta sección
                   </h3>
                   <p className="text-sm leading-6 text-slate-600">
-                    Cambia de categoría o abre la carta completa para ver el menú disponible.
+                    Cambia de sección o abre la carta completa para revisar todo el menú disponible.
                   </p>
                   <div className="pt-2">
                     <Button onClick={() => navigate(`/businesses/${business.id}/menu`)}>
@@ -766,9 +766,9 @@ export default function BusinessDetailPage() {
           className="scroll-mt-28 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm"
         >
           <SectionHeader
-            eyebrow="Promociones"
-            title="Ofertas activas"
-            description="Un incentivo claro que acompaña la decisión sin sobrecargar el diseño."
+            eyebrow="Ofertas"
+            title="Promociones activas"
+            description="Incentivos vigentes para que pedir se sienta más fácil y oportuno."
           />
 
           <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
@@ -785,7 +785,7 @@ export default function BusinessDetailPage() {
                     </h3>
                     <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
                       {highlightPromotion.description ||
-                        'Promoción disponible para este negocio. Ideal para acelerar la decisión.'}
+                        'Una oferta activa para aprovechar en este negocio.'}
                     </p>
 
                     <div className="mt-5 flex flex-wrap gap-3">
@@ -798,7 +798,7 @@ export default function BusinessDetailPage() {
                           )
                         }
                       >
-                        Pedir ahora
+                        Preguntar por la oferta
                       </Button>
                     </div>
                   </div>
@@ -818,9 +818,9 @@ export default function BusinessDetailPage() {
               </Card>
             ) : (
               <div className="rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50 p-8">
-                <h3 className="text-lg font-semibold text-slate-950">Sin promociones activas</h3>
+                <h3 className="text-lg font-semibold text-slate-950">Sin ofertas activas</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Cuando el negocio publique una oferta, la verás aquí como una oportunidad clara para pedir más rápido.
+                  Cuando el negocio publique una promoción, la verás aquí como una buena razón para pedir.
                 </p>
               </div>
             )}
@@ -841,12 +841,12 @@ export default function BusinessDetailPage() {
                       <div className="space-y-3 p-4">
                         <div className="flex items-center gap-2">
                           <Badge variant="warning">Activa</Badge>
-                          {promotion.isHighlighted ? <Badge variant="success">Nueva</Badge> : null}
+                          {promotion.isHighlighted ? <Badge variant="success">Destacada</Badge> : null}
                         </div>
                         <div>
                           <h4 className="text-base font-semibold text-slate-950">{promotion.title}</h4>
                           <p className="mt-2 text-sm leading-6 text-slate-600">
-                            {promotion.description || 'Promoción visible para este negocio.'}
+                            {promotion.description || 'Promoción vigente para este negocio.'}
                           </p>
                         </div>
                       </div>
@@ -855,9 +855,9 @@ export default function BusinessDetailPage() {
                 ))
               ) : (
                 <div className="rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50 p-8">
-                  <p className="text-sm font-medium text-slate-900">No hay más promociones activas</p>
+                  <p className="text-sm font-medium text-slate-900">No hay más ofertas activas</p>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
-                    La promoción destacada sigue siendo la mejor ruta de conversión disponible.
+                    La oferta destacada es la mejor oportunidad disponible por ahora.
                   </p>
                 </div>
               )}
@@ -875,10 +875,10 @@ export default function BusinessDetailPage() {
                 Fotos
               </p>
               <h2 className="text-xl font-semibold tracking-tight text-slate-950 sm:text-2xl">
-                Galería visual
+                Fotos del negocio
               </h2>
               <p className="text-sm leading-6 text-slate-600">
-                Un vistazo rápido a platos, ambiente y detalles del negocio.
+                Un vistazo a platos, ambiente y detalles para imaginar mejor la experiencia.
               </p>
             </div>
 
@@ -889,7 +889,7 @@ export default function BusinessDetailPage() {
                 if (galleryMedia.length > 0) setSelectedPhotoIndex(0)
               }}
             >
-              Ver todas
+              Ver fotos
             </Button>
           </div>
 
@@ -943,7 +943,7 @@ export default function BusinessDetailPage() {
                     Aún no hay fotos disponibles
                   </h3>
                   <p className="text-sm leading-6 text-slate-600">
-                    Pronto verás imágenes del menú y del ambiente.
+                    Pronto verás imágenes de la carta, el ambiente y los detalles del negocio.
                   </p>
                 </div>
               </div>
@@ -981,9 +981,9 @@ export default function BusinessDetailPage() {
           className="scroll-mt-28 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm"
         >
           <SectionHeader
-            eyebrow="Información"
-            title="Datos del negocio"
-            description="Una lectura breve para ubicar el negocio, entender su perfil y contactar sin fricción."
+            eyebrow="Datos útiles"
+            title="Conoce mejor el negocio"
+            description="Información breve para ubicarlo, entender su propuesta y contactar sin fricción."
           />
 
           <div className="mt-6">
@@ -992,14 +992,14 @@ export default function BusinessDetailPage() {
                 <div className="space-y-5">
                   <div className="space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant="neutral">Confianza local</Badge>
+                      <Badge variant="neutral">Negocio local</Badge>
                       {business.businessType ? (
                         <Badge variant="neutral">{business.businessType}</Badge>
                       ) : null}
                     </div>
 
                     <h3 className="text-2xl font-semibold tracking-tight text-slate-950">
-                      Un negocio real, cercano y fácil de encontrar.
+                      Una propuesta cercana, visible y fácil de contactar.
                     </h3>
 
                     <p className="max-w-2xl text-sm leading-6 text-slate-600">
@@ -1016,19 +1016,19 @@ export default function BusinessDetailPage() {
                   <dl className="grid gap-3 sm:grid-cols-2">
                     <BusinessFact
                       label="Categoría"
-                      value={business.category || 'No definida'}
+                      value={business.category || 'Por definir'}
                     />
                     <BusinessFact
                       label="Ciudad"
-                      value={business.city || 'No definida'}
+                      value={business.city || 'Por definir'}
                     />
                     <BusinessFact
                       label="Dirección"
-                      value={business.address || 'No disponible'}
+                      value={business.address || 'Por confirmar'}
                     />
                     <BusinessFact
                       label="Horario"
-                      value="Horario no registrado"
+                      value="Horario por confirmar"
                     />
                   </dl>
 
@@ -1056,7 +1056,7 @@ export default function BusinessDetailPage() {
                         Reputación
                       </p>
                       <p className="mt-1 text-sm text-slate-600">
-                        Señal rápida para decidir con confianza.
+                        Una señal rápida para decidir con confianza.
                       </p>
                     </div>
 
@@ -1065,7 +1065,7 @@ export default function BusinessDetailPage() {
                         {business.ratingAverage?.toFixed(1) ?? '0.0'}
                       </p>
                       <p className="text-xs font-medium text-amber-500">
-                        {business.reviewsCount ? `${business.reviewsCount} reseñas` : 'Sin reseñas'}
+                        {business.reviewsCount ? `${business.reviewsCount} reseñas` : 'Sin reseñas aún'}
                       </p>
                     </div>
                   </div>
@@ -1081,7 +1081,7 @@ export default function BusinessDetailPage() {
                         )
                       }}
                     >
-                      Contactar
+                      Contactar ahora
                     </Button>
 
                     {business.address ? (
@@ -1102,8 +1102,8 @@ export default function BusinessDetailPage() {
 
                   <p className="mt-3 text-xs leading-5 text-slate-500">
                     {business.whatsapp || business.phone
-                      ? 'Atención disponible por WhatsApp o teléfono.'
-                      : 'Aún no hay un canal de contacto visible.'}
+                      ? 'Puedes contactar por WhatsApp o teléfono.'
+                      : 'El negocio todavía no publicó un canal de contacto.'}
                   </p>
                 </div>
               </CardContent>
@@ -1116,9 +1116,9 @@ export default function BusinessDetailPage() {
           className="scroll-mt-28 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm"
         >
           <SectionHeader
-            eyebrow="Posts"
-            title="Novedades del negocio"
-            description="Publicaciones breves, al final del recorrido, para sumar contexto sin competir con la carta."
+            eyebrow="Novedades"
+            title="Lo último del negocio"
+            description="Actualizaciones breves para conocer qué está pasando antes de decidir."
           />
 
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -1135,20 +1135,20 @@ export default function BusinessDetailPage() {
                   />
                   <div className="space-y-2 p-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                      Novedad
+                      Actualización
                     </p>
                     <h3 className="text-lg font-semibold text-slate-950">{post.title}</h3>
                     <p className="text-sm leading-6 text-slate-600">
-                      {post.excerpt || 'Actualización reciente del negocio.'}
+                      {post.excerpt || 'El negocio compartió una novedad reciente.'}
                     </p>
                   </div>
                 </article>
               ))
             ) : (
               <div className="rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50 p-8 md:col-span-2 xl:col-span-3">
-                <h3 className="text-lg font-semibold text-slate-950">Sin novedades todavía</h3>
+                <h3 className="text-lg font-semibold text-slate-950">Sin novedades por ahora</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Cuando el negocio publique novedades, aparecerán aquí como soporte final de confianza.
+                  Cuando el negocio comparta actualizaciones, aparecerán aquí para darte más contexto.
                 </p>
               </div>
             )}
@@ -1184,7 +1184,7 @@ export default function BusinessDetailPage() {
         open={selectedGalleryMedia !== null}
         onClose={() => setSelectedPhotoIndex(null)}
         size="xl"
-        title="Galería"
+        title="Fotos del negocio"
         description={selectedGalleryMedia?.altText || business.name}
       >
         {selectedGalleryMedia ? (
@@ -1196,10 +1196,10 @@ export default function BusinessDetailPage() {
             />
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm text-slate-600">
-                {selectedGalleryMedia.altText || 'Imagen del negocio'}
+                {selectedGalleryMedia.altText || 'Foto del negocio'}
               </p>
               <Button variant="outline" onClick={() => setSelectedPhotoIndex(null)}>
-                Cerrar
+                Cerrar foto
               </Button>
             </div>
           </div>
@@ -1258,12 +1258,12 @@ function buildBusinessStory({
 
   if (reviewsCount && reviewsCount > 0) {
     parts.push(
-      `y una reputación de ${ratingText} basada en ${reviewsCount} reseña${
+      `con una reputación de ${ratingText} basada en ${reviewsCount} reseña${
         reviewsCount === 1 ? '' : 's'
       }.`
     )
   } else {
-    parts.push(`y una reputación inicial de ${ratingText}, aún sin reseñas públicas.`)
+    parts.push(`con una reputación inicial de ${ratingText}, aún sin reseñas públicas.`)
   }
 
   return parts.join(' ')

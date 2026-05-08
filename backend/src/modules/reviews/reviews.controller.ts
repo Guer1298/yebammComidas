@@ -13,7 +13,7 @@ export async function findReviewsByBusinessId(
     if (Number.isNaN(businessId)) {
       return res.status(400).json({
         ok: false,
-        message: 'ID de negocio inválido',
+        message: 'Selecciona un negocio válido.',
       })
     }
 
@@ -39,7 +39,7 @@ export async function createReviewHandler(
     if (!userId) {
       return res.status(401).json({
         ok: false,
-        message: 'No autorizado',
+        message: 'Inicia sesión para continuar.',
       })
     }
 
@@ -48,7 +48,7 @@ export async function createReviewHandler(
     if (!businessId || Number.isNaN(Number(businessId))) {
       return res.status(400).json({
         ok: false,
-        message: 'businessId es obligatorio',
+        message: 'Selecciona el negocio que quieres reseñar.',
       })
     }
 
@@ -61,7 +61,7 @@ export async function createReviewHandler(
 
     res.status(201).json({
       ok: true,
-      message: 'Review creada correctamente',
+      message: 'Reseña publicada correctamente.',
       data: review,
     })
   } catch (error) {

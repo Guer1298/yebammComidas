@@ -113,7 +113,7 @@ export default function ProductForm({
       }
 
       if (!nextImageUrl) {
-        setImageUploadError('Debes subir una imagen o pegar una URL.')
+        setImageUploadError('Sube una imagen o pega una URL antes de guardar.')
         return
       }
 
@@ -122,7 +122,7 @@ export default function ProductForm({
         imageUrl: nextImageUrl,
       })
     } catch (error: unknown) {
-      setImageUploadError(getErrorMessage(error, 'No fue posible subir la imagen'))
+      setImageUploadError(getErrorMessage(error, 'No pudimos subir la imagen'))
     } finally {
       setImageUploading(false)
     }
@@ -142,9 +142,9 @@ export default function ProductForm({
             </span>
           ) : null}
         </div>
-        <CardTitle className="text-xl sm:text-2xl">Formulario minimalista</CardTitle>
+        <CardTitle className="text-xl sm:text-2xl">Ficha del producto</CardTitle>
         <CardDescription>
-          Completa solo los campos necesarios para publicar el producto.
+          Escribe una ficha clara: nombre, foto, precio y una descripción que abra el apetito.
         </CardDescription>
       </CardHeader>
 
@@ -152,8 +152,8 @@ export default function ProductForm({
         <form onSubmit={handleSubmit} className="space-y-6">
           <SectionBlock
             eyebrow="1. Identidad"
-            title="Nombre y categoría"
-            description="Lo esencial para ubicar el plato dentro de la carta."
+            title="Nombre y ubicación"
+            description="Define cómo se verá el producto dentro de la carta."
           >
             <div className="grid gap-4 md:grid-cols-2">
               <Input
@@ -174,14 +174,14 @@ export default function ProductForm({
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-slate-700">
-                  Categoría del menú
+                  Sección de la carta
                 </label>
                 <select
                   value={values.categoryId}
                   onChange={(e) => handleChange('categoryId', e.target.value)}
                   className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
                 >
-                  <option value="">Selecciona una categoría</option>
+                  <option value="">Selecciona una sección</option>
                   {categoryOptions.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
@@ -192,7 +192,7 @@ export default function ProductForm({
               </div>
 
               <Input
-                label="Categoría visible"
+                label="Etiqueta visible"
                 value={values.category}
                 onChange={(e) => handleChange('category', e.target.value)}
                 placeholder="Ej. Hamburguesas"
@@ -202,8 +202,8 @@ export default function ProductForm({
 
           <SectionBlock
             eyebrow="2. Contenido"
-            title="Texto e imagen"
-            description="La foto y la descripción hacen la diferencia."
+            title="Foto y relato"
+            description="Una buena imagen y una descripción concreta ayudan a decidir."
           >
             <div className="space-y-3">
               <FieldLabel title="Imagen del producto" />
@@ -214,7 +214,7 @@ export default function ProductForm({
                 className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-2xl file:border-0 file:bg-orange-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-orange-600"
               />
               <p className="text-sm text-slate-500">
-                Sube una imagen o pega una URL directa. La imagen es obligatoria.
+                Sube una imagen o pega una URL directa. La imagen ayuda a que el plato destaque.
               </p>
               {(imagePreview || values.imageUrl) && (
                 <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
@@ -243,28 +243,28 @@ export default function ProductForm({
                 value={values.imageUrl}
                 onChange={(e) => handleChange('imageUrl', e.target.value)}
                 placeholder="https://..."
-                hint="Obligatoria para publicar el producto."
+                hint="Necesaria si no subes un archivo."
               />
             </div>
 
             <div className="space-y-4">
-              <FieldLabel title="Descripción corta" />
+              <FieldLabel title="Frase corta" />
               <textarea
                 value={values.shortDescription}
                 onChange={(e) => handleChange('shortDescription', e.target.value)}
                 rows={3}
-                placeholder="Una frase que provoque"
+                placeholder="Ej. Doble carne, queso fundido y salsa de la casa"
                 className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
               />
             </div>
 
             <div className="space-y-4">
-              <FieldLabel title="Descripción detallada" />
+              <FieldLabel title="Descripción completa" />
               <textarea
                 value={values.description}
                 onChange={(e) => handleChange('description', e.target.value)}
                 rows={4}
-                placeholder="Describe el producto con más contexto"
+                placeholder="Cuenta qué lo hace especial, cómo se sirve o para quién es ideal"
                 className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
               />
             </div>
@@ -283,8 +283,8 @@ export default function ProductForm({
 
           <SectionBlock
             eyebrow="3. Estado"
-            title="Publicación"
-            description="Define si se muestra y en qué posición aparece."
+            title="Visibilidad"
+            description="Controla si se publica y qué tan arriba aparece en la carta."
           >
             <div className="grid gap-4 md:grid-cols-2">
               <Input
@@ -311,7 +311,7 @@ export default function ProductForm({
 
           <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-slate-500">
-              Revisa categoría, precio y foto antes de guardar.
+              Revisa sección, precio y foto antes de guardar.
             </p>
             <Button type="submit" loading={loading || imageUploading}>
               Guardar producto

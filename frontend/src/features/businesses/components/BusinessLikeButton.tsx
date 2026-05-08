@@ -15,7 +15,7 @@ interface BusinessLikeButtonProps {
 
 function formatLikesCount(likesCount: number) {
   const safeCount = Math.max(0, likesCount)
-  return `${safeCount} me gusta`
+  return `${safeCount} favorito${safeCount === 1 ? '' : 's'}`
 }
 
 export default function BusinessLikeButton({
@@ -65,7 +65,7 @@ export default function BusinessLikeButton({
     } catch (err: unknown) {
       setHasLiked(previousHasLiked)
       setLikesCount(previousLikesCount)
-      setError(getErrorMessage(err, 'No fue posible actualizar el me gusta.'))
+      setError(getErrorMessage(err, 'No pudimos actualizar tus favoritos.'))
     } finally {
       setLoading(false)
     }
@@ -81,10 +81,10 @@ export default function BusinessLikeButton({
         aria-pressed={hasLiked}
         aria-label={
           hasLiked
-            ? `Quitar me gusta de ${businessName}`
-            : `Dar me gusta a ${businessName}`
+            ? `Quitar ${businessName} de favoritos`
+            : `Guardar ${businessName} en favoritos`
         }
-        title={hasLiked ? 'Quitar me gusta' : 'Dar me gusta'}
+        title={hasLiked ? 'Quitar de favoritos' : 'Guardar en favoritos'}
         disabled={loading}
         className={[
           'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium shadow-sm transition',

@@ -16,7 +16,7 @@ export default function SearchBar({
   value,
   onChange,
   onSearch,
-  placeholder = 'Busca negocios, hamburguesas, pizzas o promociones',
+  placeholder = 'Busca un plato, un antojo o tu negocio favorito',
   buttonLabel = 'Buscar',
   className,
 }: SearchBarProps) {

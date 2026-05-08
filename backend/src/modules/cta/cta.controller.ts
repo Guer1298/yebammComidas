@@ -13,14 +13,14 @@ export async function registerCtaClickHandler(
     if (!businessId || Number.isNaN(Number(businessId))) {
       return res.status(400).json({
         ok: false,
-        message: 'businessId es obligatorio',
+        message: 'Selecciona un negocio válido.',
       })
     }
 
     if (!sourceScreen || typeof sourceScreen !== 'string') {
       return res.status(400).json({
         ok: false,
-        message: 'sourceScreen es obligatorio',
+        message: 'No se recibió el origen de la acción.',
       })
     }
 
@@ -33,7 +33,7 @@ export async function registerCtaClickHandler(
 
     res.status(201).json({
       ok: true,
-      message: 'CTA registrado correctamente',
+      message: 'Acción registrada correctamente.',
       data: result,
     })
   } catch (error) {

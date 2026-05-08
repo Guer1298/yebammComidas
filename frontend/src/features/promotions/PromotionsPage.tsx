@@ -49,7 +49,7 @@ function mapPromotionToCard(promotion: PromotionRecord): PromotionCardData {
   return {
     id: promotion.id,
     title: promotion.title,
-    description: promotion.description || 'Promoción disponible para este negocio.',
+    description: promotion.description || 'Una oferta activa para aprovechar en este negocio.',
     imageUrl:
       promotion.imageUrl ||
       buildFallbackPromotionImage(promotion.title || promotion.business?.name || 'Promoción'),
@@ -76,7 +76,7 @@ export default function PromotionsPage() {
         const items = await listPromotions({ status: 'ACTIVE' })
         setPromotions(items)
       } catch (err: unknown) {
-        setError(getErrorMessage(err, 'No fue posible cargar las promociones'))
+        setError(getErrorMessage(err, 'No pudimos cargar las ofertas'))
       } finally {
         setLoading(false)
       }
@@ -95,7 +95,7 @@ export default function PromotionsPage() {
         links={[
           { label: 'Inicio', href: '/' },
           { label: 'Negocios', href: '/businesses' },
-          { label: 'Promociones', href: '/promotions', isActive: true },
+          { label: 'Ofertas', href: '/promotions', isActive: true },
         ]}
         onLogin={() => navigate('/login')}
         onRegister={() => navigate('/register')}
@@ -105,18 +105,18 @@ export default function PromotionsPage() {
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-orange-500">
-              Promociones reales
+              Ofertas activas
             </p>
             <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
-              Ofertas que empujan a pedir.
+              Promociones para decidir y pedir con más ganas.
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
-              Promociones activas de los negocios registrados. Entran directo a la
-              carta del negocio para que el usuario no pierda contexto.
+              Campañas publicadas por negocios locales, con contexto suficiente para abrir
+              la carta o contactar sin perder el hilo.
             </p>
 
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Button onClick={() => navigate('/businesses')}>Ver negocios</Button>
+              <Button onClick={() => navigate('/businesses')}>Explorar negocios</Button>
               <Button variant="outline" onClick={() => navigate('/')}>
                 Ir al inicio
               </Button>
@@ -129,7 +129,7 @@ export default function PromotionsPage() {
         {loading ? (
           <Card>
             <CardContent className="p-6 text-sm text-slate-500">
-              Cargando promociones...
+              Cargando ofertas...
             </CardContent>
           </Card>
         ) : error ? (
@@ -138,16 +138,16 @@ export default function PromotionsPage() {
           </Card>
         ) : cards.length === 0 ? (
           <EmptyState
-            title="Aún no hay promociones activas"
-            description="Cuando el negocio publique campañas activas aparecerán aquí."
+            title="Aún no hay ofertas activas"
+            description="Cuando los negocios publiquen campañas vigentes, las verás aquí."
             actionLabel="Explorar negocios"
             onAction={() => navigate('/businesses')}
           />
         ) : (
           <PromotionSection
-            eyebrow="Promociones"
-            title="Promociones activas"
-            description="Seleccionadas desde el backend y listas para llevar al usuario a la carta."
+            eyebrow="Ofertas"
+            title="Promociones listas para aprovechar"
+            description="Cada oferta conserva el contexto del negocio para que puedas pasar de mirar a pedir."
             items={cards}
             onSelectPromotion={(id) => {
               navigate(`/promotions/${id}`)

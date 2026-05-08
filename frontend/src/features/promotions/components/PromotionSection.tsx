@@ -13,13 +13,13 @@ interface PromotionSectionProps {
 }
 
 export default function PromotionSection({
-  title = 'Promociones que impulsan la decisión',
-  description = 'Ofertas visibles, fáciles de entender y pensadas para aumentar intención de clic y conversión.',
-  eyebrow = 'Promociones',
+  title = 'Ofertas que hacen más fácil pedir',
+  description = 'Promociones claras, visibles y conectadas con la carta del negocio.',
+  eyebrow = 'Ofertas',
   items,
   onViewAll,
   onSelectPromotion,
-  emptyTitle = 'No hay promociones disponibles',
+  emptyTitle = 'No hay ofertas disponibles',
   emptyDescription = 'Cuando existan campañas activas o descuentos visibles, aparecerán aquí.',
 }: PromotionSectionProps) {
   return (
@@ -28,7 +28,7 @@ export default function PromotionSection({
         eyebrow={eyebrow}
         title={title}
         description={description}
-        actionLabel={items.length > 0 ? 'Ver todas' : undefined}
+        actionLabel={items.length > 0 ? 'Ver ofertas' : undefined}
         onAction={items.length > 0 ? onViewAll : undefined}
       />
 

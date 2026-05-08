@@ -45,7 +45,7 @@ export default function ProductTable({
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 text-left">
                 <th className="px-5 py-4 text-sm font-semibold text-slate-700">Producto</th>
-                <th className="px-5 py-4 text-sm font-semibold text-slate-700">Categoría</th>
+                <th className="px-5 py-4 text-sm font-semibold text-slate-700">Sección</th>
                 <th className="px-5 py-4 text-sm font-semibold text-slate-700">Precio</th>
                 <th className="px-5 py-4 text-sm font-semibold text-slate-700">Estado</th>
                 <th className="px-5 py-4 text-sm font-semibold text-slate-700">Acciones</th>
@@ -68,7 +68,7 @@ export default function ProductTable({
                   </td>
 
                   <td className="px-5 py-4 text-sm text-slate-600">
-                    {item.category || 'Sin categoría'}
+                    {item.category || 'Sin sección'}
                   </td>
 
                   <td className="px-5 py-4 text-sm font-medium text-slate-900">
@@ -97,7 +97,7 @@ export default function ProductTable({
               {items.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-5 py-10 text-center text-sm text-slate-500">
-                    No hay productos creados todavía.
+                    Aún no hay productos creados.
                   </td>
                 </tr>
               )}

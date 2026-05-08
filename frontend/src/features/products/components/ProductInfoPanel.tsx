@@ -27,9 +27,9 @@ export default function ProductInfoPanel({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Información del producto</CardTitle>
+        <CardTitle>Detalles para decidir</CardTitle>
         <CardDescription>
-          Detalles pensados para reducir incertidumbre y ayudar a decidir más rápido.
+          Ingredientes, disponibilidad y contexto para elegir con más confianza.
         </CardDescription>
       </CardHeader>
 
@@ -37,7 +37,7 @@ export default function ProductInfoPanel({
         {description && (
           <div>
             <h3 className="text-sm font-semibold text-slate-900">
-              Descripción
+              Qué vas a encontrar
             </h3>
             <p className="mt-2 text-sm leading-7 text-slate-600">
               {description}
@@ -53,7 +53,7 @@ export default function ProductInfoPanel({
             <InfoItem label="Tiempo estimado" value={preparationTime} icon="⏱" />
           )}
           {availabilityLabel && (
-            <InfoItem label="Disponibilidad" value={availabilityLabel} icon="✅" />
+            <InfoItem label="Estado" value={availabilityLabel} icon="✅" />
           )}
         </div>
 
@@ -79,7 +79,7 @@ export default function ProductInfoPanel({
         {tags.length > 0 && (
           <div>
             <h3 className="text-sm font-semibold text-slate-900">
-              Atributos
+              Señales destacadas
             </h3>
 
             <div className="mt-3 flex flex-wrap gap-2">
@@ -97,7 +97,7 @@ export default function ProductInfoPanel({
 
         {notes && (
           <div className="rounded-2xl bg-amber-50 p-4">
-            <h3 className="text-sm font-semibold text-slate-900">Notas</h3>
+            <h3 className="text-sm font-semibold text-slate-900">Dato útil</h3>
             <p className="mt-2 text-sm leading-6 text-slate-600">{notes}</p>
           </div>
         )}

@@ -40,7 +40,7 @@ export default function SuperAdminDashboardPage() {
         setError('')
         setMetrics(await getAdminDashboard())
       } catch (err: unknown) {
-        setError(getErrorMessage(err, 'No fue posible cargar el dashboard global'))
+        setError(getErrorMessage(err, 'No pudimos cargar el panel global'))
       } finally {
         setLoading(false)
       }
@@ -50,12 +50,12 @@ export default function SuperAdminDashboardPage() {
   }, [])
 
   const cards = [
-    { label: 'Total negocios', value: metrics.totalBusinesses },
+    { label: 'Negocios totales', value: metrics.totalBusinesses },
     { label: 'Activos', value: metrics.activeBusinesses },
     { label: 'Inactivos', value: metrics.inactiveBusinesses },
-    { label: 'Business admins', value: metrics.totalBusinessAdmins },
+    { label: 'Administradores', value: metrics.totalBusinessAdmins },
     { label: 'Productos', value: metrics.totalProducts },
-    { label: 'Reviews', value: metrics.totalReviews },
+    { label: 'Reseñas', value: metrics.totalReviews },
   ]
 
   return (
@@ -66,18 +66,18 @@ export default function SuperAdminDashboardPage() {
             Super administración
           </p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-            Dashboard global
+            Resumen global
           </h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Métricas operativas de plataforma y actividad reciente.
+            Vista general de negocios, administradores, productos y actividad reciente.
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
           <Link to="/admin/businesses/new">
-            <Button>Nuevo negocio</Button>
+            <Button>Crear negocio</Button>
           </Link>
           <Link to="/admin/business-admins/new">
-            <Button variant="outline">Nuevo administrador</Button>
+            <Button variant="outline">Crear administrador</Button>
           </Link>
         </div>
       </div>
@@ -85,7 +85,7 @@ export default function SuperAdminDashboardPage() {
       {error ? (
         <Card>
           <CardHeader>
-            <CardTitle>No se pudo cargar</CardTitle>
+            <CardTitle>No pudimos cargar el panel</CardTitle>
             <CardDescription>{error}</CardDescription>
           </CardHeader>
         </Card>
@@ -108,7 +108,7 @@ export default function SuperAdminDashboardPage() {
         <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle>Actividad reciente</CardTitle>
-            <CardDescription>Últimos eventos administrativos registrados.</CardDescription>
+            <CardDescription>Últimos eventos relevantes del panel.</CardDescription>
           </div>
           <Link to="/admin/activity" className="text-sm font-semibold text-orange-600">
             Ver todo

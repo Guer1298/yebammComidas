@@ -19,7 +19,7 @@ export default function AdminBusinessCreatePage() {
 
   async function handleCreate(values: BusinessFormValues) {
     if (!isSuperAdmin) {
-      throw new Error('Solo un super administrador puede crear negocios.')
+      throw new Error('Solo un superadministrador puede crear negocios.')
     }
 
     setSaving(true)
@@ -60,7 +60,7 @@ export default function AdminBusinessCreatePage() {
         <CardHeader>
           <CardTitle>Acceso restringido</CardTitle>
           <CardDescription>
-            Solo un super administrador puede crear nuevos negocios.
+            Solo un superadministrador puede crear nuevos negocios.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -74,10 +74,10 @@ export default function AdminBusinessCreatePage() {
           Super administración
         </p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-          Crear negocio
+          Crear una nueva vitrina
         </h1>
         <p className="mt-3 text-sm leading-6 text-slate-600">
-          Alta inicial del negocio, credenciales del BUSINESS_ADMIN y estructura base.
+          Registra el negocio, crea su acceso administrativo y deja lista su base pública.
         </p>
       </div>
 
@@ -94,9 +94,10 @@ export default function AdminBusinessCreatePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Nota operativa</CardTitle>
+          <CardTitle>Antes de publicar</CardTitle>
           <CardDescription>
-            Para mantener el alta atómica, logo y portada se reciben como URL directa. Luego se puede gestionar media desde el panel del negocio.
+            Para este alta inicial, logo y portada se reciben como URL directa. Luego podrás
+            gestionar imágenes desde la galería del panel.
           </CardDescription>
         </CardHeader>
       </Card>

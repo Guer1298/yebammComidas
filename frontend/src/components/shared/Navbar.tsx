@@ -33,7 +33,7 @@ export default function Navbar({
   links = [
     { label: 'Inicio', href: '#' },
     { label: 'Negocios', href: '#negocios' },
-    { label: 'Promociones', href: '#promociones' },
+    { label: 'Ofertas', href: '#promociones' },
     { label: 'Cómo funciona', href: '#como-funciona' },
   ],
   onLogin,
@@ -90,7 +90,7 @@ export default function Navbar({
             {rightSlot}
             {authenticated ? (
               <Button variant="ghost" onClick={handleLogout}>
-                Cerrar sesión
+                Salir
               </Button>
             ) : showAuthActions ? (
               <>
@@ -98,7 +98,7 @@ export default function Navbar({
                   Iniciar sesión
                 </Button>
                 <Button onClick={onRegister} rightIcon={<FaChevronRight />}>
-                  Crear cuenta
+                  Unirme
                 </Button>
               </>
             ) : null}
@@ -143,7 +143,7 @@ export default function Navbar({
               {rightSlot ? <div onClick={closeMobileMenu}>{rightSlot}</div> : null}
               {authenticated ? (
                 <Button variant="ghost" onClick={handleLogout} fullWidth>
-                  Cerrar sesión
+                  Salir
                 </Button>
               ) : showAuthActions ? (
                 <div className="grid gap-3 sm:grid-cols-2">
@@ -151,7 +151,7 @@ export default function Navbar({
                     Iniciar sesión
                   </Button>
                   <Button onClick={onRegister} rightIcon={<FaChevronRight />}>
-                    Crear cuenta
+                    Unirme
                   </Button>
                 </div>
               ) : null}

@@ -47,7 +47,7 @@ export default function AdminBusinessesPage() {
       setError('')
       setBusinesses(await listBusinessesForAdmin())
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No fue posible cargar los negocios'))
+      setError(getErrorMessage(err, 'No pudimos cargar los negocios'))
     } finally {
       setLoading(false)
     }
@@ -86,7 +86,7 @@ export default function AdminBusinessesPage() {
         )
       )
     } catch (err: unknown) {
-      window.alert(getErrorMessage(err, 'No fue posible actualizar el estado'))
+      window.alert(getErrorMessage(err, 'No pudimos actualizar el estado'))
     } finally {
       setSavingId(null)
     }
@@ -105,7 +105,7 @@ export default function AdminBusinessesPage() {
       setBusinessToDelete(null)
       setDeleteConfirmation('')
     } catch (err: unknown) {
-      window.alert(getErrorMessage(err, 'No fue posible eliminar el negocio'))
+      window.alert(getErrorMessage(err, 'No pudimos eliminar el negocio'))
     } finally {
       setSavingId(null)
     }
@@ -117,7 +117,7 @@ export default function AdminBusinessesPage() {
         <CardHeader>
           <CardTitle>Acceso restringido</CardTitle>
           <CardDescription>
-            Esta sección está disponible solo para superadmin.
+            Esta sección está disponible solo para superadministradores.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -132,14 +132,14 @@ export default function AdminBusinessesPage() {
             Super administración
           </p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-            Negocios
+            Vitrinas gastronómicas
           </h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Gestiona negocios activos e inactivos, sus estados y administradores principales.
+            Crea, revisa y administra los negocios publicados en la plataforma.
           </p>
         </div>
         <Link to="/admin/businesses/new">
-          <Button>Nuevo negocio</Button>
+          <Button>Crear negocio</Button>
         </Link>
       </div>
 
@@ -172,7 +172,7 @@ export default function AdminBusinessesPage() {
         ) : error ? (
           <div className="p-6 text-sm text-red-600">{error}</div>
         ) : filteredBusinesses.length === 0 ? (
-          <div className="p-6 text-sm text-slate-500">No hay negocios para mostrar.</div>
+          <div className="p-6 text-sm text-slate-500">Aún no hay negocios para mostrar.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200 text-sm">
@@ -259,7 +259,7 @@ export default function AdminBusinessesPage() {
           setDeleteConfirmation('')
         }}
         title="Eliminar negocio definitivamente"
-        description="Esta acción puede eliminar productos, imágenes, menú, promociones y relaciones asociadas."
+        description="Esta acción puede borrar productos, imágenes, carta, promociones y relaciones asociadas."
         closeOnOverlayClick={false}
         footer={
           <>
@@ -278,14 +278,14 @@ export default function AdminBusinessesPage() {
               disabled={deleteConfirmation !== businessToDelete?.name}
               onClick={handleDelete}
             >
-              Eliminar definitivamente
+              Eliminar negocio
             </Button>
           </>
         }
       >
         <div className="space-y-4">
           <p className="text-sm text-slate-700">
-            Para eliminar, escribe: <strong>{businessToDelete?.name}</strong>
+            Para confirmar la eliminación, escribe: <strong>{businessToDelete?.name}</strong>
           </p>
           <Input
             value={deleteConfirmation}

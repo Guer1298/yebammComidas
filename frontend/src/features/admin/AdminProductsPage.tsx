@@ -80,7 +80,7 @@ export default function AdminProductsPage() {
   useEffect(() => {
     async function loadBusiness() {
       if (!businessId) {
-        setError('No hay un negocio asociado a esta cuenta.')
+        setError('Esta cuenta todavía no tiene un negocio asociado.')
         setLoading(false)
         return
       }
@@ -90,7 +90,7 @@ export default function AdminProductsPage() {
         const data = await getBusinessById<BusinessDetail>(businessId)
         setBusiness(data)
       } catch (err: unknown) {
-        setError(getErrorMessage(err, 'No fue posible cargar los productos del negocio'))
+        setError(getErrorMessage(err, 'No pudimos cargar los productos del negocio'))
       } finally {
         setLoading(false)
       }
@@ -174,7 +174,7 @@ export default function AdminProductsPage() {
       setOpen(false)
       setEditingProduct(null)
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No fue posible guardar el producto'))
+      setError(getErrorMessage(err, 'No pudimos guardar el producto'))
     } finally {
       setSaving(false)
     }
@@ -182,7 +182,7 @@ export default function AdminProductsPage() {
 
   async function handleUploadImage(file: File) {
     if (!businessId) {
-      throw new Error('No hay un negocio asociado a esta cuenta.')
+      throw new Error('Esta cuenta todavía no tiene un negocio asociado.')
     }
 
     const formData = new FormData()
@@ -207,14 +207,14 @@ export default function AdminProductsPage() {
       const refreshed = await getBusinessById<BusinessDetail>(businessId)
       setBusiness(refreshed)
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No fue posible actualizar el estado del producto'))
+      setError(getErrorMessage(err, 'No pudimos actualizar el estado del producto'))
     } finally {
       setSaving(false)
     }
   }
 
   if (loading) {
-    return <div>Cargando productos...</div>
+    return <div>Cargando catálogo...</div>
   }
 
   return (
@@ -225,10 +225,10 @@ export default function AdminProductsPage() {
             Productos
           </p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-            Gestiona tu catálogo
+            Gestiona la carta de productos
           </h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Crea, edita, activa o desactiva productos.
+            Publica platos, ajusta precios y mantén disponible lo que tus clientes pueden pedir.
           </p>
           {business ? (
             <div className="mt-4 flex flex-wrap gap-2">
@@ -242,7 +242,7 @@ export default function AdminProductsPage() {
           ) : null}
         </div>
 
-        <Button onClick={openCreateModal}>Nuevo producto</Button>
+        <Button onClick={openCreateModal}>Crear producto</Button>
       </div>
 
       {error ? (
@@ -256,9 +256,9 @@ export default function AdminProductsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Catálogo actual</CardTitle>
+          <CardTitle>Productos publicados</CardTitle>
           <CardDescription>
-            Productos leídos desde el backend del negocio asociado.
+            Todo lo que aparece o puede aparecer en la carta del negocio.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -287,7 +287,7 @@ export default function AdminProductsPage() {
         open={open}
         onClose={() => setOpen(false)}
         title={editingProduct ? 'Editar producto' : 'Crear producto'}
-        description="Agrega o modifica un producto del catálogo."
+        description="Completa la información que ayuda a vender mejor cada plato."
         size="lg"
       >
         <ProductForm

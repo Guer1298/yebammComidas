@@ -34,7 +34,7 @@ export default function MenuCategorySection({
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-2xl">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--brand-green-700)]">
-            Categoría
+            Sección de carta
           </p>
           <h3 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">
             {category.name}

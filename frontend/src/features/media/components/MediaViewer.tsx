@@ -28,7 +28,7 @@ export default function MediaViewer({
       open={open}
       onClose={onClose}
       size="xl"
-      title={item.title || 'Vista multimedia'}
+      title={item.title || 'Vista del contenido'}
       description={
         total > 0 ? `Elemento ${currentIndex + 1} de ${total}` : undefined
       }

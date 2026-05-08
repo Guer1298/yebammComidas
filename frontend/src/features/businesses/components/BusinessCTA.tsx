@@ -12,10 +12,10 @@ export interface BusinessCTAProps {
 }
 
 export default function BusinessCTA({
-  title = '¿Listo para pedir o contactar?',
-  description = 'Lleva al usuario a una acción clara y directa, con la menor fricción posible.',
+  title = '¿Listo para pedir o preguntar?',
+  description = 'Abre el canal directo del negocio para resolver dudas o hacer tu pedido.',
   primaryLabel = 'Pedir por WhatsApp',
-  secondaryLabel = 'Ver menú',
+  secondaryLabel = 'Ver carta',
   onPrimaryClick,
   onSecondaryClick,
   sticky = false,
@@ -47,7 +47,7 @@ export default function BusinessCTA({
           </div>
 
           <div className="rounded-2xl bg-white/70 p-4 text-sm text-slate-600">
-            CTA pensado para contacto rápido, conversión y claridad operativa.
+            Contacto simple para pasar del antojo a la acción.
           </div>
         </CardContent>
       </Card>

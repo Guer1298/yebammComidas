@@ -9,28 +9,28 @@ type AdminNavItem = {
 }
 
 const DEFAULT_ITEMS: AdminNavItem[] = [
-  { label: 'Dashboard', to: '/admin' },
+  { label: 'Resumen', to: '/admin' },
   { label: 'Negocios', to: '/admin/businesses' },
   { label: 'Administradores', to: '/admin/business-admins' },
   { label: 'Actividad', to: '/admin/activity' },
 ]
 
 const BUSINESS_ADMIN_ITEMS: AdminNavItem[] = [
-  { label: 'Dashboard', to: '/admin' },
+  { label: 'Resumen', to: '/admin' },
   { label: 'Negocio', to: '/admin/business' },
   { label: 'Productos', to: '/admin/products' },
-  { label: 'Media', to: '/admin/media' },
+  { label: 'Galería', to: '/admin/media' },
   { label: 'Promociones', to: '/admin/promotions' },
 ]
 
 const ITEM_ICONS: Record<string, React.ReactNode> = {
-  Dashboard: <FaChartLine />,
+  Resumen: <FaChartLine />,
   Negocios: <FaStore />,
   Administradores: <FaBoxOpen />,
   Actividad: <FaChartLine />,
   Negocio: <FaStore />,
   Productos: <FaBoxOpen />,
-  Media: <FaPhotoFilm />,
+  Galería: <FaPhotoFilm />,
   Promociones: <FaBullhorn />,
 }
 
@@ -45,7 +45,7 @@ function cn(...classes: Array<string | false | null | undefined>) {
 
 export default function AdminSidebar({
   items = DEFAULT_ITEMS,
-  brandName = 'Yebaam Admin',
+  brandName = 'Panel Yebaam',
 }: AdminSidebarProps) {
   const location = useLocation()
   const navigate = useNavigate()
@@ -62,11 +62,11 @@ export default function AdminSidebar({
       <div className="mb-6">
         <BrandLogo variant="green" className="h-12 w-auto" />
         <p className="mt-4 text-xs font-semibold uppercase tracking-[0.18em] text-orange-500">
-          Panel administrativo
+          Centro de control
         </p>
         <h2 className="mt-2 text-lg font-semibold text-slate-900">{brandName}</h2>
         <p className="mt-1 text-sm text-slate-500">
-          Gestión operativa del negocio.
+          Todo para mantener tu vitrina al día.
         </p>
       </div>
 
@@ -101,7 +101,7 @@ export default function AdminSidebar({
           className="flex w-full items-center justify-center rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-700"
         >
           <FaArrowRightFromBracket className="mr-2" />
-          Cerrar sesión
+          Salir del panel
         </button>
       </div>
     </aside>

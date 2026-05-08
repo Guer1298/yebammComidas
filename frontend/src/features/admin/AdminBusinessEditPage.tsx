@@ -70,7 +70,7 @@ export default function AdminBusinessEditPage() {
         })
         setAdminOptions(admins)
       } catch (err: unknown) {
-        setError(getErrorMessage(err, 'No fue posible cargar el negocio'))
+        setError(getErrorMessage(err, 'No pudimos cargar el negocio'))
       } finally {
         setLoading(false)
       }
@@ -87,7 +87,7 @@ export default function AdminBusinessEditPage() {
       !slugChanged ||
       !business.isActive ||
       window.confirm(
-        'Cambiar el slug de un negocio activo puede romper URLs públicas. ¿Quieres continuar?'
+        'Cambiar el slug de un negocio activo puede afectar sus URLs públicas. ¿Quieres continuar?'
       )
 
     if (!confirmSlugChange) return
@@ -122,9 +122,9 @@ export default function AdminBusinessEditPage() {
         ...values,
         slug: updated.slug || values.slug,
       })
-      setSuccess('Negocio actualizado correctamente.')
+      setSuccess('El negocio se actualizó correctamente.')
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No fue posible guardar los cambios'))
+      setError(getErrorMessage(err, 'No pudimos guardar los cambios'))
     } finally {
       setSaving(false)
     }
@@ -136,7 +136,7 @@ export default function AdminBusinessEditPage() {
         <CardHeader>
           <CardTitle>Acceso restringido</CardTitle>
           <CardDescription>
-            Esta sección está disponible solo para superadmin.
+            Esta sección está disponible solo para superadministradores.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -153,10 +153,10 @@ export default function AdminBusinessEditPage() {
             Super administración
           </p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-            Editar negocio
+            Editar vitrina
           </h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Edita datos públicos, estado y administrador principal.
+            Actualiza datos públicos, estado de publicación y administrador principal.
           </p>
         </div>
         <Link to="/admin/businesses">
@@ -197,7 +197,7 @@ export default function AdminBusinessEditPage() {
         <Card>
           <CardHeader>
             <CardTitle>Negocio no disponible</CardTitle>
-            <CardDescription>No se encontró el negocio solicitado.</CardDescription>
+            <CardDescription>No encontramos el negocio solicitado.</CardDescription>
           </CardHeader>
         </Card>
       )}

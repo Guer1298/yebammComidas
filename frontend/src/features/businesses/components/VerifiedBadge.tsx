@@ -11,8 +11,8 @@ export default function VerifiedBadge({ className = '' }: VerifiedBadgeProps) {
         'inline-flex h-6 w-6 items-center justify-center rounded-full bg-sky-50 text-sky-600 ring-1 ring-sky-200',
         className,
       ].join(' ')}
-      title="Negocio verificado"
-      aria-label="Negocio verificado"
+      title="Perfil verificado"
+      aria-label="Perfil verificado"
     >
       <FaCircleCheck className="h-4 w-4" />
     </span>

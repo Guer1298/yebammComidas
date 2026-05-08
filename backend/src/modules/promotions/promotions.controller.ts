@@ -16,7 +16,7 @@ function getActor(req: AuthenticatedRequest) {
   const userId = Number(req.user?.sub)
 
   if (!req.user || Number.isNaN(userId)) {
-    const error = new Error('No autorizado')
+    const error = new Error('Inicia sesión para continuar.')
     ;(error as any).status = 401
     throw error
   }
@@ -72,7 +72,7 @@ export async function findAllPromotions(
     if (businessId === null || status === null) {
       return res.status(400).json({
         ok: false,
-        message: 'Filtros inválidos para promociones',
+        message: 'Los filtros de promociones no son válidos.',
       })
     }
 
@@ -101,7 +101,7 @@ export async function findPromotionById(
     if (Number.isNaN(id)) {
       return res.status(400).json({
         ok: false,
-        message: 'ID de promoción inválido',
+        message: 'Selecciona una promoción válida.',
       })
     }
 
@@ -127,7 +127,7 @@ export async function findPromotionsByBusinessId(
     if (Number.isNaN(businessId)) {
       return res.status(400).json({
         ok: false,
-        message: 'ID de negocio inválido',
+        message: 'Selecciona un negocio válido.',
       })
     }
 
@@ -152,7 +152,7 @@ export async function createPromotionHandler(
 
     res.status(201).json({
       ok: true,
-      message: 'Promoción creada correctamente',
+      message: 'Promoción creada correctamente.',
       data: promotion,
     })
   } catch (error) {
@@ -171,7 +171,7 @@ export async function updatePromotionHandler(
     if (Number.isNaN(id)) {
       return res.status(400).json({
         ok: false,
-        message: 'ID de promoción inválido',
+        message: 'Selecciona una promoción válida.',
       })
     }
 
@@ -179,7 +179,7 @@ export async function updatePromotionHandler(
 
     res.status(200).json({
       ok: true,
-      message: 'Promoción actualizada correctamente',
+      message: 'Promoción actualizada correctamente.',
       data: promotion,
     })
   } catch (error) {
@@ -198,7 +198,7 @@ export async function deactivatePromotionHandler(
     if (Number.isNaN(id)) {
       return res.status(400).json({
         ok: false,
-        message: 'ID de promoción inválido',
+        message: 'Selecciona una promoción válida.',
       })
     }
 
@@ -206,7 +206,7 @@ export async function deactivatePromotionHandler(
 
     res.status(200).json({
       ok: true,
-      message: 'Promoción desactivada correctamente',
+      message: 'Promoción desactivada correctamente.',
       data: promotion,
     })
   } catch (error) {

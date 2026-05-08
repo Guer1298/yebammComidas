@@ -21,7 +21,7 @@ export default function LoginPage() {
       const user = result?.user
 
       if (!token) {
-        throw new Error('No se recibió token del backend')
+        throw new Error('No se recibió token de acceso')
       }
 
       localStorage.setItem('auth_token', token)
@@ -43,7 +43,7 @@ export default function LoginPage() {
 
       navigate(nextPath)
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No fue posible iniciar sesión'))
+      setError(getErrorMessage(err, 'No pudimos iniciar sesión'))
     } finally {
       setLoading(false)
     }
@@ -65,30 +65,30 @@ export default function LoginPage() {
           </p>
 
           <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-            Inicia sesión y continúa tu experiencia.
+            Entra y retoma tu recorrido.
           </h1>
 
           <p className="mt-5 text-base leading-7 text-slate-600 sm:text-lg">
-            Accede para seguir explorando negocios, consultar productos,
-            interactuar con la plataforma o administrar tu negocio.
+            Vuelve a tus negocios, reseñas y herramientas de administración sin empezar
+            desde cero.
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <p className="text-sm font-semibold text-slate-900">
-                Continuidad del recorrido
+                Recorrido sin cortes
               </p>
               <p className="mt-1 text-sm text-slate-500">
-                Mantén tu sesión y vuelve rápidamente a lo que estabas viendo.
+                Retoma lo que estabas viendo y avanza más rápido.
               </p>
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <p className="text-sm font-semibold text-slate-900">
-                Acceso al panel
+                Panel disponible
               </p>
               <p className="mt-1 text-sm text-slate-500">
-                Ingresa a funciones administrativas y operativas cuando corresponda.
+                Si administras un negocio, entra directo a tus herramientas.
               </p>
             </div>
           </div>
@@ -99,7 +99,7 @@ export default function LoginPage() {
             onSubmit={handleSubmit}
             loading={loading}
             error={error}
-            description="Ingresa tus credenciales para acceder a la plataforma."
+            description="Ingresa tus credenciales y continúa donde quedaste."
           />
         </div>
       </section>

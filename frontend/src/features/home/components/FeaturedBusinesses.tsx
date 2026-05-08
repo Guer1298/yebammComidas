@@ -36,9 +36,9 @@ export default function FeaturedBusinesses({
     <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
       <SectionHeader
         eyebrow="Destacados"
-        title="Negocios que llaman la atención desde el primer vistazo"
-        description="Una selección pensada para acelerar descubrimiento, reforzar confianza visual y llevar al usuario hacia una acción clara."
-        actionLabel="Ver todos"
+        title="Negocios que se entienden desde el primer vistazo"
+        description="Una selección de vitrinas con información clara, reputación visible y ruta directa a la carta."
+        actionLabel="Ver negocios"
         onAction={onViewAll}
       />
 
@@ -91,7 +91,7 @@ export default function FeaturedBusinesses({
                   onSelectBusiness?.(business.id)
                 }}
               >
-                Ver negocio
+                Abrir perfil
               </Button>
             </CardFooter>
           </Card>

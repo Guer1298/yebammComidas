@@ -6,7 +6,7 @@ function getActor(req: AuthenticatedRequest) {
   const userId = Number(req.user?.sub)
 
   if (!req.user || Number.isNaN(userId)) {
-    const error = new Error('No autorizado')
+    const error = new Error('Inicia sesión para continuar.')
     ;(error as any).status = 401
     throw error
   }
@@ -28,7 +28,7 @@ export async function uploadMediaHandler(
     if (!file) {
       return res.status(400).json({
         ok: false,
-        message: 'Archivo no enviado',
+        message: 'Selecciona un archivo para subir.',
       })
     }
 
@@ -39,7 +39,7 @@ export async function uploadMediaHandler(
     if (Number.isNaN(businessId)) {
       return res.status(400).json({
         ok: false,
-        message: 'businessId es obligatorio y debe ser numérico',
+        message: 'Selecciona un negocio válido antes de subir el archivo.',
       })
     }
 
@@ -55,7 +55,7 @@ export async function uploadMediaHandler(
 
     res.status(201).json({
       ok: true,
-      message: 'Archivo subido correctamente',
+      message: 'Archivo subido correctamente.',
       data: media,
     })
   } catch (error) {
@@ -76,7 +76,7 @@ export async function setPrimaryMediaHandler(
     if (Number.isNaN(businessId) || Number.isNaN(mediaAssetId)) {
       return res.status(400).json({
         ok: false,
-        message: 'businessId y mediaAssetId son obligatorios y deben ser numéricos',
+        message: 'Selecciona un negocio y un recurso visual válidos.',
       })
     }
 
@@ -89,7 +89,7 @@ export async function setPrimaryMediaHandler(
 
     res.status(200).json({
       ok: true,
-      message: 'Estado principal actualizado correctamente',
+      message: 'Recurso principal actualizado correctamente.',
       data: media,
     })
   } catch (error) {

@@ -11,7 +11,7 @@ export function errorHandler(
   if (err instanceof ZodError) {
     return res.status(400).json({
       ok: false,
-      message: 'Datos inválidos',
+      message: 'Revisa los datos enviados.',
       errors: err.issues.map((issue) => ({
         path: issue.path.join('.'),
         message: issue.message,
@@ -23,6 +23,6 @@ export function errorHandler(
 
   res.status(err.status || 500).json({
     ok: false,
-    message: err.message || 'Error interno del servidor',
+    message: err.message || 'Ocurrió un error interno. Intenta de nuevo.',
   })
 }

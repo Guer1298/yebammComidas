@@ -41,7 +41,7 @@ export default function AdminBusinessAdminEditPage() {
         setAdmin(adminData)
         setBusinesses(businessData)
       } catch (err: unknown) {
-        setError(getErrorMessage(err, 'No fue posible cargar el administrador'))
+        setError(getErrorMessage(err, 'No pudimos cargar el administrador'))
       } finally {
         setLoading(false)
       }
@@ -69,9 +69,9 @@ export default function AdminBusinessAdminEditPage() {
       }
 
       setAdmin(updated)
-      setSuccess('Administrador actualizado correctamente.')
+      setSuccess('El administrador se actualizó correctamente.')
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No fue posible guardar el administrador'))
+      setError(getErrorMessage(err, 'No pudimos guardar el administrador'))
     } finally {
       setSaving(false)
     }
@@ -82,7 +82,7 @@ export default function AdminBusinessAdminEditPage() {
       <Card>
         <CardHeader>
           <CardTitle>Acceso restringido</CardTitle>
-          <CardDescription>Solo superadmin puede editar administradores.</CardDescription>
+          <CardDescription>Solo un superadministrador puede editar administradores.</CardDescription>
         </CardHeader>
       </Card>
     )
@@ -98,7 +98,7 @@ export default function AdminBusinessAdminEditPage() {
             Super administración
           </p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-            Editar BUSINESS_ADMIN
+            Editar administrador de negocio
           </h1>
         </div>
         <Link to="/admin/business-admins">
@@ -140,8 +140,8 @@ export default function AdminBusinessAdminEditPage() {
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>No encontrado</CardTitle>
-            <CardDescription>No existe el administrador solicitado.</CardDescription>
+            <CardTitle>Administrador no encontrado</CardTitle>
+            <CardDescription>No encontramos el administrador solicitado.</CardDescription>
           </CardHeader>
         </Card>
       )}

@@ -28,17 +28,16 @@ export default function HeroSection({
       <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-2 lg:items-center lg:px-8 lg:py-20">
         <div className="max-w-2xl">
           <p className="mb-3 inline-flex rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-orange-700">
-            Descubre más rápido
+            Descubre qué pedir
           </p>
 
           <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
-            Encuentra comida que realmente te provoque.
+            Encuentra comida que sí se te antoje.
           </h1>
 
           <p className="mt-5 max-w-xl text-base leading-7 text-slate-600 sm:text-lg">
-            Explora negocios de comida rápida, revisa menús, compara promociones,
-            mira fotos reales y decide en menos tiempo con una experiencia pensada
-            para conversión.
+            Explora negocios locales, revisa cartas, compara ofertas, mira fotos reales
+            y decide con menos vueltas.
           </p>
 
           <div className="mt-8 max-w-2xl">
@@ -56,7 +55,7 @@ export default function HeroSection({
               Ver negocios destacados
             </Button>
             <Button variant="outline" size="lg" onClick={onSecondaryAction}>
-              Publica tu negocio
+              Publicar mi negocio
             </Button>
           </div>
 
@@ -67,11 +66,11 @@ export default function HeroSection({
             </div>
             <div>
               <span className="block text-xl font-bold text-slate-900">+850</span>
-              productos visibles
+              platos visibles
             </div>
             <div>
               <span className="block text-xl font-bold text-slate-900">+2.4K</span>
-              clics en CTA
+              acciones directas
             </div>
           </div>
         </div>
@@ -88,19 +87,19 @@ export default function HeroSection({
               </div>
 
               <div className="rounded-3xl bg-white p-4 shadow-md ring-1 ring-slate-200">
-                <p className="text-sm font-semibold text-slate-900">Decisión rápida</p>
+                <p className="text-sm font-semibold text-slate-900">Decisión más fácil</p>
                 <p className="mt-1 text-sm text-slate-500">
-                  Fotos, precio, reputación y CTA en una experiencia clara.
+                  Fotos, precio, reputación y contacto en una experiencia clara.
                 </p>
               </div>
             </div>
 
             <div className="space-y-4 pt-8">
               <div className="rounded-3xl bg-slate-900 p-5 text-white shadow-lg">
-                <p className="text-sm font-medium text-orange-300">Promos activas</p>
+                <p className="text-sm font-medium text-orange-300">Ofertas activas</p>
                 <p className="mt-2 text-2xl font-bold">Combos y descuentos</p>
                 <p className="mt-2 text-sm text-slate-300">
-                  Descubre oportunidades reales sin navegar de más.
+                  Encuentra oportunidades reales sin navegar de más.
                 </p>
               </div>
 

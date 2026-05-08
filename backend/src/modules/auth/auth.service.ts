@@ -39,7 +39,7 @@ export async function registerUser(input: RegisterInput) {
   })
 
   if (existingUser) {
-    const error = new Error('El correo ya está registrado')
+    const error = new Error('Este correo ya tiene una cuenta registrada.')
     ;(error as any).status = 409
     throw error
   }
@@ -81,13 +81,13 @@ export async function loginUser(input: LoginInput) {
   })
 
   if (!user) {
-    const error = new Error('Credenciales inválidas')
+    const error = new Error('El correo o la contraseña no son correctos.')
     ;(error as any).status = 401
     throw error
   }
 
   if (!user.isActive || user.deletedAt) {
-    const error = new Error('La cuenta está inactiva o no disponible')
+    const error = new Error('Esta cuenta está inactiva o no disponible.')
     ;(error as any).status = 403
     throw error
   }
@@ -95,7 +95,7 @@ export async function loginUser(input: LoginInput) {
   const passwordOk = await comparePassword(input.password, user.passwordHash)
 
   if (!passwordOk) {
-    const error = new Error('Credenciales inválidas')
+    const error = new Error('El correo o la contraseña no son correctos.')
     ;(error as any).status = 401
     throw error
   }
@@ -127,13 +127,13 @@ export async function getCurrentUser(userId: number) {
   })
 
   if (!user) {
-    const error = new Error('Usuario no encontrado')
+    const error = new Error('No encontramos esta cuenta.')
     ;(error as any).status = 404
     throw error
   }
 
   if (!user.isActive || user.deletedAt) {
-    const error = new Error('La cuenta está inactiva o no disponible')
+    const error = new Error('Esta cuenta está inactiva o no disponible.')
     ;(error as any).status = 403
     throw error
   }

@@ -40,7 +40,7 @@ export default function ReviewSection({ businessId }: ReviewSectionProps) {
       setError('')
       setData(await getBusinessReviews<ReviewsResponse>(businessId))
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No fue posible cargar las reviews'))
+      setError(getErrorMessage(err, 'No pudimos cargar las reseñas'))
     } finally {
       setLoading(false)
     }
@@ -56,7 +56,7 @@ export default function ReviewSection({ businessId }: ReviewSectionProps) {
         id: review.id,
         authorName: review.user?.name || 'Usuario',
         rating: review.rating,
-        comment: review.comment || 'Sin comentario.',
+        comment: review.comment || 'El usuario no dejó comentario.',
         createdAt: review.createdAt,
       })),
     [data]
@@ -77,7 +77,7 @@ export default function ReviewSection({ businessId }: ReviewSectionProps) {
   const canReview = isAuthenticated()
 
   if (loading) {
-    return <section className="py-8 text-sm text-slate-500">Cargando reviews...</section>
+    return <section className="py-8 text-sm text-slate-500">Cargando reseñas...</section>
   }
 
   if (error) {

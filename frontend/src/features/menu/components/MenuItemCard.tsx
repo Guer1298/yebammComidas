@@ -46,7 +46,7 @@ export default function MenuItemCard({
             {product.name}
           </h4>
           <p className="line-clamp-2 text-sm leading-6 text-slate-600">
-            {product.shortDescription || product.description || 'Producto visible en la carta'}
+            {product.shortDescription || product.description || 'Un plato disponible en la carta.'}
           </p>
         </div>
 
@@ -58,12 +58,12 @@ export default function MenuItemCard({
           <div className="grid gap-2 sm:grid-cols-2">
             {onOpenProduct ? (
               <Button variant="outline" size="sm" onClick={onOpenProduct} fullWidth>
-                Ver plato
+                Ver detalle
               </Button>
             ) : null}
             {onOrder ? (
               <Button size="sm" onClick={onOrder} fullWidth>
-                Pedir
+                Pedir ahora
               </Button>
             ) : null}
           </div>

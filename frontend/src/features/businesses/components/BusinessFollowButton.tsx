@@ -63,7 +63,7 @@ export default function BusinessFollowButton({
     } catch (err: unknown) {
       setIsFollowing(previousIsFollowing)
       setFollowersCount(previousFollowersCount)
-      setError(getErrorMessage(err, 'No fue posible actualizar el seguimiento.'))
+      setError(getErrorMessage(err, 'No pudimos actualizar el seguimiento.'))
     } finally {
       setLoading(false)
     }
@@ -82,7 +82,7 @@ export default function BusinessFollowButton({
             ? `Dejar de seguir a ${businessName}`
             : `Seguir a ${businessName}`
         }
-        title={isFollowing ? 'Dejar de seguir' : 'Seguir'}
+        title={isFollowing ? 'Dejar de seguir' : 'Seguir novedades'}
         disabled={loading}
         className={[
           'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium shadow-sm transition',
@@ -101,7 +101,7 @@ export default function BusinessFollowButton({
         >
           {isFollowing ? <FaUserCheck /> : <FaUserPlus />}
         </span>
-        <span>{isFollowing ? 'Siguiendo' : 'Seguir'}</span>
+        <span>{isFollowing ? 'Siguiendo' : 'Seguir novedades'}</span>
       </button>
       {error ? (
         <p className="mt-1 text-xs text-red-600" role="alert">

@@ -56,14 +56,14 @@ export default function MenuPage() {
   useEffect(() => {
     async function loadMenu() {
       if (!id) {
-        setError('ID de negocio no proporcionado')
+        setError('No recibimos el identificador del negocio')
         setLoading(false)
         return
       }
 
       const businessId = Number(id)
       if (Number.isNaN(businessId)) {
-        setError('ID de negocio inválido')
+        setError('El identificador del negocio no es válido')
         setLoading(false)
         return
       }
@@ -73,7 +73,7 @@ export default function MenuPage() {
         setError('')
         setBusiness(await getBusinessMenuById(businessId))
       } catch (err: unknown) {
-        setError(getErrorMessage(err, 'No fue posible cargar la carta'))
+        setError(getErrorMessage(err, 'No pudimos cargar la carta'))
       } finally {
         setLoading(false)
       }
@@ -137,10 +137,10 @@ export default function MenuPage() {
               Carta completa
             </p>
             <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
-              No se pudo cargar la carta
+              No pudimos cargar la carta
             </h1>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              {error || 'Carta no disponible'}
+              {error || 'La carta no está disponible por ahora'}
             </p>
           </div>
         </div>
@@ -179,8 +179,8 @@ export default function MenuPage() {
                 {business.name}
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
-                Recorre categorías, platos y precios en una experiencia clara, compacta y pensada
-                para pedir sin fricción.
+                Recorre categorías, platos y precios con una lectura simple para elegir
+                qué pedir sin perder contexto.
               </p>
 
               <div className="mt-5 flex flex-wrap gap-2">
@@ -196,7 +196,7 @@ export default function MenuPage() {
                   {categories.reduce((acc, cat) => acc + cat.products.length, 0)} platos
                 </span>
                 <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm">
-                  {business.city || 'Ubicación no definida'}
+                  {business.city || 'Ubicación por confirmar'}
                 </span>
               </div>
             </div>
@@ -215,7 +215,7 @@ export default function MenuPage() {
                 variant="outline"
                 onClick={() => navigate(`/businesses/${business.id}`)}
               >
-                Ver negocio
+                Abrir perfil
               </Button>
             </div>
           </div>
@@ -227,15 +227,15 @@ export default function MenuPage() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--brand-green-700)]">
-                Navegación rápida
+                Explora por categoría
               </p>
               <p className="mt-1 text-sm leading-6 text-slate-600">
-                Elige una categoría y explora los platos con una lectura limpia y directa.
+                Salta entre secciones y encuentra rápido el plato que estás buscando.
               </p>
             </div>
 
             <Badge variant="neutral">
-              {categories.length} bloques disponibles
+              {categories.length} secciones disponibles
             </Badge>
           </div>
         </div>

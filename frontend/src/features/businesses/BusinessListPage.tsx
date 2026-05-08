@@ -30,7 +30,7 @@ export default function BusinessListPage() {
         setError('')
         setBusinesses(await listBusinesses())
       } catch (err: unknown) {
-        setError(getErrorMessage(err, 'No fue posible cargar los negocios'))
+        setError(getErrorMessage(err, 'No pudimos cargar los negocios'))
       } finally {
         setLoading(false)
       }
@@ -79,7 +79,7 @@ export default function BusinessListPage() {
     () => [
       { label: 'Negocios', value: businesses.length, icon: <FaUtensils /> },
       {
-        label: 'Promos',
+        label: 'Ofertas',
         value: businesses.reduce((acc, item) => acc + (item.activePromotionsCount ?? 0), 0),
         icon: <FaBullhorn />,
       },
@@ -109,16 +109,16 @@ export default function BusinessListPage() {
 
                 <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-[var(--brand-green-50)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--brand-green-700)]">
                   <FaFireFlameCurved className="text-[0.72rem]" />
-                  Descubre negocios reales
+                  Negocios locales para tu próximo antojo
                 </div>
 
                 <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
-                  Encuentra el negocio que te provoque pedir ahora.
+                  Elige dónde comer con señales claras desde el primer vistazo.
                 </h1>
 
                 <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
-                  Busca por nombre, categoría o ciudad. Revisa reputación, promociones y
-                  entra al detalle con una experiencia pensada para convertir.
+                  Busca por nombre, categoría o ciudad. Revisa reputación, ofertas y canales
+                  de contacto antes de abrir la carta.
                 </p>
 
                 <div className="mt-6 grid gap-3 grid-cols-2 sm:grid-cols-3">
@@ -145,7 +145,7 @@ export default function BusinessListPage() {
             <div className="order-1 border-b border-slate-200 bg-slate-50 p-4 sm:p-6 lg:order-2 lg:border-l lg:border-b-0 lg:border-t-0 lg:p-10">
               <div className="rounded-[1.75rem] border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
                 <label htmlFor="business-search" className="mb-2 block text-sm font-medium text-slate-700">
-                  Buscar negocio
+                  ¿Qué se te antoja?
                 </label>
                 <div className="relative">
                   <FaMagnifyingGlass className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -182,7 +182,7 @@ export default function BusinessListPage() {
                     fullWidth
                     onClick={() => setFocus('promos')}
                   >
-                    Promos
+                    Ofertas
                   </Button>
                 </div>
 
@@ -193,7 +193,7 @@ export default function BusinessListPage() {
                       onClick={() => setSearch('')}
                       className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-200"
                     >
-                      Limpiar búsqueda
+                    Borrar búsqueda
                     </button>
                   ) : null}
                   <Link
@@ -201,7 +201,7 @@ export default function BusinessListPage() {
                     className="inline-flex items-center gap-2 rounded-full bg-[var(--brand-green-50)] px-3 py-1.5 text-xs font-medium text-[var(--brand-green-700)] transition hover:bg-[var(--brand-green-100)]"
                   >
                     <FaBullhorn className="text-[0.7rem]" />
-                    Ver promociones
+                    Ver ofertas
                   </Link>
                 </div>
               </div>
@@ -224,14 +224,14 @@ export default function BusinessListPage() {
                   {filteredBusinesses.length === 1 ? 'negocio encontrado' : 'negocios encontrados'}
                 </p>
                 <p className="mt-1 text-sm text-slate-500">
-                  Ordenados para que el usuario vea primero lo que más convierte.
+                  Ordenados por reputación, ofertas activas y señales útiles para decidir.
                 </p>
               </div>
 
               <div className="flex flex-wrap gap-2">
                 <Badge variant="neutral">Reputación</Badge>
                 <Badge variant="neutral">Promociones</Badge>
-                <Badge variant="neutral">Acción directa</Badge>
+                <Badge variant="neutral">Contacto directo</Badge>
               </div>
             </div>
 
@@ -264,7 +264,7 @@ function BusinessCard({ business }: { business: BusinessListItem }) {
 
         <div className="absolute left-4 top-4 flex flex-wrap gap-2">
           <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-700 backdrop-blur">
-            {business.category || 'Sin categoría'}
+            {business.category || 'Categoría por definir'}
           </span>
 
           {hasPromotion ? (
@@ -296,16 +296,16 @@ function BusinessCard({ business }: { business: BusinessListItem }) {
 
       <div className="space-y-4 p-5">
         <p className="line-clamp-2 text-sm leading-6 text-slate-600">
-          {business.description || 'Sin descripción disponible.'}
+          {business.description || 'Este negocio todavía está preparando su presentación.'}
         </p>
 
         <div className="flex flex-wrap gap-2">
           <Badge variant="neutral">{reviews} {reviews === 1 ? 'reseña' : 'reseñas'}</Badge>
           <Badge variant="neutral">
-            {business.address ? 'Con dirección' : 'Sin dirección'}
+            {business.address ? 'Dirección disponible' : 'Dirección pendiente'}
           </Badge>
           <Badge variant="neutral">
-            {business.whatsapp || business.phone ? 'Contacto disponible' : 'Sin contacto'}
+            {business.whatsapp || business.phone ? 'Contacto disponible' : 'Contacto pendiente'}
           </Badge>
         </div>
 
@@ -323,7 +323,7 @@ function BusinessCard({ business }: { business: BusinessListItem }) {
             }
             className="inline-flex items-center justify-center rounded-2xl bg-[var(--brand-green-600)] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[var(--brand-green-700)]"
           >
-            Ver negocio
+            Abrir perfil
           </Link>
 
           {business.whatsapp ? (
@@ -342,7 +342,7 @@ function BusinessCard({ business }: { business: BusinessListItem }) {
               disabled
               className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-400"
             >
-              Sin CTA
+              Sin WhatsApp
             </button>
           )}
         </div>
@@ -380,7 +380,7 @@ function ErrorState({ message }: { message: string }) {
   return (
     <div className="rounded-[1.75rem] border border-red-200 bg-red-50 p-8 text-center">
       <h2 className="text-lg font-semibold text-red-700">
-        Ocurrió un problema al cargar los negocios
+        No pudimos cargar los negocios
       </h2>
       <p className="mt-2 text-sm text-red-600">{message}</p>
     </div>
@@ -397,17 +397,17 @@ function EmptyState({
   return (
     <div className="rounded-[1.75rem] border border-dashed border-slate-300 bg-white p-10 text-center">
       <h2 className="text-lg font-semibold text-slate-900">
-        {search ? 'No encontramos coincidencias' : 'No hay negocios visibles'}
+        {search ? 'No encontramos coincidencias' : 'Aún no hay negocios visibles'}
       </h2>
       <p className="mt-2 text-sm text-slate-500">
         {search
-          ? 'Prueba con un plato, una categoría o el nombre de un negocio.'
-          : 'Todavía no hay negocios visibles en la plataforma.'}
+          ? 'Intenta con otro plato, una categoría o el nombre de un negocio.'
+          : 'Cuando haya vitrinas publicadas, aparecerán aquí para que puedas explorarlas.'}
       </p>
       {search ? (
         <div className="mt-6 flex justify-center">
           <Button variant="outline" onClick={onReset}>
-            Ver todo de nuevo
+            Ver todos los negocios
           </Button>
         </div>
       ) : null}

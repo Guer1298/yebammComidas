@@ -90,7 +90,7 @@ export default function ProductDetailPage() {
   useEffect(() => {
     async function loadProduct() {
       if (!id) {
-        setError('ID de producto no proporcionado')
+        setError('No recibimos el identificador del producto')
         setLoading(false)
         return
       }
@@ -98,7 +98,7 @@ export default function ProductDetailPage() {
       const productId = Number(id)
 
       if (Number.isNaN(productId)) {
-        setError('ID de producto inválido')
+        setError('El identificador del producto no es válido')
         setLoading(false)
         return
       }
@@ -109,7 +109,7 @@ export default function ProductDetailPage() {
 
         setProduct(await getProductById<ProductDetail>(productId))
       } catch (err: unknown) {
-        setError(getErrorMessage(err, 'No fue posible cargar el detalle del producto'))
+        setError(getErrorMessage(err, 'No pudimos cargar el detalle del producto'))
       } finally {
         setLoading(false)
       }
@@ -163,7 +163,7 @@ export default function ProductDetailPage() {
     return (
       <main className="min-h-screen bg-slate-50 text-slate-900">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <p className="text-sm text-slate-500">Cargando producto...</p>
+          <p className="text-sm text-slate-500">Cargando detalle del producto...</p>
         </div>
       </main>
     )
@@ -241,7 +241,7 @@ export default function ProductDetailPage() {
               to={`/businesses/${product.business.id}`}
               className="inline-flex text-sm font-medium text-slate-600 transition hover:text-slate-900"
             >
-              Ver negocio
+              Ver perfil del negocio
             </Link>
           ) : null}
         </div>
@@ -292,7 +292,7 @@ export default function ProductDetailPage() {
               notes={
                 product.business?.city
                   ? `Disponible en ${product.business.city}`
-                  : 'Información comercial proporcionada por el negocio.'
+                  : 'Información compartida por el negocio.'
               }
               tags={[
                 product.isFeatured ? 'Destacado' : '',
@@ -302,9 +302,9 @@ export default function ProductDetailPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Negocio asociado</CardTitle>
-                <CardDescription>
-                  Contexto del negocio para reforzar confianza y navegación.
+              <CardTitle>Lo prepara este negocio</CardTitle>
+              <CardDescription>
+                  Datos clave para que sepas de dónde viene el producto antes de pedir.
                 </CardDescription>
               </CardHeader>
 
@@ -341,7 +341,7 @@ export default function ProductDetailPage() {
                       to={`/businesses/${product.business.id}`}
                       className="inline-flex h-12 items-center justify-center rounded-2xl bg-slate-900 px-5 text-base font-medium text-white shadow-sm transition hover:bg-slate-800"
                     >
-                      Ver negocio
+                      Abrir perfil
                     </Link>
                   ) : null}
 
@@ -350,7 +350,7 @@ export default function ProductDetailPage() {
                       to={`/businesses/${product.business.id}/gallery`}
                       className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 text-base font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
                     >
-                      Ver galería
+                      Ver fotos
                     </Link>
                   ) : null}
 
@@ -365,7 +365,7 @@ export default function ProductDetailPage() {
                       }
                     }}
                   >
-                    {whatsappUrl ? 'Pedir por WhatsApp' : 'Sin canal de contacto'}
+                    {whatsappUrl ? 'Pedir por WhatsApp' : 'Contacto no disponible'}
                   </Button>
                 </div>
               </CardContent>
@@ -381,8 +381,8 @@ export default function ProductDetailPage() {
                   </CardTitle>
                   <p className="mt-2 text-sm leading-6 text-slate-600">
                     {whatsappUrl
-                      ? 'Lleva al usuario directamente al canal de contacto más rápido.'
-                      : 'Este producto aún no tiene WhatsApp registrado en el negocio.'}
+                      ? 'Abre una conversación directa con el negocio para confirmar tu pedido.'
+                      : 'Este producto todavía no tiene un WhatsApp asociado.'}
                   </p>
                 </div>
 
@@ -392,7 +392,7 @@ export default function ProductDetailPage() {
                       {product.business?.name || 'Negocio'}
                     </p>
                     <p className="mt-1">
-                      {product.category?.name || 'Sin categoría'}{' '}
+                      {product.category?.name || 'Categoría por definir'}{' '}
                       {product.business?.city ? `· ${product.business.city}` : ''}
                     </p>
                   </div>
@@ -408,7 +408,7 @@ export default function ProductDetailPage() {
                         }
                       }}
                     >
-                      {whatsappUrl ? 'Pedir por WhatsApp' : 'Sin canal de contacto'}
+                      {whatsappUrl ? 'Pedir por WhatsApp' : 'Contacto no disponible'}
                     </Button>
 
                     {product.business?.id ? (
@@ -416,7 +416,7 @@ export default function ProductDetailPage() {
                         to={`/businesses/${product.business.id}`}
                         className="inline-flex h-12 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 text-base font-medium text-slate-700 transition hover:bg-slate-50"
                       >
-                        Ver negocio
+                        Abrir perfil
                       </Link>
                     ) : null}
                   </div>

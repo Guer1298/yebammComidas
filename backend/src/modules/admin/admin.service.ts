@@ -27,7 +27,7 @@ type UpdateBusinessAdminInput = {
 
 function assertPlatformAdmin(actor: AdminActor) {
   if (actor.role !== 'ADMIN') {
-    const error = new Error('Solo un administrador general puede realizar esta acción')
+    const error = new Error('Solo un superadministrador puede realizar esta acción.')
     ;(error as any).status = 403
     throw error
   }
@@ -59,7 +59,7 @@ async function assertBusinessesExist(businessIds: number[]) {
   })
 
   if (count !== businessIds.length) {
-    const error = new Error('Uno o más negocios asignados no existen')
+    const error = new Error('Uno o más negocios asignados no existen.')
     ;(error as any).status = 400
     throw error
   }
@@ -185,7 +185,7 @@ export async function getBusinessAdminById(id: number) {
   })
 
   if (!user) {
-    const error = new Error('Administrador de negocio no encontrado')
+    const error = new Error('No encontramos el administrador solicitado.')
     ;(error as any).status = 404
     throw error
   }
@@ -206,7 +206,7 @@ export async function createBusinessAdmin(
   const existingUser = await prisma.user.findUnique({ where: { email } })
 
   if (existingUser) {
-    const error = new Error('El correo ya está registrado')
+    const error = new Error('Este correo ya está registrado.')
     ;(error as any).status = 409
     throw error
   }
@@ -271,7 +271,7 @@ export async function updateBusinessAdmin(
   })
 
   if (!existingUser) {
-    const error = new Error('Administrador de negocio no encontrado')
+    const error = new Error('No encontramos el administrador solicitado.')
     ;(error as any).status = 404
     throw error
   }
@@ -283,7 +283,7 @@ export async function updateBusinessAdmin(
     const emailInUse = await prisma.user.findUnique({ where: { email } })
 
     if (emailInUse && emailInUse.id !== id) {
-      const error = new Error('El correo ya está registrado')
+      const error = new Error('Este correo ya está registrado.')
       ;(error as any).status = 409
       throw error
     }
@@ -352,7 +352,7 @@ export async function updateBusinessAdminStatus(
   })
 
   if (!user) {
-    const error = new Error('Administrador de negocio no encontrado')
+    const error = new Error('No encontramos el administrador solicitado.')
     ;(error as any).status = 404
     throw error
   }
@@ -398,7 +398,7 @@ export async function updateBusinessAdminPassword(
   })
 
   if (!user) {
-    const error = new Error('Administrador de negocio no encontrado')
+    const error = new Error('No encontramos el administrador solicitado.')
     ;(error as any).status = 404
     throw error
   }
@@ -438,7 +438,7 @@ export async function deleteBusinessAdmin(id: number, actor: AdminActor) {
   })
 
   if (!user) {
-    const error = new Error('Administrador de negocio no encontrado')
+    const error = new Error('No encontramos el administrador solicitado.')
     ;(error as any).status = 404
     throw error
   }

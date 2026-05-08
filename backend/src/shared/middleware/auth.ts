@@ -19,7 +19,7 @@ export function requireAuth(
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({
       ok: false,
-      message: 'Token no proporcionado',
+      message: 'Inicia sesión para continuar.',
     })
   }
 
@@ -32,7 +32,7 @@ export function requireAuth(
   } catch {
     return res.status(401).json({
       ok: false,
-      message: 'Token inválido o expirado',
+      message: 'Tu sesión expiró. Inicia sesión de nuevo.',
     })
   }
 }

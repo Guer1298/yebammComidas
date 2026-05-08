@@ -6,7 +6,7 @@ export async function getReviewsByBusinessId(businessId: number) {
   })
 
   if (!business || !business.isActive) {
-    const error = new Error('Negocio no encontrado')
+    const error = new Error('No encontramos el negocio solicitado.')
     ;(error as any).status = 404
     throw error
   }
@@ -54,7 +54,7 @@ export async function createReview(input: CreateReviewInput) {
   })
 
   if (!user || !user.isActive || user.deletedAt) {
-    const error = new Error('Usuario no autorizado')
+    const error = new Error('Inicia sesión para publicar una reseña.')
     ;(error as any).status = 401
     throw error
   }
@@ -64,13 +64,13 @@ export async function createReview(input: CreateReviewInput) {
   })
 
   if (!business || !business.isActive) {
-    const error = new Error('Negocio no encontrado')
+    const error = new Error('No encontramos el negocio solicitado.')
     ;(error as any).status = 404
     throw error
   }
 
   if (input.rating < 1 || input.rating > 5) {
-    const error = new Error('El rating debe estar entre 1 y 5')
+    const error = new Error('La calificación debe estar entre 1 y 5.')
     ;(error as any).status = 400
     throw error
   }
@@ -83,7 +83,7 @@ export async function createReview(input: CreateReviewInput) {
   })
 
   if (existingReview) {
-    const error = new Error('El usuario ya publicó una review para este negocio')
+    const error = new Error('Ya publicaste una reseña para este negocio.')
     ;(error as any).status = 409
     throw error
   }

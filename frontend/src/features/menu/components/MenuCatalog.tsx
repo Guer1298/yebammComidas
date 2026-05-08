@@ -29,11 +29,11 @@ export default function MenuCatalog({
           Carta
         </p>
         <p className="mt-2 text-base font-semibold text-slate-950">
-          Todavía no hay categorías visibles para esta carta.
+          Esta carta todavía no tiene categorías visibles.
         </p>
         <p className="mt-2 max-w-xl leading-6">
-          Cuando el negocio publique su menú, podrás explorarlo por categorías con una lectura
-          más clara y rápida.
+          Cuando el negocio publique su menú, podrás recorrerlo por secciones y encontrar
+          platos con mayor facilidad.
         </p>
       </div>
     )
@@ -53,7 +53,7 @@ export default function MenuCatalog({
               Categorías
             </p>
             <p className="mt-1 text-sm text-slate-600">
-              Salta entre bloques de la carta sin perder el contexto.
+              Muévete entre secciones sin perder el hilo de la carta.
             </p>
           </div>
           <Badge variant="neutral">{categories.length} secciones</Badge>

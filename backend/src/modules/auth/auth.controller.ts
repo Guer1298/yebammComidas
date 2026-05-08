@@ -14,7 +14,7 @@ export async function register(
 
     res.status(201).json({
       ok: true,
-      message: 'Usuario registrado correctamente',
+      message: 'Cuenta creada correctamente.',
       data: result,
     })
   } catch (error) {
@@ -33,7 +33,7 @@ export async function login(
 
     res.status(200).json({
       ok: true,
-      message: 'Inicio de sesión exitoso',
+      message: 'Sesión iniciada correctamente.',
       data: result,
     })
   } catch (error) {
@@ -50,7 +50,7 @@ export async function me(
     if (!req.user?.sub) {
       return res.status(401).json({
         ok: false,
-        message: 'No autorizado',
+        message: 'Inicia sesión para continuar.',
       })
     }
 

@@ -12,14 +12,14 @@ export async function createEvent(
     if (!eventType || typeof eventType !== 'string') {
       return res.status(400).json({
         ok: false,
-        message: 'eventType es obligatorio',
+        message: 'No se recibió el tipo de evento.',
       })
     }
 
     if (!Object.values(EventType).includes(eventType as EventType)) {
       return res.status(400).json({
         ok: false,
-        message: 'eventType no es válido',
+        message: 'El tipo de evento no es válido.',
       })
     }
 
@@ -33,7 +33,7 @@ export async function createEvent(
 
     res.status(201).json({
       ok: true,
-      message: 'Evento registrado correctamente',
+      message: 'Evento registrado correctamente.',
       data: event,
     })
   } catch (error) {

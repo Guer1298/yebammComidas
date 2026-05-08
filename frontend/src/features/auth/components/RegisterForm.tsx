@@ -29,7 +29,7 @@ export default function RegisterForm({
   loading = false,
   error = '',
   title = 'Crea tu cuenta',
-  description = 'Regístrate para guardar favoritos, acceder a beneficios e interactuar dentro de la plataforma.',
+  description = 'Únete para explorar negocios, participar con reseñas y acceder a tu panel si administras una vitrina.',
 }: RegisterFormProps) {
   const [fullName, setFullName] = React.useState('')
   const [email, setEmail] = React.useState('')
@@ -43,23 +43,23 @@ export default function RegisterForm({
     const nextErrors: Partial<Record<keyof RegisterFormValues, string>> = {}
 
     if (!fullName.trim()) {
-      nextErrors.fullName = 'El nombre es obligatorio.'
+      nextErrors.fullName = 'Escribe tu nombre completo.'
     }
 
     if (!email.trim()) {
-      nextErrors.email = 'El correo es obligatorio.'
+      nextErrors.email = 'Escribe tu correo para crear la cuenta.'
     } else if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
       nextErrors.email = 'Ingresa un correo válido.'
     }
 
     if (!password.trim()) {
-      nextErrors.password = 'La contraseña es obligatoria.'
+      nextErrors.password = 'Crea una contraseña.'
     } else if (password.length < 6) {
       nextErrors.password = 'La contraseña debe tener al menos 6 caracteres.'
     }
 
     if (!confirmPassword.trim()) {
-      nextErrors.confirmPassword = 'Debes confirmar la contraseña.'
+      nextErrors.confirmPassword = 'Confirma tu contraseña.'
     } else if (password !== confirmPassword) {
       nextErrors.confirmPassword = 'Las contraseñas no coinciden.'
     }
@@ -136,7 +136,7 @@ export default function RegisterForm({
           )}
 
           <div className="text-sm text-slate-500">
-            Al registrarte aceptas los términos básicos de uso de la plataforma.
+            Al crear tu cuenta aceptas el uso responsable de la plataforma.
           </div>
 
           <div className="flex items-center justify-between gap-4">
@@ -144,12 +144,12 @@ export default function RegisterForm({
               to="/login"
               className="text-sm font-medium text-orange-600 transition hover:text-orange-700"
             >
-              Ya tengo cuenta
+              Ya tengo una cuenta
             </Link>
           </div>
 
           <Button type="submit" fullWidth loading={loading}>
-            Crear cuenta
+            Crear mi cuenta
           </Button>
         </form>
       </CardContent>

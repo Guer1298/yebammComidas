@@ -29,7 +29,7 @@ function normalizeRequiredImageUrl(imageUrl?: string | null) {
   const trimmed = imageUrl?.trim()
 
   if (!trimmed) {
-    fail('La imagen de la promoción es obligatoria')
+    fail('Agrega una imagen para publicar la promoción.')
   }
 
   return trimmed
@@ -51,7 +51,7 @@ function normalizeOptionalLink(url?: string | null) {
     // handled below
   }
 
-  fail('El CTA debe ser una URL válida o una ruta interna que empiece por /')
+  fail('El enlace del botón debe ser una URL válida o una ruta interna que empiece por /.')
 }
 
 function parseOptionalDate(value?: string | Date | null, fieldName?: string) {
@@ -136,7 +136,7 @@ export async function getPromotionById(id: number) {
   })
 
   if (!promotion) {
-    const error = new Error('Promoción no encontrada')
+    const error = new Error('No encontramos la promoción solicitada.')
     ;(error as any).status = 404
     throw error
   }
@@ -150,7 +150,7 @@ export async function listPromotionsByBusinessId(businessId: number) {
   })
 
   if (!business || !business.isActive) {
-    const error = new Error('Negocio no encontrado')
+    const error = new Error('No encontramos el negocio seleccionado.')
     ;(error as any).status = 404
     throw error
   }
@@ -167,7 +167,7 @@ export async function createPromotion(
   })
 
   if (!business || !business.isActive) {
-    const error = new Error('Negocio no encontrado')
+    const error = new Error('No encontramos el negocio seleccionado.')
     ;(error as any).status = 404
     throw error
   }
@@ -206,7 +206,7 @@ export async function updatePromotion(
   })
 
   if (!existingPromotion) {
-    const error = new Error('Promoción no encontrada')
+    const error = new Error('No encontramos la promoción solicitada.')
     ;(error as any).status = 404
     throw error
   }
@@ -231,7 +231,7 @@ export async function updatePromotion(
     })
 
     if (!business || !business.isActive) {
-      const error = new Error('Negocio no encontrado')
+      const error = new Error('No encontramos el negocio seleccionado.')
       ;(error as any).status = 404
       throw error
     }
@@ -278,7 +278,7 @@ export async function deactivatePromotion(id: number, actor: BusinessActor) {
   })
 
   if (!existingPromotion) {
-    const error = new Error('Promoción no encontrada')
+    const error = new Error('No encontramos la promoción solicitada.')
     ;(error as any).status = 404
     throw error
   }

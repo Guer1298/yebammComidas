@@ -22,7 +22,7 @@ function getActor(req: AuthenticatedRequest) {
   const userId = Number(req.user?.sub)
 
   if (!req.user || Number.isNaN(userId)) {
-    const error = new Error('No autorizado')
+    const error = new Error('Inicia sesión para continuar.')
     ;(error as any).status = 401
     throw error
   }
@@ -109,7 +109,7 @@ export async function getBusinessAdminHandler(
   next: NextFunction
 ) {
   try {
-    const id = parseId(req.params.id, 'ID de administrador inválido')
+    const id = parseId(req.params.id, 'Selecciona un administrador válido.')
     const admin = await getBusinessAdminById(id)
 
     res.status(200).json({
@@ -133,7 +133,7 @@ export async function createBusinessAdminHandler(
 
     res.status(201).json({
       ok: true,
-      message: 'Administrador de negocio creado correctamente',
+      message: 'Administrador de negocio creado correctamente.',
       data: admin,
     })
   } catch (error) {
@@ -148,13 +148,13 @@ export async function updateBusinessAdminHandler(
 ) {
   try {
     const actor = getActor(req)
-    const id = parseId(req.params.id, 'ID de administrador inválido')
+    const id = parseId(req.params.id, 'Selecciona un administrador válido.')
     const payload = updateBusinessAdminSchema.parse(req.body)
     const admin = await updateBusinessAdmin(id, payload, actor)
 
     res.status(200).json({
       ok: true,
-      message: 'Administrador de negocio actualizado correctamente',
+      message: 'Administrador de negocio actualizado correctamente.',
       data: admin,
     })
   } catch (error) {
@@ -169,15 +169,15 @@ export async function updateBusinessAdminStatusHandler(
 ) {
   try {
     const actor = getActor(req)
-    const id = parseId(req.params.id, 'ID de administrador inválido')
+    const id = parseId(req.params.id, 'Selecciona un administrador válido.')
     const payload = updateBusinessAdminStatusSchema.parse(req.body)
     const admin = await updateBusinessAdminStatus(id, payload.isActive, actor)
 
     res.status(200).json({
       ok: true,
       message: payload.isActive
-        ? 'Administrador activado correctamente'
-        : 'Administrador desactivado correctamente',
+        ? 'Administrador activado correctamente.'
+        : 'Administrador desactivado correctamente.',
       data: admin,
     })
   } catch (error) {
@@ -192,13 +192,13 @@ export async function updateBusinessAdminPasswordHandler(
 ) {
   try {
     const actor = getActor(req)
-    const id = parseId(req.params.id, 'ID de administrador inválido')
+    const id = parseId(req.params.id, 'Selecciona un administrador válido.')
     const payload = updateBusinessAdminPasswordSchema.parse(req.body)
     const result = await updateBusinessAdminPassword(id, payload.password, actor)
 
     res.status(200).json({
       ok: true,
-      message: 'Contraseña actualizada correctamente',
+      message: 'Contraseña actualizada correctamente.',
       data: result,
     })
   } catch (error) {
@@ -213,12 +213,12 @@ export async function deleteBusinessAdminHandler(
 ) {
   try {
     const actor = getActor(req)
-    const id = parseId(req.params.id, 'ID de administrador inválido')
+    const id = parseId(req.params.id, 'Selecciona un administrador válido.')
     const deleted = await deleteBusinessAdmin(id, actor)
 
     res.status(200).json({
       ok: true,
-      message: 'Administrador eliminado/desvinculado correctamente',
+      message: 'Administrador eliminado o desvinculado correctamente.',
       data: deleted,
     })
   } catch (error) {

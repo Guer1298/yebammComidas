@@ -63,7 +63,7 @@ export default function BusinessCustomerButton({
     } catch (err: unknown) {
       setIsCustomer(previousIsCustomer)
       setCustomersCount(previousCustomersCount)
-      setError(getErrorMessage(err, 'No fue posible actualizar la membresía.'))
+      setError(getErrorMessage(err, 'No pudimos actualizar tu relación con el negocio.'))
     } finally {
       setLoading(false)
     }
@@ -79,10 +79,10 @@ export default function BusinessCustomerButton({
         aria-pressed={isCustomer}
         aria-label={
           isCustomer
-            ? `Dejar de ser cliente de ${businessName}`
-            : `Hacerme cliente de ${businessName}`
+            ? `Quitar ${businessName} de mis negocios`
+            : `Marcar ${businessName} como negocio frecuente`
         }
-        title={isCustomer ? 'Ya eres cliente' : 'Hacerme cliente'}
+        title={isCustomer ? 'Negocio frecuente' : 'Marcar como frecuente'}
         disabled={loading}
         className={[
           'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium shadow-sm transition',
@@ -101,7 +101,7 @@ export default function BusinessCustomerButton({
         >
           {isCustomer ? <FaCheck /> : <FaUserTie />}
         </span>
-        <span>{isCustomer ? 'Ya eres cliente' : 'Hacerme cliente'}</span>
+        <span>{isCustomer ? 'Frecuente' : 'Soy cliente'}</span>
       </button>
       {error ? (
         <p className="mt-1 text-xs text-red-600" role="alert">

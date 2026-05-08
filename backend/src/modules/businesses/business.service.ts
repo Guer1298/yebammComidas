@@ -16,7 +16,7 @@ function normalizeImageUrl(imageUrl?: string | null) {
   const trimmed = imageUrl?.trim()
 
   if (!trimmed) {
-    const error = new Error('La portada del negocio es obligatoria')
+    const error = new Error('Agrega una portada para publicar el negocio.')
     ;(error as any).status = 400
     throw error
   }
@@ -238,13 +238,13 @@ export async function createBusiness(input: CreateBusinessInput) {
   const category = input.category?.trim()
 
   if (!name) {
-    const error = new Error('El nombre del negocio es obligatorio')
+    const error = new Error('Escribe el nombre del negocio.')
     ;(error as any).status = 400
     throw error
   }
 
   if (!category) {
-    const error = new Error('La categoría del negocio es obligatoria')
+    const error = new Error('Define la categoría del negocio.')
     ;(error as any).status = 400
     throw error
   }
@@ -325,7 +325,7 @@ export async function createBusiness(input: CreateBusinessInput) {
     const adminPassword = input.adminPassword?.trim()
 
     if (!adminEmail || !adminPassword) {
-      const error = new Error('Las credenciales de acceso inicial son obligatorias')
+      const error = new Error('Define las credenciales iniciales de acceso al panel.')
       ;(error as any).status = 400
       throw error
     }
@@ -335,7 +335,7 @@ export async function createBusiness(input: CreateBusinessInput) {
     })
 
     if (existingAdmin) {
-      const error = new Error('El correo de acceso inicial ya está registrado')
+      const error = new Error('El correo de acceso inicial ya está registrado.')
       ;(error as any).status = 409
       throw error
     }
@@ -416,7 +416,7 @@ export async function getBusinessByIdForAdmin(id: number) {
   })
 
   if (!business) {
-    const error = new Error('Negocio no encontrado')
+    const error = new Error('No encontramos el negocio solicitado.')
     ;(error as any).status = 404
     throw error
   }
@@ -532,13 +532,13 @@ export async function getBusinessByIdWithUser(id: number, userId?: number) {
   })
 
   if (!business) {
-    const error = new Error('Negocio no encontrado')
+    const error = new Error('No encontramos el negocio solicitado.')
     ;(error as any).status = 404
     throw error
   }
 
   if (!business.isActive) {
-    const error = new Error('Negocio no disponible')
+    const error = new Error('Este negocio no está disponible por ahora.')
     ;(error as any).status = 404
     throw error
   }
@@ -598,7 +598,7 @@ export async function updateBusiness(
   })
 
   if (!existingBusiness) {
-    const error = new Error('Negocio no encontrado')
+    const error = new Error('No encontramos el negocio solicitado.')
     ;(error as any).status = 404
     throw error
   }
@@ -609,7 +609,7 @@ export async function updateBusiness(
       input.isVerified !== undefined ||
       input.primaryAdminUserId !== undefined)
   ) {
-    const error = new Error('No tienes permisos para modificar campos de plataforma')
+    const error = new Error('No tienes permisos para modificar campos de plataforma.')
     ;(error as any).status = 403
     throw error
   }
@@ -635,7 +635,7 @@ export async function updateBusiness(
         : mediaAssets.find((item) => item.isPrimary) || mediaAssets[0] || null
 
     if (!primaryMedia && !input.coverImageUrl?.trim()) {
-      const error = new Error('La portada del negocio es obligatoria')
+      const error = new Error('Agrega una portada para publicar el negocio.')
       ;(error as any).status = 400
       throw error
     }
@@ -696,7 +696,7 @@ export async function updateBusiness(
       !input.confirmSlugChange
     ) {
       const error = new Error(
-        'Cambiar el slug de un negocio activo puede romper URLs públicas. Confirma el cambio para continuar.'
+        'Cambiar el slug de un negocio activo puede afectar sus URLs públicas. Confirma el cambio para continuar.'
       )
       ;(error as any).status = 400
       throw error
@@ -723,13 +723,13 @@ export async function updateBusiness(
         })
 
         if (!adminUser) {
-          const error = new Error('Administrador de negocio no encontrado')
+          const error = new Error('No encontramos el administrador seleccionado.')
           ;(error as any).status = 404
           throw error
         }
 
         if (!adminUser.isActive) {
-          const error = new Error('No puedes asignar un administrador inactivo')
+          const error = new Error('No puedes asignar un administrador inactivo.')
           ;(error as any).status = 400
           throw error
         }
@@ -857,7 +857,7 @@ export async function updateBusinessProfileImage({
     })
 
     if (!business) {
-      const error = new Error('Negocio no encontrado')
+      const error = new Error('No encontramos el negocio solicitado.')
       ;(error as any).status = 404
       throw error
     }
@@ -886,7 +886,7 @@ export async function updateBusinessStatus(
   actor: BusinessActor
 ) {
   if (actor.role !== 'ADMIN') {
-    const error = new Error('Solo un administrador general puede cambiar el estado')
+    const error = new Error('Solo un superadministrador puede cambiar el estado.')
     ;(error as any).status = 403
     throw error
   }
@@ -902,7 +902,7 @@ export async function updateBusinessStatus(
     })
 
     if (!existingBusiness) {
-      const error = new Error('Negocio no encontrado')
+      const error = new Error('No encontramos el negocio solicitado.')
       ;(error as any).status = 404
       throw error
     }
@@ -939,7 +939,7 @@ export async function toggleBusinessLike(businessId: number, userId: number) {
     })
 
     if (!business) {
-      const error = new Error('Negocio no encontrado')
+      const error = new Error('No encontramos el negocio solicitado.')
       ;(error as any).status = 404
       throw error
     }
@@ -989,7 +989,7 @@ export async function toggleBusinessFollow(businessId: number, userId: number) {
     })
 
     if (!business) {
-      const error = new Error('Negocio no encontrado')
+      const error = new Error('No encontramos el negocio solicitado.')
       ;(error as any).status = 404
       throw error
     }
@@ -1086,13 +1086,13 @@ export async function getBusinessCustomers(businessId: number, limit: number = 1
   })
 
   if (!business) {
-    const error = new Error('Negocio no encontrado')
+    const error = new Error('No encontramos el negocio solicitado.')
     ;(error as any).status = 404
     throw error
   }
 
   if (!business.isActive) {
-    const error = new Error('Negocio no disponible')
+    const error = new Error('Este negocio no está disponible por ahora.')
     ;(error as any).status = 404
     throw error
   }
@@ -1147,13 +1147,13 @@ export async function getBusinessFollowers(businessId: number, limit: number = 1
   })
 
   if (!business) {
-    const error = new Error('Negocio no encontrado')
+    const error = new Error('No encontramos el negocio solicitado.')
     ;(error as any).status = 404
     throw error
   }
 
   if (!business.isActive) {
-    const error = new Error('Negocio no disponible')
+    const error = new Error('Este negocio no está disponible por ahora.')
     ;(error as any).status = 404
     throw error
   }
@@ -1203,7 +1203,7 @@ export async function getBusinessFollowers(businessId: number, limit: number = 1
 
 export async function deleteBusiness(id: number, actor: BusinessActor) {
   if (actor.role !== 'ADMIN') {
-    const error = new Error('Solo un administrador general puede eliminar negocios')
+    const error = new Error('Solo un superadministrador puede eliminar negocios.')
     ;(error as any).status = 403
     throw error
   }
@@ -1218,7 +1218,7 @@ export async function deleteBusiness(id: number, actor: BusinessActor) {
   })
 
   if (!existingBusiness) {
-    const error = new Error('Negocio no encontrado')
+    const error = new Error('No encontramos el negocio solicitado.')
     ;(error as any).status = 404
     throw error
   }

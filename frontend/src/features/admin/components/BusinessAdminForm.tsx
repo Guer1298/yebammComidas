@@ -58,17 +58,17 @@ export default function BusinessAdminForm({
     const passwordConfirm = values.passwordConfirm.trim()
 
     if (!values.name.trim()) {
-      setFormError('El nombre es obligatorio.')
+      setFormError('Escribe el nombre del administrador.')
       return
     }
 
     if (!values.email.trim()) {
-      setFormError('El email es obligatorio.')
+      setFormError('Escribe el correo del administrador.')
       return
     }
 
     if (mode === 'create' && !password) {
-      setFormError('La contraseña inicial es obligatoria.')
+      setFormError('Define una contraseña inicial.')
       return
     }
 
@@ -100,7 +100,7 @@ export default function BusinessAdminForm({
           {mode === 'create' ? 'Crear administrador' : 'Editar administrador'}
         </CardTitle>
         <CardDescription>
-          No se muestra la contraseña actual. Para cambiarla, define una nueva.
+          Define los datos de acceso y el negocio que podrá administrar esta cuenta.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -152,7 +152,7 @@ export default function BusinessAdminForm({
                   Estado
                 </span>
                 <span className="mt-1 block text-sm text-slate-500">
-                  Solo cuentas activas pueden iniciar sesión.
+                  Solo las cuentas activas pueden iniciar sesión.
                 </span>
               </span>
               <input

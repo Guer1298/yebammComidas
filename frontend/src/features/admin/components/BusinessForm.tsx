@@ -130,12 +130,12 @@ export default function BusinessForm({
         const nextAdminPasswordConfirm = values.adminPasswordConfirm?.trim()
 
         if (!nextAdminEmail) {
-          setFormError('Debes definir un correo de acceso inicial.')
+          setFormError('Define un correo de acceso inicial.')
           return
         }
 
         if (!nextAdminPassword) {
-          setFormError('Debes definir una contraseña de acceso inicial.')
+          setFormError('Define una contraseña de acceso inicial.')
           return
         }
 
@@ -157,7 +157,7 @@ export default function BusinessForm({
       }
 
       if (!nextCoverImageUrl) {
-        setFormError('Debes subir una portada o pegar una URL.')
+        setFormError('Sube una portada o pega una URL antes de guardar.')
         return
       }
 
@@ -168,7 +168,7 @@ export default function BusinessForm({
         adminPassword: values.adminPassword?.trim(),
       })
     } catch (error: unknown) {
-      setFormError(getErrorMessage(error, 'No fue posible completar el alta'))
+      setFormError(getErrorMessage(error, 'No pudimos completar el registro'))
     } finally {
       setCoverUploading(false)
     }
@@ -177,9 +177,9 @@ export default function BusinessForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Información del negocio</CardTitle>
+        <CardTitle>Perfil del negocio</CardTitle>
         <CardDescription>
-          Actualiza los datos clave que verán los usuarios en la plataforma.
+          Completa la información que verán los usuarios cuando descubran esta vitrina.
         </CardDescription>
       </CardHeader>
 
@@ -217,10 +217,10 @@ export default function BusinessForm({
                 <label className="flex min-h-[72px] items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3">
                   <span>
                     <span className="block text-sm font-medium text-slate-700">
-                      Estado inicial
+                      Estado de publicación
                     </span>
                     <span className="mt-1 block text-sm text-slate-500">
-                      Define si el negocio aparece publicado.
+                      Define si el negocio aparece visible para los usuarios.
                     </span>
                   </span>
                   <input
@@ -246,7 +246,7 @@ export default function BusinessForm({
                 className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-2xl file:border-0 file:bg-orange-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-orange-600"
               />
               <p className="text-sm text-slate-500">
-                Sube una imagen o pega una URL directa. La portada es obligatoria.
+                Sube una imagen o pega una URL directa. La portada será la primera impresión del negocio.
               </p>
               {(coverPreview || values.coverImageUrl) && (
                 <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
@@ -267,8 +267,8 @@ export default function BusinessForm({
                 Portada del negocio
               </label>
               <p className="text-sm text-slate-500">
-                Para crear el negocio, pega una URL directa de portada. La subida de archivos
-                se realiza después desde el panel de media.
+                Para crear el negocio, pega una URL directa de portada. Después podrás subir
+                archivos desde la galería del panel.
               </p>
               {values.coverImageUrl && (
                 <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
@@ -290,7 +290,7 @@ export default function BusinessForm({
             hint={
               allowFileUpload
                 ? 'Opcional si subes un archivo; se completará automáticamente.'
-              : 'Obligatoria para crear el negocio.'
+              : 'Necesaria para crear el negocio.'
             }
           />
 
@@ -301,7 +301,7 @@ export default function BusinessForm({
                 value={values.profileImageUrl}
                 onChange={(e) => handleChange('profileImageUrl', e.target.value)}
                 placeholder="https://..."
-                hint="Opcional. Se usa como imagen compacta del negocio."
+                hint="Opcional. Se mostrará como imagen compacta del negocio."
               />
               {values.profileImageUrl ? (
                 <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
@@ -335,10 +335,10 @@ export default function BusinessForm({
             <div className="space-y-4 rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
               <div>
                 <p className="text-sm font-semibold text-slate-900">
-                  Credenciales de acceso inicial
+                  Acceso inicial al panel
                 </p>
                 <p className="mt-1 text-sm leading-6 text-slate-600">
-                  Este acceso queda listo para que el negocio entre al panel con su propio correo y contraseña.
+                  Estos datos permitirán que el negocio entre a su panel con correo y contraseña propios.
                 </p>
               </div>
 
@@ -353,15 +353,15 @@ export default function BusinessForm({
 
               <div className="grid gap-5 md:grid-cols-2">
                 <Input
-                  label="Correo de acceso inicial"
+                  label="Correo para entrar al panel"
                   value={values.adminEmail || ''}
                   onChange={(e) => handleChange('adminEmail', e.target.value)}
                   placeholder={values.email || 'admin@negocio.com'}
-                  hint="Si lo dejas vacío, se usará el correo del negocio."
+                  hint="Si lo dejas vacío, usaremos el correo de contacto del negocio."
                 />
 
                 <Input
-                  label="Contraseña de acceso inicial"
+                  label="Contraseña inicial"
                   type="password"
                   value={values.adminPassword || ''}
                   onChange={(e) => handleChange('adminPassword', e.target.value)}
@@ -382,7 +382,7 @@ export default function BusinessForm({
           {showAdminAssignment ? (
             <div className="space-y-2">
               <label className="block text-sm font-medium text-slate-700">
-                Administrador asignado
+                Administrador principal
               </label>
               <select
                 value={values.primaryAdminUserId ?? ''}
@@ -403,7 +403,7 @@ export default function BusinessForm({
                 ))}
               </select>
               <p className="text-sm text-slate-500">
-                La relación permite varios administradores; aquí se marca el principal para operación.
+                Puedes vincular varios administradores; aquí defines quién queda como principal.
               </p>
             </div>
           ) : null}
@@ -416,7 +416,7 @@ export default function BusinessForm({
               value={values.description}
               onChange={(e) => handleChange('description', e.target.value)}
               rows={5}
-              placeholder="Describe brevemente la propuesta del negocio"
+              placeholder="Cuenta qué ofrece el negocio y por qué vale la pena visitarlo o pedirle"
               className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
             />
           </div>
@@ -471,13 +471,13 @@ export default function BusinessForm({
 
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-slate-700">
-              Sobre el negocio
+              Historia del negocio
             </label>
             <textarea
               value={values.aboutArticle}
               onChange={(e) => handleChange('aboutArticle', e.target.value)}
               rows={4}
-              placeholder="Historia o presentación extendida del negocio"
+              placeholder="Comparte origen, especialidad, estilo o detalles que conecten con tus clientes"
               className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
             />
           </div>

@@ -22,8 +22,8 @@ interface ReviewFormProps {
 export default function ReviewForm({
   onSubmit,
   loading = false,
-  title = 'Comparte tu experiencia',
-  description = 'Tu opinión ayuda a otros usuarios a decidir con más confianza.',
+  title = 'Cuéntale a otros cómo te fue',
+  description = 'Tu reseña ayuda a que más personas elijan con información real.',
 }: ReviewFormProps) {
   const [rating, setRating] = React.useState(5)
   const [comment, setComment] = React.useState('')
@@ -33,9 +33,9 @@ export default function ReviewForm({
     const nextErrors: Partial<Record<keyof ReviewFormValues, string>> = {}
 
     if (!comment.trim()) {
-      nextErrors.comment = 'El comentario es obligatorio.'
+      nextErrors.comment = 'Escribe un comentario para publicar tu reseña.'
     } else if (comment.trim().length < 10) {
-      nextErrors.comment = 'Escribe al menos 10 caracteres.'
+      nextErrors.comment = 'Comparte al menos 10 caracteres.'
     }
 
     if (rating < 1 || rating > 5) {
@@ -106,7 +106,7 @@ export default function ReviewForm({
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={4}
-              placeholder="Cuéntanos cómo fue tu experiencia"
+              placeholder="Cuenta qué pediste, cómo fue la atención o qué recomendarías"
               className={`w-full rounded-2xl border bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:ring-4 ${
                 errors.comment
                   ? 'border-red-300 focus:border-red-400 focus:ring-red-100'
@@ -118,13 +118,13 @@ export default function ReviewForm({
               <p className="text-sm text-red-600">{errors.comment}</p>
             ) : (
               <p className="text-sm text-slate-500">
-                Sé claro, breve y útil para otros usuarios.
+                Sé específico y útil para quien está por decidir.
               </p>
             )}
           </div>
 
           <Button type="submit" loading={loading}>
-            Publicar reseña
+            Publicar mi reseña
           </Button>
         </form>
       </CardContent>

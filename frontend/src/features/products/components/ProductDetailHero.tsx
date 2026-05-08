@@ -75,7 +75,7 @@ export default function ProductDetailHero({
           <div>
             {businessName && (
               <p className="mb-2 text-sm font-medium text-slate-500">
-                Producto de{' '}
+                De{' '}
                 {businessId ? (
                   <Link
                     to={`/businesses/${businessId}`}
@@ -111,7 +111,7 @@ export default function ProductDetailHero({
               onClick={onPrimaryAction}
               disabled={!isAvailable || primaryDisabled}
             >
-              {isAvailable ? primaryActionLabel : 'No disponible'}
+              {isAvailable ? primaryActionLabel : 'No disponible por ahora'}
             </Button>
 
             <Button

@@ -126,13 +126,13 @@ function CommunityUsersModal({
                 disabled={loading}
                 className="w-full"
               >
-                {loading ? 'Cargando...' : 'Cargar más'}
+                {loading ? 'Cargando...' : 'Ver más'}
               </Button>
             )}
           </div>
         ) : (
           <p className="text-center text-sm text-slate-500">
-            No hay usuarios para mostrar
+            Aún no hay usuarios para mostrar
           </p>
         )}
       </div>
@@ -195,29 +195,29 @@ export default function BusinessCommunitySection({
       <div className="text-center">
         <h2 className="text-2xl font-semibold text-slate-900">Comunidad</h2>
         <p className="mt-2 text-sm text-slate-600">
-          Conoce a las personas que interactúan con {businessName}
+          Personas que ya se conectan con {businessName}
         </p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <CommunityPreviewCard
           title="Clientes"
-          subtitle="Usuarios que hacen parte de la comunidad de este negocio"
+          subtitle="Usuarios que ya forman parte de esta comunidad"
           count={customersCount}
           users={customers}
           onViewAll={onViewAllCustomers}
           icon={FaUserTie}
-          emptyMessage="Este negocio aún no tiene clientes"
+          emptyMessage="Este negocio aún no tiene clientes visibles"
         />
 
         <CommunityPreviewCard
           title="Seguidores"
-          subtitle="Usuarios que reciben novedades y promociones de este negocio"
+          subtitle="Usuarios interesados en novedades y ofertas"
           count={followersCount}
           users={followers}
           onViewAll={onViewAllFollowers}
           icon={FaUserPlus}
-          emptyMessage="Este negocio aún no tiene seguidores"
+          emptyMessage="Este negocio aún no tiene seguidores visibles"
         />
       </div>
 

@@ -44,7 +44,7 @@ export default function AdminBusinessAdminsPage() {
       setError('')
       setAdmins(await listBusinessAdmins())
     } catch (err: unknown) {
-      setError(getErrorMessage(err, 'No fue posible cargar administradores'))
+      setError(getErrorMessage(err, 'No pudimos cargar los administradores'))
     } finally {
       setLoading(false)
     }
@@ -63,7 +63,7 @@ export default function AdminBusinessAdminsPage() {
         current.map((item) => (item.id === admin.id ? updated : item))
       )
     } catch (err: unknown) {
-      window.alert(getErrorMessage(err, 'No fue posible actualizar el estado'))
+      window.alert(getErrorMessage(err, 'No pudimos actualizar el estado'))
     } finally {
       setSavingId(null)
     }
@@ -89,7 +89,7 @@ export default function AdminBusinessAdminsPage() {
       setNewPassword('')
       setNewPasswordConfirm('')
     } catch (err: unknown) {
-      window.alert(getErrorMessage(err, 'No fue posible cambiar la contraseña'))
+      window.alert(getErrorMessage(err, 'No pudimos cambiar la contraseña'))
     } finally {
       setSavingId(null)
     }
@@ -104,7 +104,7 @@ export default function AdminBusinessAdminsPage() {
       setAdmins((current) => current.filter((item) => item.id !== adminToDelete.id))
       setAdminToDelete(null)
     } catch (err: unknown) {
-      window.alert(getErrorMessage(err, 'No fue posible eliminar el administrador'))
+      window.alert(getErrorMessage(err, 'No pudimos eliminar el administrador'))
     } finally {
       setSavingId(null)
     }
@@ -116,7 +116,7 @@ export default function AdminBusinessAdminsPage() {
         <CardHeader>
           <CardTitle>Acceso restringido</CardTitle>
           <CardDescription>
-            Esta sección está disponible solo para superadmin.
+            Esta sección está disponible solo para superadministradores.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -131,14 +131,14 @@ export default function AdminBusinessAdminsPage() {
             Super administración
           </p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
-            Administradores de negocio
+            Administradores de negocios
           </h1>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Crea, asigna, activa, desactiva y restablece accesos BUSINESS_ADMIN.
+            Crea accesos, asígnalos a negocios y controla quién puede entrar al panel.
           </p>
         </div>
         <Link to="/admin/business-admins/new">
-          <Button>Nuevo administrador</Button>
+          <Button>Crear administrador</Button>
         </Link>
       </div>
 
@@ -148,7 +148,7 @@ export default function AdminBusinessAdminsPage() {
         ) : error ? (
           <div className="p-6 text-sm text-red-600">{error}</div>
         ) : admins.length === 0 ? (
-          <div className="p-6 text-sm text-slate-500">No hay administradores creados.</div>
+          <div className="p-6 text-sm text-slate-500">Aún no hay administradores creados.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200 text-sm">
@@ -228,7 +228,7 @@ export default function AdminBusinessAdminsPage() {
           setNewPasswordConfirm('')
         }}
         title="Cambiar contraseña"
-        description="No se muestra la contraseña actual. Define una nueva contraseña temporal."
+        description="Por seguridad no se muestra la contraseña actual. Define una nueva clave temporal."
         footer={
           <>
             <Button
@@ -270,7 +270,7 @@ export default function AdminBusinessAdminsPage() {
         open={!!adminToDelete}
         onClose={() => setAdminToDelete(null)}
         title="Eliminar o desvincular administrador"
-        description="El usuario quedará inactivo y se eliminarán sus relaciones con negocios."
+        description="El usuario quedará inactivo y perderá sus relaciones con negocios."
         footer={
           <>
             <Button variant="ghost" onClick={() => setAdminToDelete(null)}>
@@ -287,7 +287,7 @@ export default function AdminBusinessAdminsPage() {
         }
       >
         <p className="text-sm text-slate-700">
-          ¿Seguro que quieres eliminar/desvincular a{' '}
+          ¿Seguro que quieres eliminar o desvincular a{' '}
           <strong>{adminToDelete?.name}</strong>?
         </p>
       </Modal>

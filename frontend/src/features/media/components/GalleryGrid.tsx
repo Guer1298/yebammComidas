@@ -23,10 +23,10 @@ export default function GalleryGrid({
     return (
       <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
         <h3 className="text-lg font-semibold text-slate-900">
-          No hay contenido visual disponible
+          Aún no hay contenido visual
         </h3>
         <p className="mt-2 text-sm text-slate-500">
-          Cuando este negocio publique fotos o videos, aparecerán aquí.
+          Cuando el negocio publique fotos o videos, los verás aquí.
         </p>
       </div>
     )
@@ -47,13 +47,13 @@ export default function GalleryGrid({
             <div className="relative">
               <img
                 src={preview}
-                alt={item.alt || item.title || 'Media item'}
+                alt={item.alt || item.title || 'Contenido visual'}
                 className="h-56 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
               />
 
               <div className="absolute left-4 top-4 flex flex-wrap gap-2">
                 <Badge>{item.type === 'video' ? 'Video' : 'Imagen'}</Badge>
-                {item.isFeatured && <Badge variant="warning">Destacado</Badge>}
+                {item.isFeatured && <Badge variant="warning">Principal</Badge>}
               </div>
 
               {item.type === 'video' && (
@@ -67,10 +67,10 @@ export default function GalleryGrid({
 
             <div className="p-4">
               <p className="line-clamp-1 text-sm font-semibold text-slate-900">
-                {item.title || (item.type === 'video' ? 'Video del negocio' : 'Imagen del negocio')}
+                {item.title || (item.type === 'video' ? 'Video del negocio' : 'Foto del negocio')}
               </p>
               <p className="mt-1 text-xs text-slate-500">
-                Haz clic para ver en detalle
+                Abrir en detalle
               </p>
             </div>
           </button>
